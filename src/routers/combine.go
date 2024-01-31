@@ -1,8 +1,9 @@
 package routers
 
 import (
+	routers "coffe-shop-be-golang/src/routers/admin"
+
 	"github.com/gin-gonic/gin"
-	routers "github.com/xel26/fwg17-go-backend/src/routers/admin"
 )
 
 func Combine(r *gin.Engine){

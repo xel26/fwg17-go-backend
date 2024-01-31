@@ -4,6 +4,8 @@ import (
 	"log"
 
 	"github.com/jmoiron/sqlx"
+
+	_ "github.com/lib/pq"
 )
 
 

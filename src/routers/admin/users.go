@@ -1,8 +1,9 @@
 package routers
 
 import (
+	"coffe-shop-be-golang/src/controllers"
+
 	"github.com/gin-gonic/gin"
-	"github.com/xel26/fwg17-go-backend/src/controllers"
 )
 
 func UserRouter(r *gin.RouterGroup){

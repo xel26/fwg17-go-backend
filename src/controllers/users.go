@@ -1,79 +1,134 @@
 package controllers
 
 import (
-	"fmt"
+	"coffe-shop-be-golang/src/models"
+	"log"
+	"math"
+	"strings"
+
 	"net/http"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-
-	"github.com/xel26/fwg17-go-backend/src/models"
 )
 
-
-type pageInfo struct{
-	Page int `json:"page"`
+type pageInfo struct {
+	CurrentPage int `json:"currentPage"`
+	TotalPage int `json:"totalPage"`
+	NextPage int `json:"nextPage"`
+	PrevPage int `json:"prevPage"`
+	Limit int `json:"limit"`
+	TotalData int `json:"totalData"`
 }
 
+type responseList struct {
+	Success  bool        `json:"success"`
+	Message  string      `json:"message"`
+	PageInfo pageInfo    `json:"pageInfo"`
+	Results  interface{} `json:"results"`
+}
 
-type responseList struct{
-	Success bool `json:"success"`
-	Message string `json:"message"`
-	PageInfo pageInfo `json:"pageInfo"`
+type response struct {
+	Success bool        `json:"success"`
+	Message string      `json:"message"`
 	Results interface{} `json:"results"`
 }
 
-
-type response struct{
-	Success bool `json:"success"`
+type responseOnly struct {
+	Success bool   `json:"success"`
 	Message string `json:"message"`
-	Results interface{} `json:"results"`
 }
 
 
-type User struct{
-	Id int `json:"id" form:"id"`
-	Email string `json:"email" form:"email"`
-	Password string `json:"password" form:"password"`
-}
+func ListAllUsers(c *gin.Context) {
+	searchKey := c.DefaultQuery("searchKey", "")
+	sortBy := c.DefaultQuery("sortBy", "id")
+	order := c.DefaultQuery("order", "ASC")
+	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
+	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "6"))
+	offset := (page - 1) * limit
+
+	result, err := models.FindAllUsers(searchKey, sortBy, order, limit, offset)
 
 
-func ListAllUsers(c *gin.Context){
-	page, _ := strconv.Atoi(c.Query("page"))
+	totalPage := int(math.Ceil(float64(result.Count)/float64(limit)))
+	nextPage := page + 1
+	if nextPage > totalPage {
+		nextPage = 0
+	}
+	prevPage := page - 1
+	if prevPage < 1 {
+		prevPage = 0
+	}
 
-	data, _ := models.GetAllUsers()
-	fmt.Println(data)
+	pageInfo := pageInfo{
+		CurrentPage: page,
+		NextPage: nextPage,
+		PrevPage: prevPage,
+		Limit: limit,
+		TotalPage: totalPage,
+		TotalData: result.Count,
+	}
+
+
+	if err != nil {
+		log.Fatal(err)
+		c.JSON(http.StatusInternalServerError, &responseOnly{
+			Success: false,
+			Message: "Internal server error",
+		})
+		return
+	}
 
 	c.JSON(http.StatusOK, &responseList{
 		Success: true,
 		Message: "List all Users",
-		PageInfo: pageInfo{
-			Page: page,
-		},
-		Results: data,
+		PageInfo: pageInfo,
+		Results: result.Data,
 	})
 }
 
 
-func DetailUser(c *gin.Context){
+func DetailUser(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
+	user, err := models.FindOneUsers(id)
+	if err != nil {
+		if strings.HasPrefix(err.Error(), "sql: no rows"){
+			c.JSON(http.StatusInternalServerError, &responseOnly{
+				Success: false,
+				Message: "User not found",
+			})
+		return
+		}
+
+		c.JSON(http.StatusInternalServerError, &responseOnly{
+			Success: false,
+			Message: "Internal server error",
+		})
+		return
+	}
 
 	c.JSON(http.StatusOK, &response{
 		Success: true,
 		Message: "Detail user",
-		Results: User{
-			Id: id,
-			Email: "admin@mail.com",
-			Password: "1234",
-		},
+		Results: user,
 	})
 }
 
 
-func CreateUser(c *gin.Context){
-	user := User{}
+func CreateUser(c *gin.Context) {
+	data := models.User{}
+	c.Bind(&data)
 
-	c.Bind(&user)
+	user, err := models.CreateUser(data)
+	if err != nil {
+		log.Fatal(err)
+		c.JSON(http.StatusInternalServerError, &responseOnly{
+			Success: false,
+			Message: "Internal server error",
+		})
+		return
+	}
 
 	c.JSON(http.StatusOK, &response{
 		Success: true,
@@ -83,12 +138,23 @@ func CreateUser(c *gin.Context){
 }
 
 
-func UpdateUser(c *gin.Context){
+func UpdateUser(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
-	user := User{}
+	data := models.User{}
 
-	c.Bind(&user)
-	user.Id = id
+	c.Bind(&data)
+	data.Id = id
+
+	user, err := models.UpdateUser(data)
+	if err != nil {
+		log.Fatal(err)
+		c.JSON(http.StatusInternalServerError, &responseOnly{
+			Success: false,
+			Message: "Internal server error",
+		})
+		return
+	}
+
 
 	c.JSON(http.StatusOK, &response{
 		Success: true,
@@ -98,16 +164,28 @@ func UpdateUser(c *gin.Context){
 }
 
 
-func DeleteUser(c *gin.Context){
+func DeleteUser(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
+	user, err := models.DeleteUser(id)
+	if err != nil {
+		if strings.HasPrefix(err.Error(), "sql: no rows"){
+			c.JSON(http.StatusInternalServerError, &responseOnly{
+				Success: false,
+				Message: "User not found",
+			})
+		return
+		}
+
+		c.JSON(http.StatusInternalServerError, &responseOnly{
+			Success: false,
+			Message: "Internal server error",
+		})
+		return
+	}
 
 	c.JSON(http.StatusOK, &response{
 		Success: true,
-		Message: "User successfully deleted",
-		Results: User{
-			Id: id,
-			Email: "example@mail.com",
-			Password: "1234",
-		},
+		Message: "Delete User Successfully",
+		Results: user,
 	})
 }

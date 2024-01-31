@@ -1,8 +1,9 @@
 package main
 
 import (
+	"coffe-shop-be-golang/src/routers"
+
 	"github.com/gin-gonic/gin"
-	"github.com/xel26/fwg17-go-backend/src/routers"
 )
 
 func main(){

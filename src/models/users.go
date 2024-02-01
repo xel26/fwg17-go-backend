@@ -8,19 +8,19 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-var db *sqlx.DB = lib.DB
+var dbU *sqlx.DB = lib.DB
 
 type User struct {
-	Id          int          `db:"id" json:"id"`
-	FullName    string       `db:"fullName" json:"fullName" form:"fullName"`
-	Email       string       `db:"email" json:"email" form:"email"`
-	Password    string       `db:"password" json:"password" form:"password"`
-	Address     sql.NullString       `db:"address" json:"address" form:"address"`
-	Picture     sql.NullString       `db:"picture" json:"picture"`
-	PhoneNumber sql.NullString       `db:"phoneNumber" json:"phoneNumber" form:"phoneNumber"`
-	Role        string       `db:"role" json:"role" form:"role"`
-	CreatedAt   time.Time    `db:"createdAt" json:"createdAt"`
-	UpdatedAt   sql.NullTime `db:"updatedAt" json:"updatedAt"`
+	Id          int          `dbU:"id" json:"id"`
+	FullName    string       `dbU:"fullName" json:"fullName" form:"fullName"`
+	Email       string       `dbU:"email" json:"email" form:"email"`
+	Password    string       `dbU:"password" json:"password" form:"password"`
+	Address     sql.NullString       `dbU:"address" json:"address" form:"address"`
+	Picture     sql.NullString       `dbU:"picture" json:"picture"`
+	PhoneNumber sql.NullString       `dbU:"phoneNumber" json:"phoneNumber" form:"phoneNumber"`
+	Role        string       `dbU:"role" json:"role" form:"role"`
+	CreatedAt   time.Time    `dbU:"createdAt" json:"createdAt"`
+	UpdatedAt   sql.NullTime `dbU:"updatedAt" json:"updatedAt"`
 }
 
 type Info struct{
@@ -32,8 +32,8 @@ func FindAllUsers(searchKey string, sortBy string, order string, limit int, offs
 	sql := `
 	SELECT * FROM "users" 
 	WHERE "fullName" ILIKE $1
-	ORDER BY $2 $3
-	LIMIT $4 OFFSET $5
+	ORDER BY "`+sortBy+`" `+order+`
+	LIMIT $2 OFFSET $3
 	`
 	sqlCount := `
 	SELECT COUNT(*) FROM "users"
@@ -42,10 +42,10 @@ func FindAllUsers(searchKey string, sortBy string, order string, limit int, offs
 
 	result := Info{}
 	data := []User{}
-	err := db.Select(&data, sql, searchKey, sortBy, order, limit, offset)
+	err := dbU.Select(&data, sql,"%"+searchKey+"%", limit, offset)
 	result.Data = data
 	
-	row := db.QueryRow(sqlCount, searchKey)
+	row := dbU.QueryRow(sqlCount, "%"+searchKey+"%")
 	err = row.Scan(&result.Count)
 
 	return result, err
@@ -55,13 +55,13 @@ func FindAllUsers(searchKey string, sortBy string, order string, limit int, offs
 func FindOneUsers(id int) (User, error) {
 	sql := `SELECT * FROM "users" WHERE id = $1`
 	data := User{}
-	err := db.Get(&data, sql, id)
+	err := dbU.Get(&data, sql, id)
 	return data, err
 }
 
 
 
-// runtime error: invalid memory address or nil pointer dereference for rows.Next()
+
 func CreateUser(data User) (User, error) {
 	sql := `INSERT INTO "users" ("fullName", "email", "password", "address", "phoneNumber", "role") 
 	VALUES
@@ -69,31 +69,37 @@ func CreateUser(data User) (User, error) {
 	RETURNING *
 	`
 	result := User{}
-	rows, err := db.NamedQuery(sql, data)
-
+	rows, err := dbU.NamedQuery(sql, data)
+	if err != nil {
+		return result, err
+	}
+	
 	for rows.Next(){
 		rows.StructScan(&result)
 	}
-
+	
 	return result, err
 }
 
 
 
-// runtime error: invalid memory address or nil pointer dereference for rows.Next()
+
 func UpdateUser(data User) (User, error) {
 	sql := `UPDATE "users" SET
-	fullName=:fullName,
-	email=COALESCE(NULLIF(:email, ''),email),
-	password=COALESCE(NULLIF(:password, ''),password),
-	address=COALESCE(NULLIF(:address, ''),address),
-	phoneNumber=COALESCE(NULLIF(:phoneNumber, ''),phoneNumber),
-	role=COALESCE(NULLIF(:role, ''),role)
+	"fullName"=COALESCE(NULLIF(:fullName, ''),"fullName"),
+	"email"=COALESCE(NULLIF(:email, ''),"email"),
+	"password"=COALESCE(NULLIF(:password, ''),"password"),
+	"address"=COALESCE(NULLIF(:address, ''),"address"),
+	"phoneNumber"=COALESCE(NULLIF(:phoneNumber, ''),"phoneNumber"),
+	"role"=COALESCE(NULLIF(:role, ''),"role")
 	WHERE id=:id
 	RETURNING *
 	`
 	result := User{}
-	rows, err := db.NamedQuery(sql, data)
+	rows, err := dbU.NamedQuery(sql, data)
+	if err != nil {
+		return result, err
+	}
 
 	for rows.Next(){
 		rows.StructScan(&result)
@@ -107,6 +113,6 @@ func UpdateUser(data User) (User, error) {
 func DeleteUser(id int) (User, error) {
 	sql := `DELETE FROM "users" WHERE id = $1 RETURNING *`
 	data := User{}
-	err := db.Get(&data, sql, id)
+	err := dbU.Get(&data, sql, id)
 	return data, err
 }

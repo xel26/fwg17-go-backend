@@ -1,26 +1,21 @@
 package models
 
 import (
-	"coffe-shop-be-golang/src/lib"
 	"database/sql"
 	"time"
-
-	"github.com/jmoiron/sqlx"
 )
 
-var dbPo *sqlx.DB = lib.DB
-
 type Promo struct {
-	Id            int            `dbPo:"id" json:"id"`
-	Name          string         `dbPo:"name" json:"name" form:"name"`
-	Code          string         `dbPo:"code" json:"code" form:"code"`
-	Description   sql.NullString `dbPo:"description" json:"description" form:"description"`
-	Percentage    float64        `dbPo:"percentage" json:"percentage" form:"percentage"`
-	IsExpired     sql.NullBool   `dbPo:"isExpired" json:"isExpired" form:"isExpired"`
-	MaximumPromo  int            `dbPo:"maximumPromo" json:"maximumPromo" form:"maximumPromo"`
-	MinimumAmount int            `dbPo:"minimumAmount" json:"minimumAmount" form:"minimumAmount"`
-	CreatedAt     time.Time      `dbPo:"createdAt" json:"createdAt"`
-	UpdatedAt     sql.NullTime   `dbPo:"updatedAt" json:"updatedAt"`
+	Id            int            `db:"id" json:"id"`
+	Name          string         `db:"name" json:"name" form:"name"`
+	Code          string         `db:"code" json:"code" form:"code"`
+	Description   sql.NullString `db:"description" json:"description" form:"description"`
+	Percentage    float64        `db:"percentage" json:"percentage" form:"percentage"`
+	IsExpired     sql.NullBool   `db:"isExpired" json:"isExpired" form:"isExpired"`
+	MaximumPromo  int            `db:"maximumPromo" json:"maximumPromo" form:"maximumPromo"`
+	MinimumAmount int            `db:"minimumAmount" json:"minimumAmount" form:"minimumAmount"`
+	CreatedAt     time.Time      `db:"createdAt" json:"createdAt"`
+	UpdatedAt     sql.NullTime   `db:"updatedAt" json:"updatedAt"`
 }
 
 type InfoPo struct {
@@ -42,10 +37,10 @@ func FindAllPromo(searchKey string, sortBy string, order string, limit int, offs
 
 	result := InfoPo{}
 	data := []Promo{}
-	err := dbPo.Select(&data, sql, "%"+searchKey+"%", limit, offset)
+	err := db.Select(&data, sql, "%"+searchKey+"%", limit, offset)
 	result.Data = data
 
-	row := dbPo.QueryRow(sqlCount, "%"+searchKey+"%")
+	row := db.QueryRow(sqlCount, "%"+searchKey+"%")
 	err = row.Scan(&result.Count)
 
 	return result, err
@@ -54,7 +49,7 @@ func FindAllPromo(searchKey string, sortBy string, order string, limit int, offs
 func FindOnePromo(id int) (Promo, error) {
 	sql := `SELECT * FROM "promo" WHERE id = $1`
 	data := Promo{}
-	err := dbPo.Get(&data, sql, id)
+	err := db.Get(&data, sql, id)
 	return data, err
 }
 
@@ -65,7 +60,7 @@ func CreatePromo(data Promo) (Promo, error) {
 	RETURNING *
 	`
 	result := Promo{}
-	rows, err := dbPo.NamedQuery(sql, data)
+	rows, err := db.NamedQuery(sql, data)
 	if err != nil {
 		return result, err
 	}
@@ -90,7 +85,7 @@ func UpdatePromo(data Promo) (Promo, error) {
 	RETURNING *
 	`
 	result := Promo{}
-	rows, err := dbPo.NamedQuery(sql, data)
+	rows, err := db.NamedQuery(sql, data)
 	if err != nil {
 		return result, err
 	}
@@ -105,6 +100,6 @@ func UpdatePromo(data Promo) (Promo, error) {
 func DeletePromo(id int) (Promo, error) {
 	sql := `DELETE FROM "promo" WHERE id = $1 RETURNING *`
 	data := Promo{}
-	err := dbPo.Get(&data, sql, id)
+	err := db.Get(&data, sql, id)
 	return data, err
 }

@@ -1,26 +1,21 @@
 package models
 
 import (
-	"coffe-shop-be-golang/src/lib"
 	"database/sql"
 	"time"
-
-	"github.com/jmoiron/sqlx"
 )
 
-var dbP *sqlx.DB = lib.DB
-
 type Product struct {
-	Id            int            `dbP:"id" json:"id"`
-	Name          string         `dbP:"name" json:"name" form:"name"`
-	Description   sql.NullString `dbP:"description" json:"description" form:"description"`
-	Image         sql.NullString `dbP:"image" json:"image" form:"image"`
-	Discount      sql.NullInt64  `dbP:"discount" json:"discount" form:"discount"`
-	BasePrice     int            `dbP:"basePrice" json:"basePrice" form:"basePrice"`
-	IsRecommended sql.NullBool   `dbP:"isRecommended" json:"isRecommended" form:"isRecommended"`
-	TagId         sql.NullInt64  `dbP:"tagId" json:"tagId" form:"tagId"`
-	CreatedAt     time.Time      `dbP:"createdAt" json:"createdAt"`
-	UpdatedAt     sql.NullTime   `dbP:"updatedAt" json:"updatedAt"`
+	Id            int            `db:"id" json:"id"`
+	Name          string         `db:"name" json:"name" form:"name"`
+	Description   sql.NullString `db:"description" json:"description" form:"description"`
+	Image         sql.NullString `db:"image" json:"image" form:"image"`
+	Discount      sql.NullInt64  `db:"discount" json:"discount" form:"discount"`
+	BasePrice     int            `db:"basePrice" json:"basePrice" form:"basePrice"`
+	IsRecommended sql.NullBool   `db:"isRecommended" json:"isRecommended" form:"isRecommended"`
+	TagId         sql.NullInt64  `db:"tagId" json:"tagId" form:"tagId"`
+	CreatedAt     time.Time      `db:"createdAt" json:"createdAt"`
+	UpdatedAt     sql.NullTime   `db:"updatedAt" json:"updatedAt"`
 }
 
 
@@ -46,10 +41,10 @@ func FindAllProducts(searchKey string, sortBy string, order string, limit int, o
 
 	result := InfoP{}
 	data := []Product{}
-	err := dbP.Select(&data, sql,"%"+searchKey+"%", limit, offset)
+	err := db.Select(&data, sql,"%"+searchKey+"%", limit, offset)
 	result.Data = data
 	
-	row := dbP.QueryRow(sqlCount, "%"+searchKey+"%")
+	row := db.QueryRow(sqlCount, "%"+searchKey+"%")
 	err = row.Scan(&result.Count)
 
 	return result, err
@@ -60,7 +55,7 @@ func FindAllProducts(searchKey string, sortBy string, order string, limit int, o
 func FindOneProducts(id int) (Product, error) {
 	sql := `SELECT * FROM "products" WHERE id = $1`
 	data := Product{}
-	err := dbP.Get(&data, sql, id)
+	err := db.Get(&data, sql, id)
 	return data, err
 }
 
@@ -74,7 +69,7 @@ func CreateProducts(data Product) (Product, error) {
 	RETURNING *
 	`
 	result := Product{}
-	rows, err := dbP.NamedQuery(sql, data)
+	rows, err := db.NamedQuery(sql, data)
 	if err != nil {
 		return result, err
 	}
@@ -101,7 +96,7 @@ func UpdateProduct(data Product) (Product, error) {
 	RETURNING *
 	`
 	result := Product{}
-	rows, err := dbP.NamedQuery(sql, data)
+	rows, err := db.NamedQuery(sql, data)
 	if err != nil {
 		return result, err
 	}
@@ -118,6 +113,6 @@ func UpdateProduct(data Product) (Product, error) {
 func DeleteProduct(id int) (Product, error) {
 	sql := `DELETE FROM "products" WHERE id = $1 RETURNING *`
 	data := Product{}
-	err := dbP.Get(&data, sql, id)
+	err := db.Get(&data, sql, id)
 	return data, err
 }

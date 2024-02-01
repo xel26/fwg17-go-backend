@@ -1,20 +1,16 @@
 package models
 
 import (
-	"coffe-shop-be-golang/src/lib"
 	"database/sql"
 	"time"
-
-	"github.com/jmoiron/sqlx"
 )
 
-var dbV *sqlx.DB = lib.DB
 
 type Variants struct {
-	Id            int            `dbV:"id" json:"id"`
-	Name          string         `dbV:"name" json:"name" form:"name"`
-	CreatedAt     time.Time      `dbV:"createdAt" json:"createdAt"`
-	UpdatedAt     sql.NullTime   `dbV:"updatedAt" json:"updatedAt"`
+	Id            int            `db:"id" json:"id"`
+	Name          string         `db:"name" json:"name" form:"name"`
+	CreatedAt     time.Time      `db:"createdAt" json:"createdAt"`
+	UpdatedAt     sql.NullTime   `db:"updatedAt" json:"updatedAt"`
 }
 
 
@@ -38,10 +34,10 @@ func FindAllVariants(searchKey string, sortBy string, order string, limit int, o
 
 	result := InfoV{}
 	data := []Variants{}
-	err := dbV.Select(&data, sql,"%"+searchKey+"%", limit, offset)
+	err := db.Select(&data, sql,"%"+searchKey+"%", limit, offset)
 	result.Data = data
 	
-	row := dbV.QueryRow(sqlCount, "%"+searchKey+"%")
+	row := db.QueryRow(sqlCount, "%"+searchKey+"%")
 	err = row.Scan(&result.Count)
 
 	return result, err
@@ -51,7 +47,7 @@ func FindAllVariants(searchKey string, sortBy string, order string, limit int, o
 func FindOneVariants(id int) (Variants, error) {
 	sql := `SELECT * FROM "variant" WHERE id = $1`
 	data := Variants{}
-	err := dbV.Get(&data, sql, id)
+	err := db.Get(&data, sql, id)
 	return data, err
 }
 
@@ -59,7 +55,7 @@ func FindOneVariants(id int) (Variants, error) {
 func CreateVariants(data Variants) (Variants, error) {
 	sql := `INSERT INTO "variant" ("name") VALUES (:name) RETURNING *`
 	result := Variants{}
-	rows, err := dbV.NamedQuery(sql, data)
+	rows, err := db.NamedQuery(sql, data)
 	if err != nil {
 		return result, err
 	}
@@ -80,7 +76,7 @@ func UpdateVariants(data Variants) (Variants, error) {
 	RETURNING *
 	`
 	result := Variants{}
-	rows, err := dbV.NamedQuery(sql, data)
+	rows, err := db.NamedQuery(sql, data)
 	if err != nil {
 		return result, err
 	}
@@ -97,6 +93,6 @@ func UpdateVariants(data Variants) (Variants, error) {
 func DeleteVariants(id int) (Variants, error) {
 	sql := `DELETE FROM "variant" WHERE id = $1 RETURNING *`
 	data := Variants{}
-	err := dbV.Get(&data, sql, id)
+	err := db.Get(&data, sql, id)
 	return data, err
 }

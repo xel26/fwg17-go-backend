@@ -12,43 +12,15 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type PageInfo struct {
-	CurrentPage int `json:"currentPage"`
-	TotalPage int `json:"totalPage"`
-	NextPage int `json:"nextPage"`
-	PrevPage int `json:"prevPage"`
-	Limit int `json:"limit"`
-	TotalData int `json:"totalData"`
-}
 
-type ResponseList struct {
-	Success  bool        `json:"success"`
-	Message  string      `json:"message"`
-	PageInfo PageInfo    `json:"PageInfo"`
-	Results  interface{} `json:"results"`
-}
-
-type Response struct {
-	Success bool        `json:"success"`
-	Message string      `json:"message"`
-	Results interface{} `json:"results"`
-}
-
-type ResponseOnly struct {
-	Success bool   `json:"success"`
-	Message string `json:"message"`
-}
-
-
-func ListAllUsers(c *gin.Context) {
-	searchKey := c.DefaultQuery("searchKey", "")
+func ListAllProductVariants(c *gin.Context) {
 	sortBy := c.DefaultQuery("sortBy", "id")
 	order := c.DefaultQuery("order", "ASC")
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "6"))
 	offset := (page - 1) * limit
 
-	result, err := models.FindAllUsers(searchKey, sortBy, order, limit, offset)
+	result, err := models.FindAllProductVariants(sortBy, order, limit, offset)
 	if len(result.Data) == 0 {
 		c.JSON(http.StatusNotFound, &ResponseOnly{
 			Success: false,
@@ -89,21 +61,21 @@ func ListAllUsers(c *gin.Context) {
 
 	c.JSON(http.StatusOK, &ResponseList{
 		Success: true,
-		Message: "List all Users",
+		Message: "List all product variants",
 		PageInfo: PageInfo,
 		Results: result.Data,
 	})
 }
 
 
-func DetailUser(c *gin.Context) {
+func DetailProductVariant(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
-	user, err := models.FindOneUsers(id)
+	pv, err := models.FindOneProductVariants(id)
 	if err != nil {
 		if strings.HasPrefix(err.Error(), "sql: no rows"){
 			c.JSON(http.StatusInternalServerError, &ResponseOnly{
 				Success: false,
-				Message: "User not found",
+				Message: "Product variants not found",
 			})
 		return
 		}
@@ -117,17 +89,17 @@ func DetailUser(c *gin.Context) {
 
 	c.JSON(http.StatusOK, &Response{
 		Success: true,
-		Message: "Detail user",
-		Results: user,
+		Message: "Detail product variants",
+		Results: pv,
 	})
 }
 
 
-func CreateUser(c *gin.Context) {
-	data := models.User{}
+func CreateProductVariants(c *gin.Context) {
+	data := models.ProductVariants{}
 	c.Bind(&data)
 
-	user, err := models.CreateUser(data)
+	pv, err := models.CreateProductVariants(data)
 	if err != nil {
 		log.Fatal(err)
 		c.JSON(http.StatusInternalServerError, &ResponseOnly{
@@ -139,26 +111,26 @@ func CreateUser(c *gin.Context) {
 
 	c.JSON(http.StatusOK, &Response{
 		Success: true,
-		Message: "User created successfully",
-		Results: user,
+		Message: "Product variants created successfully",
+		Results: pv,
 	})
 }
 
 
-func UpdateUser(c *gin.Context) {
+func UpdateProductVariants(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
-	data := models.User{}
+	data := models.ProductVariants{}
 
 	c.Bind(&data)
 	data.Id = id
 
-	user, err := models.UpdateUser(data)
+	pv, err := models.UpdateProductVariants(data)
 	if err != nil {
 		log.Fatal(err)
 		if strings.HasPrefix(err.Error(), "sql: no rows"){
 			c.JSON(http.StatusInternalServerError, &ResponseOnly{
 				Success: false,
-				Message: "User not found",
+				Message: "Product variants not found",
 			})
 		return
 		}
@@ -173,20 +145,20 @@ func UpdateUser(c *gin.Context) {
 
 	c.JSON(http.StatusOK, &Response{
 		Success: true,
-		Message: "User updated successfully",
-		Results: user,
+		Message: "Product variant updated successfully",
+		Results: pv,
 	})
 }
 
 
-func DeleteUser(c *gin.Context) {
+func DeleteProductVariants(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
-	user, err := models.DeleteUser(id)
+	pv, err := models.DeleteProductVariants(id)
 	if err != nil {
 		if strings.HasPrefix(err.Error(), "sql: no rows"){
 			c.JSON(http.StatusInternalServerError, &ResponseOnly{
 				Success: false,
-				Message: "User not found",
+				Message: "Product variants not found",
 			})
 		return
 		}
@@ -200,7 +172,7 @@ func DeleteUser(c *gin.Context) {
 
 	c.JSON(http.StatusOK, &Response{
 		Success: true,
-		Message: "Delete User Successfully",
-		Results: user,
+		Message: "Delete product variants successfully",
+		Results: pv,
 	})
 }

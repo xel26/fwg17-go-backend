@@ -12,35 +12,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type PageInfo struct {
-	CurrentPage int `json:"currentPage"`
-	TotalPage int `json:"totalPage"`
-	NextPage int `json:"nextPage"`
-	PrevPage int `json:"prevPage"`
-	Limit int `json:"limit"`
-	TotalData int `json:"totalData"`
-}
 
-type ResponseList struct {
-	Success  bool        `json:"success"`
-	Message  string      `json:"message"`
-	PageInfo PageInfo    `json:"PageInfo"`
-	Results  interface{} `json:"results"`
-}
-
-type Response struct {
-	Success bool        `json:"success"`
-	Message string      `json:"message"`
-	Results interface{} `json:"results"`
-}
-
-type ResponseOnly struct {
-	Success bool   `json:"success"`
-	Message string `json:"message"`
-}
-
-
-func ListAllUsers(c *gin.Context) {
+func ListAllSizes(c *gin.Context) {
 	searchKey := c.DefaultQuery("searchKey", "")
 	sortBy := c.DefaultQuery("sortBy", "id")
 	order := c.DefaultQuery("order", "ASC")
@@ -48,7 +21,7 @@ func ListAllUsers(c *gin.Context) {
 	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "6"))
 	offset := (page - 1) * limit
 
-	result, err := models.FindAllUsers(searchKey, sortBy, order, limit, offset)
+	result, err := models.FindAllSizes(searchKey, sortBy, order, limit, offset)
 	if len(result.Data) == 0 {
 		c.JSON(http.StatusNotFound, &ResponseOnly{
 			Success: false,
@@ -89,21 +62,21 @@ func ListAllUsers(c *gin.Context) {
 
 	c.JSON(http.StatusOK, &ResponseList{
 		Success: true,
-		Message: "List all Users",
+		Message: "List all sizes",
 		PageInfo: PageInfo,
 		Results: result.Data,
 	})
 }
 
 
-func DetailUser(c *gin.Context) {
+func DetailSizes(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
-	user, err := models.FindOneUsers(id)
+	size, err := models.FindOneSizes(id)
 	if err != nil {
 		if strings.HasPrefix(err.Error(), "sql: no rows"){
 			c.JSON(http.StatusInternalServerError, &ResponseOnly{
 				Success: false,
-				Message: "User not found",
+				Message: "Sizes not found",
 			})
 		return
 		}
@@ -117,17 +90,17 @@ func DetailUser(c *gin.Context) {
 
 	c.JSON(http.StatusOK, &Response{
 		Success: true,
-		Message: "Detail user",
-		Results: user,
+		Message: "Detail size",
+		Results: size,
 	})
 }
 
 
-func CreateUser(c *gin.Context) {
-	data := models.User{}
+func CreateSize(c *gin.Context) {
+	data := models.Sizes{}
 	c.Bind(&data)
 
-	user, err := models.CreateUser(data)
+	size, err := models.CreateSizes(data)
 	if err != nil {
 		log.Fatal(err)
 		c.JSON(http.StatusInternalServerError, &ResponseOnly{
@@ -139,26 +112,26 @@ func CreateUser(c *gin.Context) {
 
 	c.JSON(http.StatusOK, &Response{
 		Success: true,
-		Message: "User created successfully",
-		Results: user,
+		Message: "Sizes created successfully",
+		Results: size,
 	})
 }
 
 
-func UpdateUser(c *gin.Context) {
+func UpdateSizes(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
-	data := models.User{}
+	data := models.Sizes{}
 
 	c.Bind(&data)
 	data.Id = id
 
-	user, err := models.UpdateUser(data)
+	size, err := models.UpdateSizes(data)
 	if err != nil {
 		log.Fatal(err)
 		if strings.HasPrefix(err.Error(), "sql: no rows"){
 			c.JSON(http.StatusInternalServerError, &ResponseOnly{
 				Success: false,
-				Message: "User not found",
+				Message: "Sizes not found",
 			})
 		return
 		}
@@ -173,20 +146,20 @@ func UpdateUser(c *gin.Context) {
 
 	c.JSON(http.StatusOK, &Response{
 		Success: true,
-		Message: "User updated successfully",
-		Results: user,
+		Message: "Sizes updated successfully",
+		Results: size,
 	})
 }
 
 
-func DeleteUser(c *gin.Context) {
+func DeleteSizes(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
-	user, err := models.DeleteUser(id)
+	sizes, err := models.DeleteSizes(id)
 	if err != nil {
 		if strings.HasPrefix(err.Error(), "sql: no rows"){
 			c.JSON(http.StatusInternalServerError, &ResponseOnly{
 				Success: false,
-				Message: "User not found",
+				Message: "Sizes not found",
 			})
 		return
 		}
@@ -200,7 +173,7 @@ func DeleteUser(c *gin.Context) {
 
 	c.JSON(http.StatusOK, &Response{
 		Success: true,
-		Message: "Delete User Successfully",
-		Results: user,
+		Message: "Delete sizes successfully",
+		Results: sizes,
 	})
 }

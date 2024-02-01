@@ -1,21 +1,16 @@
 package models
 
 import (
-	"coffe-shop-be-golang/src/lib"
 	"database/sql"
 	"time"
-
-	"github.com/jmoiron/sqlx"
 )
 
-var dbPV *sqlx.DB = lib.DB
-
 type ProductVariants struct {
-	Id        int          `dbPV:"id" json:"id"`
-	ProductId int          `dbPV:"productId" json:"productId" form:"productId"`
-	VariantId int          `dbPV:"variantId" json:"variantId" form:"variantId"`
-	CreatedAt time.Time    `dbPV:"createdAt" json:"createdAt"`
-	UpdatedAt sql.NullTime `dbPV:"updatedAt" json:"updatedAt"`
+	Id        int          `db:"id" json:"id"`
+	ProductId int          `db:"productId" json:"productId" form:"productId"`
+	VariantId int          `db:"variantId" json:"variantId" form:"variantId"`
+	CreatedAt time.Time    `db:"createdAt" json:"createdAt"`
+	UpdatedAt sql.NullTime `db:"updatedAt" json:"updatedAt"`
 }
 
 type InfoPV struct {
@@ -35,10 +30,10 @@ func FindAllProductVariants(sortBy string, order string, limit int, offset int) 
 
 	result := InfoPV{}
 	data := []ProductVariants{}
-	err := dbPV.Select(&data, sql, limit, offset)
+	err := db.Select(&data, sql, limit, offset)
 	result.Data = data
 
-	row := dbPV.QueryRow(sqlCount)
+	row := db.QueryRow(sqlCount)
 	err = row.Scan(&result.Count)
 
 	return result, err
@@ -47,7 +42,7 @@ func FindAllProductVariants(sortBy string, order string, limit int, offset int) 
 func FindOneProductVariants(id int) (ProductVariants, error) {
 	sql := `SELECT * FROM "productVariant" WHERE id = $1`
 	data := ProductVariants{}
-	err := dbPV.Get(&data, sql, id)
+	err := db.Get(&data, sql, id)
 	return data, err
 }
 
@@ -58,7 +53,7 @@ func CreateProductVariants(data ProductVariants) (ProductVariants, error) {
 	RETURNING *
 	`
 	result := ProductVariants{}
-	rows, err := dbPV.NamedQuery(sql, data)
+	rows, err := db.NamedQuery(sql, data)
 	if err != nil {
 		return result, err
 	}
@@ -78,7 +73,7 @@ func UpdateProductVariants(data ProductVariants) (ProductVariants, error) {
 	RETURNING *
 	`
 	result := ProductVariants{}
-	rows, err := dbPV.NamedQuery(sql, data)
+	rows, err := db.NamedQuery(sql, data)
 	if err != nil {
 		return result, err
 	}
@@ -93,6 +88,6 @@ func UpdateProductVariants(data ProductVariants) (ProductVariants, error) {
 func DeleteProductVariants(id int) (ProductVariants, error) {
 	sql := `DELETE FROM "productVariant" WHERE id = $1 RETURNING *`
 	data := ProductVariants{}
-	err := dbPV.Get(&data, sql, id)
+	err := db.Get(&data, sql, id)
 	return data, err
 }

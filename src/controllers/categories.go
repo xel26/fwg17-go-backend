@@ -12,35 +12,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type PageInfo struct {
-	CurrentPage int `json:"currentPage"`
-	TotalPage int `json:"totalPage"`
-	NextPage int `json:"nextPage"`
-	PrevPage int `json:"prevPage"`
-	Limit int `json:"limit"`
-	TotalData int `json:"totalData"`
-}
 
-type ResponseList struct {
-	Success  bool        `json:"success"`
-	Message  string      `json:"message"`
-	PageInfo PageInfo    `json:"PageInfo"`
-	Results  interface{} `json:"results"`
-}
-
-type Response struct {
-	Success bool        `json:"success"`
-	Message string      `json:"message"`
-	Results interface{} `json:"results"`
-}
-
-type ResponseOnly struct {
-	Success bool   `json:"success"`
-	Message string `json:"message"`
-}
-
-
-func ListAllUsers(c *gin.Context) {
+func ListAllCategories(c *gin.Context) {
 	searchKey := c.DefaultQuery("searchKey", "")
 	sortBy := c.DefaultQuery("sortBy", "id")
 	order := c.DefaultQuery("order", "ASC")
@@ -48,7 +21,7 @@ func ListAllUsers(c *gin.Context) {
 	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "6"))
 	offset := (page - 1) * limit
 
-	result, err := models.FindAllUsers(searchKey, sortBy, order, limit, offset)
+	result, err := models.FindAllCategories(searchKey, sortBy, order, limit, offset)
 	if len(result.Data) == 0 {
 		c.JSON(http.StatusNotFound, &ResponseOnly{
 			Success: false,
@@ -89,21 +62,21 @@ func ListAllUsers(c *gin.Context) {
 
 	c.JSON(http.StatusOK, &ResponseList{
 		Success: true,
-		Message: "List all Users",
+		Message: "List all categories",
 		PageInfo: PageInfo,
 		Results: result.Data,
 	})
 }
 
 
-func DetailUser(c *gin.Context) {
+func DetailCategories(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
-	user, err := models.FindOneUsers(id)
+	category, err := models.FindOneCategories(id)
 	if err != nil {
 		if strings.HasPrefix(err.Error(), "sql: no rows"){
 			c.JSON(http.StatusInternalServerError, &ResponseOnly{
 				Success: false,
-				Message: "User not found",
+				Message: "Categories not found",
 			})
 		return
 		}
@@ -117,17 +90,17 @@ func DetailUser(c *gin.Context) {
 
 	c.JSON(http.StatusOK, &Response{
 		Success: true,
-		Message: "Detail user",
-		Results: user,
+		Message: "Detail categories",
+		Results: category,
 	})
 }
 
 
-func CreateUser(c *gin.Context) {
-	data := models.User{}
+func CreateCategories(c *gin.Context) {
+	data := models.Categories{}
 	c.Bind(&data)
 
-	user, err := models.CreateUser(data)
+	category, err := models.CreateCategories(data)
 	if err != nil {
 		log.Fatal(err)
 		c.JSON(http.StatusInternalServerError, &ResponseOnly{
@@ -139,30 +112,31 @@ func CreateUser(c *gin.Context) {
 
 	c.JSON(http.StatusOK, &Response{
 		Success: true,
-		Message: "User created successfully",
-		Results: user,
+		Message: "Categories created successfully",
+		Results: category,
 	})
 }
 
 
-func UpdateUser(c *gin.Context) {
+func UpdateCategories(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
-	data := models.User{}
+	data := models.Categories{}
 
 	c.Bind(&data)
 	data.Id = id
 
-	user, err := models.UpdateUser(data)
+	category, err := models.UpdateCategories(data)
 	if err != nil {
 		log.Fatal(err)
+		
 		if strings.HasPrefix(err.Error(), "sql: no rows"){
 			c.JSON(http.StatusInternalServerError, &ResponseOnly{
 				Success: false,
-				Message: "User not found",
+				Message: "Category not found",
 			})
 		return
 		}
-		
+
 		c.JSON(http.StatusInternalServerError, &ResponseOnly{
 			Success: false,
 			Message: "Internal server error",
@@ -173,20 +147,20 @@ func UpdateUser(c *gin.Context) {
 
 	c.JSON(http.StatusOK, &Response{
 		Success: true,
-		Message: "User updated successfully",
-		Results: user,
+		Message: "Categories updated successfully",
+		Results: category,
 	})
 }
 
 
-func DeleteUser(c *gin.Context) {
+func DeleteCategories(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
-	user, err := models.DeleteUser(id)
+	category, err := models.DeleteCategories(id)
 	if err != nil {
 		if strings.HasPrefix(err.Error(), "sql: no rows"){
 			c.JSON(http.StatusInternalServerError, &ResponseOnly{
 				Success: false,
-				Message: "User not found",
+				Message: "Category not found",
 			})
 		return
 		}
@@ -200,7 +174,7 @@ func DeleteUser(c *gin.Context) {
 
 	c.JSON(http.StatusOK, &Response{
 		Success: true,
-		Message: "Delete User Successfully",
-		Results: user,
+		Message: "Delete category successfully",
+		Results: category,
 	})
 }

@@ -1,22 +1,17 @@
 package models
 
 import (
-	"coffe-shop-be-golang/src/lib"
 	"database/sql"
 	"time"
-
-	"github.com/jmoiron/sqlx"
 )
 
-var dbFP *sqlx.DB = lib.DB
-
 type ForgotPassword struct {
-	Id        int            `dbFP:"id" json:"id"`
-	Otp       sql.NullString `dbFP:"otp" json:"otp" form:"otp"`
-	Email     sql.NullString `dbFP:"email" json:"email" form:"email"`
-	UserId    sql.NullInt64  `dbFP:"userId" json:"userId" form:"userId"`
-	CreatedAt time.Time      `dbFP:"createdAt" json:"createdAt"`
-	UpdatedAt sql.NullTime   `dbFP:"updatedAt" json:"updatedAt"`
+	Id        int            `db:"id" json:"id"`
+	Otp       sql.NullString `db:"otp" json:"otp" form:"otp"`
+	Email     sql.NullString `db:"email" json:"email" form:"email"`
+	UserId    sql.NullInt64  `db:"userId" json:"userId" form:"userId"`
+	CreatedAt time.Time      `db:"createdAt" json:"createdAt"`
+	UpdatedAt sql.NullTime   `db:"updatedAt" json:"updatedAt"`
 }
 
 type InfoFP struct {
@@ -39,10 +34,10 @@ func FindAllForgotPassword(searchKey string, sortBy string, order string, limit 
 
 	result := InfoFP{}
 	data := []ForgotPassword{}
-	err := dbFP.Select(&data, sql,"%"+searchKey+"%", limit, offset)
+	err := db.Select(&data, sql,"%"+searchKey+"%", limit, offset)
 	result.Data = data
 	
-	row := dbFP.QueryRow(sqlCount, "%"+searchKey+"%")
+	row := db.QueryRow(sqlCount, "%"+searchKey+"%")
 	err = row.Scan(&result.Count)
 
 	return result, err
@@ -52,7 +47,7 @@ func FindAllForgotPassword(searchKey string, sortBy string, order string, limit 
 func FindOneForgotPassword(id int) (ForgotPassword, error) {
 	sql := `SELECT * FROM "forgotPassword" WHERE id = $1`
 	data := ForgotPassword{}
-	err := dbFP.Get(&data, sql, id)
+	err := db.Get(&data, sql, id)
 	return data, err
 }
 
@@ -60,7 +55,7 @@ func FindOneForgotPassword(id int) (ForgotPassword, error) {
 func FindOneByOtp(otp string) (ForgotPassword, error) {
 	sql := `SELECT * FROM "forgotPassword" WHERE otp = $1`
 	data := ForgotPassword{}
-	err := dbFP.Get(&data, sql, otp)
+	err := db.Get(&data, sql, otp)
 	return data, err
 }
 
@@ -70,7 +65,7 @@ func CreateForgotPassword(data ForgotPassword) (ForgotPassword, error) {
 	RETURNING *
 	`
 	result := ForgotPassword{}
-	rows, err := dbFP.NamedQuery(sql, data)
+	rows, err := db.NamedQuery(sql, data)
 	if err != nil {
 		return result, err
 	}
@@ -92,7 +87,7 @@ func UpdateForgotPassword(data ForgotPassword) (ForgotPassword, error) {
 	RETURNING *
 	`
 	result := ForgotPassword{}
-	rows, err := dbFP.NamedQuery(sql, data)
+	rows, err := db.NamedQuery(sql, data)
 	if err != nil {
 		return result, err
 	}
@@ -107,6 +102,6 @@ func UpdateForgotPassword(data ForgotPassword) (ForgotPassword, error) {
 func DeleteForgotPassword(id int) (ForgotPassword, error) {
 	sql := `DELETE FROM "forgotPassword" WHERE id = $1 RETURNING *`
 	data := ForgotPassword{}
-	err := dbFP.Get(&data, sql, id)
+	err := db.Get(&data, sql, id)
 	return data, err
 }

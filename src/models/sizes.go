@@ -1,21 +1,16 @@
 package models
 
 import (
-	"coffe-shop-be-golang/src/lib"
 	"database/sql"
 	"time"
-
-	"github.com/jmoiron/sqlx"
 )
 
-var dbS *sqlx.DB = lib.DB
-
 type Sizes struct {
-	Id              int           `dbS:"id" json:"id"`
-	Size            string        `dbS:"size" json:"size" form:"size"`
-	AdditionalPrice sql.NullInt64 `dbS:"additionalPrice" json:"additionalPrice" form:"additionalPrice"`
-	CreatedAt       time.Time     `dbS:"createdAt" json:"createdAt"`
-	UpdatedAt       sql.NullTime  `dbS:"updatedAt" json:"updatedAt"`
+	Id              int           `db:"id" json:"id"`
+	Size            string        `db:"size" json:"size" form:"size"`
+	AdditionalPrice sql.NullInt64 `db:"additionalPrice" json:"additionalPrice" form:"additionalPrice"`
+	CreatedAt       time.Time     `db:"createdAt" json:"createdAt"`
+	UpdatedAt       sql.NullTime  `db:"updatedAt" json:"updatedAt"`
 }
 
 type InfoS struct {
@@ -37,10 +32,10 @@ func FindAllSizes(searchKey string, sortBy string, order string, limit int, offs
 
 	result := InfoS{}
 	data := []Sizes{}
-	err := dbS.Select(&data, sql, "%"+searchKey+"%", limit, offset)
+	err := db.Select(&data, sql, "%"+searchKey+"%", limit, offset)
 	result.Data = data
 
-	row := dbS.QueryRow(sqlCount, "%"+searchKey+"%")
+	row := db.QueryRow(sqlCount, "%"+searchKey+"%")
 	err = row.Scan(&result.Count)
 
 	return result, err
@@ -49,7 +44,7 @@ func FindAllSizes(searchKey string, sortBy string, order string, limit int, offs
 func FindOneSizes(id int) (Sizes, error) {
 	sql := `SELECT * FROM "sizes" WHERE id = $1`
 	data := Sizes{}
-	err := dbS.Get(&data, sql, id)
+	err := db.Get(&data, sql, id)
 	return data, err
 }
 
@@ -60,7 +55,7 @@ func CreateSizes(data Sizes) (Sizes, error) {
 	RETURNING *
 	`
 	result := Sizes{}
-	rows, err := dbS.NamedQuery(sql, data)
+	rows, err := db.NamedQuery(sql, data)
 	if err != nil {
 		return result, err
 	}
@@ -80,7 +75,7 @@ func UpdateSizes(data Sizes) (Sizes, error) {
 	RETURNING *
 	`
 	result := Sizes{}
-	rows, err := dbS.NamedQuery(sql, data)
+	rows, err := db.NamedQuery(sql, data)
 	if err != nil {
 		return result, err
 	}
@@ -95,6 +90,6 @@ func UpdateSizes(data Sizes) (Sizes, error) {
 func DeleteSizes(id int) (Sizes, error) {
 	sql := `DELETE FROM "sizes" WHERE id = $1 RETURNING *`
 	data := Sizes{}
-	err := dbS.Get(&data, sql, id)
+	err := db.Get(&data, sql, id)
 	return data, err
 }

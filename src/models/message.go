@@ -1,22 +1,17 @@
 package models
 
 import (
-	"coffe-shop-be-golang/src/lib"
 	"database/sql"
 	"time"
-
-	"github.com/jmoiron/sqlx"
 )
 
-var dbM *sqlx.DB = lib.DB
-
 type Message struct {
-	Id          int          `dbM:"id" json:"id"`
-	RecipientId int          `dbM:"recipientId" json:"recipientId" form:"recipientId"`
-	SenderId    int          `dbM:"senderId" json:"senderId" form:"senderId"`
-	Text        string       `dbM:"text" json:"text" form:"text"`
-	CreatedAt   time.Time    `dbM:"createdAt" json:"createdAt"`
-	UpdatedAt   sql.NullTime `dbM:"updatedAt" json:"updatedAt"`
+	Id          int          `db:"id" json:"id"`
+	RecipientId int          `db:"recipientId" json:"recipientId" form:"recipientId"`
+	SenderId    int          `db:"senderId" json:"senderId" form:"senderId"`
+	Text        string       `db:"text" json:"text" form:"text"`
+	CreatedAt   time.Time    `db:"createdAt" json:"createdAt"`
+	UpdatedAt   sql.NullTime `db:"updatedAt" json:"updatedAt"`
 }
 
 type InfoM struct {
@@ -37,10 +32,10 @@ func FindAllMessage(sortBy string, order string, limit int, offset int) (InfoM, 
 
 	result := InfoM{}
 	data := []Message{}
-	err := dbM.Select(&data, sql, limit, offset)
+	err := db.Select(&data, sql, limit, offset)
 	result.Data = data
 	
-	row := dbM.QueryRow(sqlCount)
+	row := db.QueryRow(sqlCount)
 	err = row.Scan(&result.Count)
 
 	return result, err
@@ -51,7 +46,7 @@ func FindAllMessage(sortBy string, order string, limit int, offset int) (InfoM, 
 func FindOneMessage(id int) (Message, error) {
 	sql := `SELECT * FROM "message" WHERE id = $1`
 	data := Message{}
-	err := dbM.Get(&data, sql, id)
+	err := db.Get(&data, sql, id)
 	return data, err
 }
 
@@ -64,7 +59,7 @@ func CreateMessage(data Message) (Message, error) {
 	RETURNING *
 	`
 	result := Message{}
-	rows, err := dbM.NamedQuery(sql, data)
+	rows, err := db.NamedQuery(sql, data)
 	if err != nil {
 		return result, err
 	}
@@ -88,7 +83,7 @@ func UpdateMessage(data Message) (Message, error) {
 	RETURNING *
 	`
 	result := Message{}
-	rows, err := dbM.NamedQuery(sql, data)
+	rows, err := db.NamedQuery(sql, data)
 	if err != nil {
 		return result, err
 	}
@@ -105,6 +100,6 @@ func UpdateMessage(data Message) (Message, error) {
 func DeleteMessage(id int) (Message, error) {
 	sql := `DELETE FROM "message" WHERE id = $1 RETURNING *`
 	data := Message{}
-	err := dbM.Get(&data, sql, id)
+	err := db.Get(&data, sql, id)
 	return data, err
 }

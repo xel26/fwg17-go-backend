@@ -1,21 +1,16 @@
 package models
 
 import (
-	"coffe-shop-be-golang/src/lib"
 	"database/sql"
 	"time"
-
-	"github.com/jmoiron/sqlx"
 )
 
-var dbPC *sqlx.DB = lib.DB
-
 type ProductCategories struct {
-	Id         int          `dbPC:"id" json:"id"`
-	ProductCategoriesId  int          `dbPC:"productId" json:"productId" form:"productId"`
-	CategoryId int          `dbPC:"categoryId" json:"categoryId" form:"categoryId"`
-	CreatedAt  time.Time    `dbPC:"createdAt" json:"createdAt"`
-	UpdatedAt  sql.NullTime `dbPC:"updatedAt" json:"updatedAt"`
+	Id         int          `db:"id" json:"id"`
+	ProductCategoriesId  int          `db:"productId" json:"productId" form:"productId"`
+	CategoryId int          `db:"categoryId" json:"categoryId" form:"categoryId"`
+	CreatedAt  time.Time    `db:"createdAt" json:"createdAt"`
+	UpdatedAt  sql.NullTime `db:"updatedAt" json:"updatedAt"`
 }
 
 type InfoPC struct {
@@ -35,10 +30,10 @@ func FindAllProductCategories(sortBy string, order string, limit int, offset int
 
 	result := InfoPC{}
 	data := []ProductCategories{}
-	err := dbPC.Select(&data, sql, limit, offset)
+	err := db.Select(&data, sql, limit, offset)
 	result.Data = data
 
-	row := dbPC.QueryRow(sqlCount)
+	row := db.QueryRow(sqlCount)
 	err = row.Scan(&result.Count)
 
 	return result, err
@@ -47,7 +42,7 @@ func FindAllProductCategories(sortBy string, order string, limit int, offset int
 func FindOneProductCategories(id int) (ProductCategories, error) {
 	sql := `SELECT * FROM "productCategories" WHERE id = $1`
 	data := ProductCategories{}
-	err := dbPC.Get(&data, sql, id)
+	err := db.Get(&data, sql, id)
 	return data, err
 }
 
@@ -58,7 +53,7 @@ func CreateProductCategories(data ProductCategories) (ProductCategories, error) 
 	RETURNING *
 	`
 	result := ProductCategories{}
-	rows, err := dbPC.NamedQuery(sql, data)
+	rows, err := db.NamedQuery(sql, data)
 	if err != nil {
 		return result, err
 	}
@@ -78,7 +73,7 @@ func UpdateProductCategories(data ProductCategories) (ProductCategories, error) 
 	RETURNING *
 	`
 	result := ProductCategories{}
-	rows, err := dbPC.NamedQuery(sql, data)
+	rows, err := db.NamedQuery(sql, data)
 	if err != nil {
 		return result, err
 	}
@@ -93,6 +88,6 @@ func UpdateProductCategories(data ProductCategories) (ProductCategories, error) 
 func DeleteProductCategories(id int) (ProductCategories, error) {
 	sql := `DELETE FROM "productCategories" WHERE id = $1 RETURNING *`
 	data := ProductCategories{}
-	err := dbPC.Get(&data, sql, id)
+	err := db.Get(&data, sql, id)
 	return data, err
 }

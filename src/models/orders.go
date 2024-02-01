@@ -1,32 +1,27 @@
 package models
 
 import (
-	"coffe-shop-be-golang/src/lib"
 	"database/sql"
 	"time"
-
-	"github.com/jmoiron/sqlx"
 )
 
-var dbO *sqlx.DB = lib.DB
-
 type Orders struct {
-	Id               int            `dbO:"id" json:"id"`
-	UserId           int            `dbO:"userId" json:"userId" form:"userId"`
-	OrderNumber      string         `dbO:"orderNumber" json:"orderNumber" form:"orderNumber"`
-	PromoId          sql.NullInt64  `dbO:"promoId" json:"promoId" form:"promoId"`
-	Total            int            `dbO:"total" json:"total" form:"total"`
-	Tax              sql.NullInt64  `dbO:"tax" json:"tax" form:"tax"`
-	DeliveryAddress  sql.NullString `dbO:"deliveryAddress" json:"deliveryAddress" form:"deliveryAddress"`
-	FullName         sql.NullString `dbO:"fullName" json:"fullName" form:"fullName"`
-	Email            sql.NullString `dbO:"email" json:"email" form:"email"`
-	PriceCut         sql.NullInt64  `dbO:"priceCut" json:"priceCut" form:"priceCut"`
-	Subtotal         int            `dbO:"subtotal" json:"subtotal" form:"subtotal"`
-	Status           string         `dbO:"status" json:"status" form:"status"`
-	DeliveryFee      int            `dbO:"deliveryFee" json:"deliveryFee" form:"deliveryFee"`
-	DeliveryShipping string         `dbO:"deliveryShipping" json:"deliveryShipping" form:"deliveryShipping"`
-	CreatedAt        time.Time      `dbO:"createdAt" json:"createdAt"`
-	UpdatedAt        sql.NullTime   `dbO:"updatedAt" json:"updatedAt"`
+	Id               int            `db:"id" json:"id"`
+	UserId           int            `db:"userId" json:"userId" form:"userId"`
+	OrderNumber      string         `db:"orderNumber" json:"orderNumber" form:"orderNumber"`
+	PromoId          sql.NullInt64  `db:"promoId" json:"promoId" form:"promoId"`
+	Total            int            `db:"total" json:"total" form:"total"`
+	Tax              sql.NullInt64  `db:"tax" json:"tax" form:"tax"`
+	DeliveryAddress  sql.NullString `db:"deliveryAddress" json:"deliveryAddress" form:"deliveryAddress"`
+	FullName         sql.NullString `db:"fullName" json:"fullName" form:"fullName"`
+	Email            sql.NullString `db:"email" json:"email" form:"email"`
+	PriceCut         sql.NullInt64  `db:"priceCut" json:"priceCut" form:"priceCut"`
+	Subtotal         int            `db:"subtotal" json:"subtotal" form:"subtotal"`
+	Status           string         `db:"status" json:"status" form:"status"`
+	DeliveryFee      int            `db:"deliveryFee" json:"deliveryFee" form:"deliveryFee"`
+	DeliveryShipping string         `db:"deliveryShipping" json:"deliveryShipping" form:"deliveryShipping"`
+	CreatedAt        time.Time      `db:"createdAt" json:"createdAt"`
+	UpdatedAt        sql.NullTime   `db:"updatedAt" json:"updatedAt"`
 }
 
 type InfoO struct {
@@ -46,10 +41,10 @@ func FindAllOrders(sortBy string, order string, limit int, offset int) (InfoO, e
 
 	result := InfoO{}
 	data := []Orders{}
-	err := dbO.Select(&data, sql, limit, offset)
+	err := db.Select(&data, sql, limit, offset)
 	result.Data = data
 
-	row := dbO.QueryRow(sqlCount)
+	row := db.QueryRow(sqlCount)
 	err = row.Scan(&result.Count)
 
 	return result, err
@@ -58,7 +53,7 @@ func FindAllOrders(sortBy string, order string, limit int, offset int) (InfoO, e
 func FindOneOrders(id int) (Orders, error) {
 	sql := `SELECT * FROM "orders" WHERE id = $1`
 	data := Orders{}
-	err := dbO.Get(&data, sql, id)
+	err := db.Get(&data, sql, id)
 	return data, err
 }
 
@@ -69,7 +64,7 @@ func CreateOrders(data Orders) (Orders, error) {
 	RETURNING *
 	`
 	result := Orders{}
-	rows, err := dbO.NamedQuery(sql, data)
+	rows, err := db.NamedQuery(sql, data)
 	if err != nil {
 		return result, err
 	}
@@ -99,7 +94,7 @@ func UpdateOrders(data Orders) (Orders, error) {
 	RETURNING *
 	`
 	result := Orders{}
-	rows, err := dbO.NamedQuery(sql, data)
+	rows, err := db.NamedQuery(sql, data)
 	if err != nil {
 		return result, err
 	}
@@ -114,6 +109,6 @@ func UpdateOrders(data Orders) (Orders, error) {
 func DeleteOrders(id int) (Orders, error) {
 	sql := `DELETE FROM "orders" WHERE id = $1 RETURNING *`
 	data := Orders{}
-	err := dbO.Get(&data, sql, id)
+	err := db.Get(&data, sql, id)
 	return data, err
 }

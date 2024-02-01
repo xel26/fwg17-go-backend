@@ -1,23 +1,18 @@
 package models
 
 import (
-	"coffe-shop-be-golang/src/lib"
 	"database/sql"
 	"time"
-
-	"github.com/jmoiron/sqlx"
 )
 
-var dbPR *sqlx.DB = lib.DB
-
 type ProductRatings struct {
-	Id            int            `dbPR:"id" json:"id"`
-	ProductId     int            `dbPR:"productId" json:"productId" form:"productId"`
-	Rate          int            `dbPR:"rate" json:"rate" form:"rate"`
-	ReviewMessage sql.NullString `dbPR:"reviewMessage" json:"reviewMessage" form:"reviewMessage"`
-	UserId        int            `dbPR:"userId" json:"userId" form:"userId"`
-	CreatedAt     time.Time      `dbPR:"createdAt" json:"createdAt"`
-	UpdatedAt     sql.NullTime   `dbPR:"updatedAt" json:"updatedAt"`
+	Id            int            `db:"id" json:"id"`
+	ProductId     int            `db:"productId" json:"productId" form:"productId"`
+	Rate          int            `db:"rate" json:"rate" form:"rate"`
+	ReviewMessage sql.NullString `db:"reviewMessage" json:"reviewMessage" form:"reviewMessage"`
+	UserId        int            `db:"userId" json:"userId" form:"userId"`
+	CreatedAt     time.Time      `db:"createdAt" json:"createdAt"`
+	UpdatedAt     sql.NullTime   `db:"updatedAt" json:"updatedAt"`
 }
 
 type InfoPR struct {
@@ -37,10 +32,10 @@ func FindAllProductRatings(sortBy string, order string, limit int, offset int) (
 
 	result := InfoPR{}
 	data := []ProductRatings{}
-	err := dbPR.Select(&data, sql, limit, offset)
+	err := db.Select(&data, sql, limit, offset)
 	result.Data = data
 
-	row := dbPR.QueryRow(sqlCount)
+	row := db.QueryRow(sqlCount)
 	err = row.Scan(&result.Count)
 
 	return result, err
@@ -49,7 +44,7 @@ func FindAllProductRatings(sortBy string, order string, limit int, offset int) (
 func FindOneProductRatings(id int) (ProductRatings, error) {
 	sql := `SELECT * FROM "productRatings" WHERE id = $1`
 	data := ProductRatings{}
-	err := dbPR.Get(&data, sql, id)
+	err := db.Get(&data, sql, id)
 	return data, err
 }
 
@@ -60,7 +55,7 @@ func CreateProductRatings(data ProductRatings) (ProductRatings, error) {
 	RETURNING *
 	`
 	result := ProductRatings{}
-	rows, err := dbPR.NamedQuery(sql, data)
+	rows, err := db.NamedQuery(sql, data)
 	if err != nil {
 		return result, err
 	}
@@ -82,7 +77,7 @@ func UpdateProductRatings(data ProductRatings) (ProductRatings, error) {
 	RETURNING *
 	`
 	result := ProductRatings{}
-	rows, err := dbPR.NamedQuery(sql, data)
+	rows, err := db.NamedQuery(sql, data)
 	if err != nil {
 		return result, err
 	}
@@ -97,6 +92,6 @@ func UpdateProductRatings(data ProductRatings) (ProductRatings, error) {
 func DeleteProductRatings(id int) (ProductRatings, error) {
 	sql := `DELETE FROM "productRatings" WHERE id = $1 RETURNING *`
 	data := ProductRatings{}
-	err := dbPR.Get(&data, sql, id)
+	err := db.Get(&data, sql, id)
 	return data, err
 }

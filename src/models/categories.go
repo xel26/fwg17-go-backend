@@ -1,20 +1,15 @@
 package models
 
 import (
-	"coffe-shop-be-golang/src/lib"
 	"database/sql"
 	"time"
-
-	"github.com/jmoiron/sqlx"
 )
 
-var dbC *sqlx.DB = lib.DB
-
 type Categories struct {
-	Id            int            `dbC:"id" json:"id"`
-	Name          string         `dbC:"name" json:"name" form:"name"`
-	CreatedAt     time.Time      `dbC:"createdAt" json:"createdAt"`
-	UpdatedAt     sql.NullTime   `dbC:"updatedAt" json:"updatedAt"`
+	Id            int            `db:"id" json:"id"`
+	Name          string         `db:"name" json:"name" form:"name"`
+	CreatedAt     time.Time      `db:"createdAt" json:"createdAt"`
+	UpdatedAt     sql.NullTime   `db:"updatedAt" json:"updatedAt"`
 }
 
 
@@ -38,10 +33,10 @@ func FindAllCategories(searchKey string, sortBy string, order string, limit int,
 
 	result := InfoC{}
 	data := []Categories{}
-	err := dbC.Select(&data, sql,"%"+searchKey+"%", limit, offset)
+	err := db.Select(&data, sql,"%"+searchKey+"%", limit, offset)
 	result.Data = data
 	
-	row := dbC.QueryRow(sqlCount, "%"+searchKey+"%")
+	row := db.QueryRow(sqlCount, "%"+searchKey+"%")
 	err = row.Scan(&result.Count)
 
 	return result, err
@@ -51,7 +46,7 @@ func FindAllCategories(searchKey string, sortBy string, order string, limit int,
 func FindOneCategories(id int) (Categories, error) {
 	sql := `SELECT * FROM "categories" WHERE id = $1`
 	data := Categories{}
-	err := dbC.Get(&data, sql, id)
+	err := db.Get(&data, sql, id)
 	return data, err
 }
 
@@ -59,7 +54,7 @@ func FindOneCategories(id int) (Categories, error) {
 func CreateCategories(data Categories) (Categories, error) {
 	sql := `INSERT INTO "categories" ("name") VALUES (:name) RETURNING *`
 	result := Categories{}
-	rows, err := dbC.NamedQuery(sql, data)
+	rows, err := db.NamedQuery(sql, data)
 	if err != nil {
 		return result, err
 	}
@@ -80,7 +75,7 @@ func UpdateCategories(data Categories) (Categories, error) {
 	RETURNING *
 	`
 	result := Categories{}
-	rows, err := dbC.NamedQuery(sql, data)
+	rows, err := db.NamedQuery(sql, data)
 	if err != nil {
 		return result, err
 	}
@@ -97,6 +92,6 @@ func UpdateCategories(data Categories) (Categories, error) {
 func DeleteCategories(id int) (Categories, error) {
 	sql := `DELETE FROM "categories" WHERE id = $1 RETURNING *`
 	data := Categories{}
-	err := dbC.Get(&data, sql, id)
+	err := db.Get(&data, sql, id)
 	return data, err
 }

@@ -1,25 +1,20 @@
 package models
 
 import (
-	"coffe-shop-be-golang/src/lib"
 	"database/sql"
 	"time"
-
-	"github.com/jmoiron/sqlx"
 )
 
-var dbOD *sqlx.DB = lib.DB
-
 type OrderDetails struct {
-	Id        int          `dbOD:"id" json:"id"`
-	OrderDetailsId int          `dbOD:"productId" json:"productId" form:"productId"`
-	SizeId    int          `dbOD:"sizeId" json:"sizeId" form:"sizeId"`
-	VariantId int          `dbOD:"variantId" json:"variantId" form:"variantId"`
-	Quantity  int          `dbOD:"quantity" json:"quantity" form:"quantity"`
-	OrderId   int          `dbOD:"orderId" json:"orderId" form:"orderId"`
-	Subtotal  int          `dbOD:"subtotal" json:"subtotal" form:"subtotal"`
-	CreatedAt time.Time    `dbOD:"createdAt" json:"createdAt"`
-	UpdatedAt sql.NullTime `dbOD:"updatedAt" json:"updatedAt"`
+	Id        int          `db:"id" json:"id"`
+	OrderDetailsId int          `db:"productId" json:"productId" form:"productId"`
+	SizeId    int          `db:"sizeId" json:"sizeId" form:"sizeId"`
+	VariantId int          `db:"variantId" json:"variantId" form:"variantId"`
+	Quantity  int          `db:"quantity" json:"quantity" form:"quantity"`
+	OrderId   int          `db:"orderId" json:"orderId" form:"orderId"`
+	Subtotal  int          `db:"subtotal" json:"subtotal" form:"subtotal"`
+	CreatedAt time.Time    `db:"createdAt" json:"createdAt"`
+	UpdatedAt sql.NullTime `db:"updatedAt" json:"updatedAt"`
 }
 
 type InfoOD struct {
@@ -41,10 +36,10 @@ func FindAllOrderDetails(sortBy string, order string, limit int, offset int) (In
 
 	result := InfoOD{}
 	data := []OrderDetails{}
-	err := dbOD.Select(&data, sql, limit, offset)
+	err := db.Select(&data, sql, limit, offset)
 	result.Data = data
 	
-	row := dbOD.QueryRow(sqlCount)
+	row := db.QueryRow(sqlCount)
 	err = row.Scan(&result.Count)
 
 	return result, err
@@ -55,7 +50,7 @@ func FindAllOrderDetails(sortBy string, order string, limit int, offset int) (In
 func FindOneOrderDetails(id int) (OrderDetails, error) {
 	sql := `SELECT * FROM "orderDetails" WHERE id = $1`
 	data := OrderDetails{}
-	err := dbOD.Get(&data, sql, id)
+	err := db.Get(&data, sql, id)
 	return data, err
 }
 
@@ -68,7 +63,7 @@ func CreateOrderDetails(data OrderDetails) (OrderDetails, error) {
 	RETURNING *
 	`
 	result := OrderDetails{}
-	rows, err := dbOD.NamedQuery(sql, data)
+	rows, err := db.NamedQuery(sql, data)
 	if err != nil {
 		return result, err
 	}
@@ -95,7 +90,7 @@ func UpdateOrderDetails(data OrderDetails) (OrderDetails, error) {
 	RETURNING *
 	`
 	result := OrderDetails{}
-	rows, err := dbOD.NamedQuery(sql, data)
+	rows, err := db.NamedQuery(sql, data)
 	if err != nil {
 		return result, err
 	}
@@ -112,6 +107,6 @@ func UpdateOrderDetails(data OrderDetails) (OrderDetails, error) {
 func DeleteOrderDetails(id int) (OrderDetails, error) {
 	sql := `DELETE FROM "orderDetails" WHERE id = $1 RETURNING *`
 	data := OrderDetails{}
-	err := dbOD.Get(&data, sql, id)
+	err := db.Get(&data, sql, id)
 	return data, err
 }

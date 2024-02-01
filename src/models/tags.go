@@ -1,20 +1,15 @@
 package models
 
 import (
-	"coffe-shop-be-golang/src/lib"
 	"database/sql"
 	"time"
-
-	"github.com/jmoiron/sqlx"
 )
 
-var dbT *sqlx.DB = lib.DB
-
 type Tags struct {
-	Id              int           `dbT:"id" json:"id"`
-	Name            string        `dbT:"name" json:"name" form:"name"`
-	CreatedAt       time.Time     `dbT:"createdAt" json:"createdAt"`
-	UpdatedAt       sql.NullTime  `dbT:"updatedAt" json:"updatedAt"`
+	Id              int           `db:"id" json:"id"`
+	Name            string        `db:"name" json:"name" form:"name"`
+	CreatedAt       time.Time     `db:"createdAt" json:"createdAt"`
+	UpdatedAt       sql.NullTime  `db:"updatedAt" json:"updatedAt"`
 }
 
 type InfoT struct {
@@ -36,10 +31,10 @@ func FindAllTags(searchKey string, sortBy string, order string, limit int, offse
 
 	result := InfoT{}
 	data := []Tags{}
-	err := dbT.Select(&data, sql, "%"+searchKey+"%", limit, offset)
+	err := db.Select(&data, sql, "%"+searchKey+"%", limit, offset)
 	result.Data = data
 
-	row := dbT.QueryRow(sqlCount, "%"+searchKey+"%")
+	row := db.QueryRow(sqlCount, "%"+searchKey+"%")
 	err = row.Scan(&result.Count)
 
 	return result, err
@@ -48,7 +43,7 @@ func FindAllTags(searchKey string, sortBy string, order string, limit int, offse
 func FindOneTags(id int) (Tags, error) {
 	sql := `SELECT * FROM "tags" WHERE id = $1`
 	data := Tags{}
-	err := dbT.Get(&data, sql, id)
+	err := db.Get(&data, sql, id)
 	return data, err
 }
 
@@ -57,7 +52,7 @@ func CreateTags(data Tags) (Tags, error) {
 	RETURNING *
 	`
 	result := Tags{}
-	rows, err := dbT.NamedQuery(sql, data)
+	rows, err := db.NamedQuery(sql, data)
 	if err != nil {
 		return result, err
 	}
@@ -76,7 +71,7 @@ func UpdateTags(data Tags) (Tags, error) {
 	RETURNING *
 	`
 	result := Tags{}
-	rows, err := dbT.NamedQuery(sql, data)
+	rows, err := db.NamedQuery(sql, data)
 	if err != nil {
 		return result, err
 	}
@@ -91,6 +86,6 @@ func UpdateTags(data Tags) (Tags, error) {
 func DeleteTags(id int) (Tags, error) {
 	sql := `DELETE FROM "tags" WHERE id = $1 RETURNING *`
 	data := Tags{}
-	err := dbT.Get(&data, sql, id)
+	err := db.Get(&data, sql, id)
 	return data, err
 }

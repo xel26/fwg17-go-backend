@@ -3,24 +3,25 @@ package models
 import (
 	"coffe-shop-be-golang/src/lib"
 	"database/sql"
+	"log"
 	"time"
 
 	"github.com/jmoiron/sqlx"
 )
 
-var dbU *sqlx.DB = lib.DB
+var db *sqlx.DB = lib.DB
 
 type User struct {
-	Id          int          `dbU:"id" json:"id"`
-	FullName    string       `dbU:"fullName" json:"fullName" form:"fullName"`
-	Email       string       `dbU:"email" json:"email" form:"email"`
-	Password    string       `dbU:"password" json:"password" form:"password"`
-	Address     sql.NullString       `dbU:"address" json:"address" form:"address"`
-	Picture     sql.NullString       `dbU:"picture" json:"picture"`
-	PhoneNumber sql.NullString       `dbU:"phoneNumber" json:"phoneNumber" form:"phoneNumber"`
-	Role        string       `dbU:"role" json:"role" form:"role"`
-	CreatedAt   time.Time    `dbU:"createdAt" json:"createdAt"`
-	UpdatedAt   sql.NullTime `dbU:"updatedAt" json:"updatedAt"`
+	Id          int          `db:"id" json:"id"`
+	FullName    string       `db:"fullName" json:"fullName" form:"fullName"`
+	Email       string       `db:"email" json:"email" form:"email"`
+	Password    string       `db:"password" json:"password" form:"password"`
+	Address     sql.NullString       `db:"address" json:"address" form:"address"`
+	Picture     sql.NullString       `db:"picture" json:"picture"`
+	PhoneNumber sql.NullString       `db:"phoneNumber" json:"phoneNumber" form:"phoneNumber"`
+	Role        string       `db:"role" json:"role" form:"role"`
+	CreatedAt   time.Time    `db:"createdAt" json:"createdAt"`
+	UpdatedAt   sql.NullTime `db:"updatedAt" json:"updatedAt"`
 }
 
 type Info struct{
@@ -42,10 +43,10 @@ func FindAllUsers(searchKey string, sortBy string, order string, limit int, offs
 
 	result := Info{}
 	data := []User{}
-	err := dbU.Select(&data, sql,"%"+searchKey+"%", limit, offset)
+	err := db.Select(&data, sql,"%"+searchKey+"%", limit, offset)
 	result.Data = data
 	
-	row := dbU.QueryRow(sqlCount, "%"+searchKey+"%")
+	row := db.QueryRow(sqlCount, "%"+searchKey+"%")
 	err = row.Scan(&result.Count)
 
 	return result, err
@@ -55,7 +56,7 @@ func FindAllUsers(searchKey string, sortBy string, order string, limit int, offs
 func FindOneUsers(id int) (User, error) {
 	sql := `SELECT * FROM "users" WHERE id = $1`
 	data := User{}
-	err := dbU.Get(&data, sql, id)
+	err := db.Get(&data, sql, id)
 	return data, err
 }
 
@@ -69,7 +70,7 @@ func CreateUser(data User) (User, error) {
 	RETURNING *
 	`
 	result := User{}
-	rows, err := dbU.NamedQuery(sql, data)
+	rows, err := db.NamedQuery(sql, data)
 	if err != nil {
 		return result, err
 	}
@@ -96,7 +97,8 @@ func UpdateUser(data User) (User, error) {
 	RETURNING *
 	`
 	result := User{}
-	rows, err := dbU.NamedQuery(sql, data)
+	rows, err := db.NamedQuery(sql, data)
+	log.Fatalln(err)
 	if err != nil {
 		return result, err
 	}
@@ -113,6 +115,6 @@ func UpdateUser(data User) (User, error) {
 func DeleteUser(id int) (User, error) {
 	sql := `DELETE FROM "users" WHERE id = $1 RETURNING *`
 	data := User{}
-	err := dbU.Get(&data, sql, id)
+	err := db.Get(&data, sql, id)
 	return data, err
 }

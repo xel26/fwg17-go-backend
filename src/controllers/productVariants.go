@@ -97,7 +97,7 @@ func DetailProductVariant(c *gin.Context) {
 
 func CreateProductVariants(c *gin.Context) {
 	data := models.ProductVariants{}
-	c.Bind(&data)
+	c.ShouldBind(&data)
 
 	pv, err := models.CreateProductVariants(data)
 	if err != nil {
@@ -121,7 +121,7 @@ func UpdateProductVariants(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
 	data := models.ProductVariants{}
 
-	c.Bind(&data)
+	c.ShouldBind(&data)
 	data.Id = id
 
 	pv, err := models.UpdateProductVariants(data)

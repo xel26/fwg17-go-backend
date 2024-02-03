@@ -87,11 +87,12 @@ func UpdateProduct(data Product) (Product, error) {
 	sql := `UPDATE "products" SET
 	"name"=COALESCE(NULLIF(:name, ''),"name"),
 	"description"=COALESCE(NULLIF(:description, ''),"description"),
-	"basePrice"=COALESCE(NULLIF(:basePrice, ''),"basePrice"),
+	"basePrice"=COALESCE(NULLIF(:basePrice, 0),"basePrice"),
 	"image"=COALESCE(NULLIF(:image, ''),"image"),
-	"discount"=COALESCE(NULLIF(:discount, ''),"discount"),
-	"isRecommended"=COALESCE(NULLIF(:isRecommended, ''),"isRecommended"),
-	"tagId"=COALESCE(NULLIF(:tagId, ''),"tagId")
+	"discount"=COALESCE(NULLIF(:discount, 0),"discount"),
+	"isRecommended"=COALESCE(NULLIF(:isRecommended, false),"isRecommended"),
+	"tagId"=COALESCE(NULLIF(:tagId, 0),"tagId"),
+	"updatedAt" NOW()
 	WHERE id=:id
 	RETURNING *
 	`

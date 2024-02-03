@@ -71,6 +71,7 @@ func CreateCategories(data Categories) (Categories, error) {
 func UpdateCategories(data Categories) (Categories, error) {
 	sql := `UPDATE "categories" SET
 	"name"=COALESCE(NULLIF(:name, ''),"name"),
+	"updatedAt" NOW()
 	WHERE id=:id
 	RETURNING *
 	`

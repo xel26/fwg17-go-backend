@@ -98,7 +98,7 @@ func DetailTestimonial(c *gin.Context) {
 
 func CreateTestimonial(c *gin.Context) {
 	data := models.Testimonial{}
-	c.Bind(&data)
+	c.ShouldBind(&data)
 
 	testimonial, err := models.CreateTestimonial(data)
 	if err != nil {
@@ -122,7 +122,7 @@ func UpdateTestimonial(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
 	data := models.Testimonial{}
 
-	c.Bind(&data)
+	c.ShouldBind(&data)
 	data.Id = id
 
 	testimonial, err := models.UpdateTestimonial(data)

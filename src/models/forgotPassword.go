@@ -6,12 +6,12 @@ import (
 )
 
 type ForgotPassword struct {
-	Id        int            `db:"id" json:"id"`
-	Otp       sql.NullString `db:"otp" json:"otp" form:"otp"`
-	Email     sql.NullString `db:"email" json:"email" form:"email"`
-	UserId    sql.NullInt64  `db:"userId" json:"userId" form:"userId"`
-	CreatedAt time.Time      `db:"createdAt" json:"createdAt"`
-	UpdatedAt sql.NullTime   `db:"updatedAt" json:"updatedAt"`
+	Id        int           `db:"id" json:"id"`
+	Otp       string        `db:"otp" json:"otp" form:"otp"`
+	UserId    sql.NullInt64 `db:"userId" json:"userId" form:"userId"`
+	Email     string        `db:"email" json:"email" form:"email"`
+	CreatedAt time.Time     `db:"createdAt" json:"createdAt"`
+	UpdatedAt sql.NullTime  `db:"updatedAt" json:"updatedAt"`
 }
 
 type InfoFP struct {
@@ -19,12 +19,11 @@ type InfoFP struct {
 	Count int
 }
 
-
 func FindAllForgotPassword(searchKey string, sortBy string, order string, limit int, offset int) (InfoFP, error) {
 	sql := `
 	SELECT * FROM "forgotPassword" 
 	WHERE "email" ILIKE $1
-	ORDER BY "`+sortBy+`" `+order+`
+	ORDER BY "` + sortBy + `" ` + order + `
 	LIMIT $2 OFFSET $3
 	`
 	sqlCount := `
@@ -34,15 +33,14 @@ func FindAllForgotPassword(searchKey string, sortBy string, order string, limit 
 
 	result := InfoFP{}
 	data := []ForgotPassword{}
-	err := db.Select(&data, sql,"%"+searchKey+"%", limit, offset)
+	err := db.Select(&data, sql, "%"+searchKey+"%", limit, offset)
 	result.Data = data
-	
+
 	row := db.QueryRow(sqlCount, "%"+searchKey+"%")
 	err = row.Scan(&result.Count)
 
 	return result, err
 }
-
 
 func FindOneForgotPassword(id int) (ForgotPassword, error) {
 	sql := `SELECT * FROM "forgotPassword" WHERE id = $1`
@@ -50,7 +48,6 @@ func FindOneForgotPassword(id int) (ForgotPassword, error) {
 	err := db.Get(&data, sql, id)
 	return data, err
 }
-
 
 func FindOneByOtp(otp string) (ForgotPassword, error) {
 	sql := `SELECT * FROM "forgotPassword" WHERE otp = $1`
@@ -60,8 +57,8 @@ func FindOneByOtp(otp string) (ForgotPassword, error) {
 }
 
 func CreateForgotPassword(data ForgotPassword) (ForgotPassword, error) {
-	sql := `INSERT INTO "forgotPassword" ("otp", "email", "userId") 
-	VALUES (:otp, :email, :userId) 
+	sql := `INSERT INTO "forgotPassword" ("otp", "email") 
+	VALUES (:otp, :email) 
 	RETURNING *
 	`
 	result := ForgotPassword{}
@@ -77,12 +74,11 @@ func CreateForgotPassword(data ForgotPassword) (ForgotPassword, error) {
 	return result, err
 }
 
-
 func UpdateForgotPassword(data ForgotPassword) (ForgotPassword, error) {
 	sql := `UPDATE "forgotPassword" SET
-	"otp"=COALESCE(NULLIF(:otp, ''),"otp"),
+	"otp"=COALESCE(NULLIF(:otp, 0),"otp"),
 	"email"=COALESCE(NULLIF(:email, ''),"email"),
-	"userId"=COALESCE(NULLIF(:userId, ''),"userId")
+	"updatedAt"=CURRENT_TIMESTAMP
 	WHERE id=:id
 	RETURNING *
 	`

@@ -5,26 +5,24 @@ import (
 	"time"
 )
 
-
 type Variants struct {
-	Id            int            `db:"id" json:"id"`
-	Name          string         `db:"name" json:"name" form:"name"`
-	CreatedAt     time.Time      `db:"createdAt" json:"createdAt"`
-	UpdatedAt     sql.NullTime   `db:"updatedAt" json:"updatedAt"`
+	Id              int          `db:"id" json:"id"`
+	Name            string       `db:"name" json:"name" form:"name"`
+	AdditionalPrice int          `db:"additionalPrice" json:"additionalPrice" form:"additionalPrice"`
+	CreatedAt       time.Time    `db:"createdAt" json:"createdAt"`
+	UpdatedAt       sql.NullTime `db:"updatedAt" json:"updatedAt"`
 }
-
 
 type InfoV struct {
 	Data  []Variants
 	Count int
 }
 
-
 func FindAllVariants(searchKey string, sortBy string, order string, limit int, offset int) (InfoV, error) {
 	sql := `
 	SELECT * FROM "variant" 
 	WHERE "name" ILIKE $1
-	ORDER BY "`+sortBy+`" `+order+`
+	ORDER BY "` + sortBy + `" ` + order + `
 	LIMIT $2 OFFSET $3
 	`
 	sqlCount := `
@@ -34,15 +32,14 @@ func FindAllVariants(searchKey string, sortBy string, order string, limit int, o
 
 	result := InfoV{}
 	data := []Variants{}
-	err := db.Select(&data, sql,"%"+searchKey+"%", limit, offset)
+	err := db.Select(&data, sql, "%"+searchKey+"%", limit, offset)
 	result.Data = data
-	
+
 	row := db.QueryRow(sqlCount, "%"+searchKey+"%")
 	err = row.Scan(&result.Count)
 
 	return result, err
 }
-
 
 func FindOneVariants(id int) (Variants, error) {
 	sql := `SELECT * FROM "variant" WHERE id = $1`
@@ -51,27 +48,25 @@ func FindOneVariants(id int) (Variants, error) {
 	return data, err
 }
 
-
 func CreateVariants(data Variants) (Variants, error) {
-	sql := `INSERT INTO "variant" ("name") VALUES (:name) RETURNING *`
+	sql := `INSERT INTO "variant" ("name", "additionalPrice") VALUES (:name, :additionalPrice) RETURNING *`
 	result := Variants{}
 	rows, err := db.NamedQuery(sql, data)
 	if err != nil {
 		return result, err
 	}
-	
-	for rows.Next(){
+
+	for rows.Next() {
 		rows.StructScan(&result)
 	}
-	
+
 	return result, err
 }
-
-
 
 func UpdateVariants(data Variants) (Variants, error) {
 	sql := `UPDATE "variant" SET
 	"name"=COALESCE(NULLIF(:name, ''),"name"),
+	"updatedAt" NOW()
 	WHERE id=:id
 	RETURNING *
 	`
@@ -81,14 +76,12 @@ func UpdateVariants(data Variants) (Variants, error) {
 		return result, err
 	}
 
-	for rows.Next(){
+	for rows.Next() {
 		rows.StructScan(&result)
 	}
 
 	return result, err
 }
-
-
 
 func DeleteVariants(id int) (Variants, error) {
 	sql := `DELETE FROM "variant" WHERE id = $1 RETURNING *`

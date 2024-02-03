@@ -1,11 +1,13 @@
 package routers
 
 import (
-	routers "coffe-shop-be-golang/src/routers/admin"
+	admin "coffe-shop-be-golang/src/routers/admin"
+	customer "coffe-shop-be-golang/src/routers/customer"
 
 	"github.com/gin-gonic/gin"
 )
 
 func Combine(r *gin.Engine){
-	routers.CombineAdmin(r.Group("/admin"))
+	admin.CombineAdmin(r.Group("/admin"))
+	customer.CombineCustomer(r.Group("/"))
 }

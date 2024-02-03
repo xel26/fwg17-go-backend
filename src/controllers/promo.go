@@ -98,7 +98,7 @@ func DetailPromo(c *gin.Context) {
 
 func CreatePromo(c *gin.Context) {
 	data := models.Promo{}
-	c.Bind(&data)
+	c.ShouldBind(&data)
 
 	promo, err := models.CreatePromo(data)
 	if err != nil {
@@ -122,7 +122,7 @@ func UpdatePromo(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
 	data := models.Promo{}
 
-	c.Bind(&data)
+	c.ShouldBind(&data)
 	data.Id = id
 
 	promo, err := models.UpdatePromo(data)

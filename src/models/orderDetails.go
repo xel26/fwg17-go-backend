@@ -80,12 +80,13 @@ func CreateOrderDetails(data OrderDetails) (OrderDetails, error) {
 
 func UpdateOrderDetails(data OrderDetails) (OrderDetails, error) {
 	sql := `UPDATE "orderDetails" SET
-	"productId"=COALESCE(NULLIF(:productId, ''),"productId"),
-	"sizeId"=COALESCE(NULLIF(:sizeId, ''),"sizeId"),
-	"variantId"=COALESCE(NULLIF(:variantId, ''),"variantId"),
-	"quantity"=COALESCE(NULLIF(:quantity, ''),"quantity"),
-	"orderId"=COALESCE(NULLIF(:orderId, ''),"orderId"),
-	"subtotal"=COALESCE(NULLIF(:subtotal, ''),"subtotal"),
+	"productId"=COALESCE(NULLIF(:productId, 0),"productId"),
+	"sizeId"=COALESCE(NULLIF(:sizeId, 0),"sizeId"),
+	"variantId"=COALESCE(NULLIF(:variantId, 0),"variantId"),
+	"quantity"=COALESCE(NULLIF(:quantity, 0),"quantity"),
+	"orderId"=COALESCE(NULLIF(:orderId, 0),"orderId"),
+	"subtotal"=COALESCE(NULLIF(:subtotal, 0),"subtotal"),
+	"updatedAt" NOW()
 	WHERE id=:id
 	RETURNING *
 	`

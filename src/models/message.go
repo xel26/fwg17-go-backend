@@ -76,9 +76,10 @@ func CreateMessage(data Message) (Message, error) {
 
 func UpdateMessage(data Message) (Message, error) {
 	sql := `UPDATE "message" SET
-	"recipientId"=COALESCE(NULLIF(:recipientId, ''),"recipientId"),
-	"senderId"=COALESCE(NULLIF(:senderId, ''),"senderId"),
-	"text"=COALESCE(NULLIF(:text, ''),"text")
+	"recipientId"=COALESCE(NULLIF(:recipientId, 0),"recipientId"),
+	"senderId"=COALESCE(NULLIF(:senderId, 0),"senderId"),
+	"text"=COALESCE(NULLIF(:text, ''),"text"),
+	"updatedAt" NOW()
 	WHERE id=:id
 	RETURNING *
 	`

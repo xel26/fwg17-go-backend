@@ -21,13 +21,13 @@ type InfoS struct {
 func FindAllSizes(searchKey string, sortBy string, order string, limit int, offset int) (InfoS, error) {
 	sql := `
 	SELECT * FROM "sizes" 
-	WHERE "name" ILIKE $1
-	ORDER BY "` + sortBy + `" ` + order + `
+	WHERE "size" ILIKE $1
+	ORDER BY "`+sortBy+`" `+order+`
 	LIMIT $2 OFFSET $3
 	`
 	sqlCount := `
 	SELECT COUNT(*) FROM "sizes"
-	WHERE "name" ILIKE $1
+	WHERE "size" ILIKE $1
 	`
 
 	result := InfoS{}
@@ -70,7 +70,8 @@ func CreateSizes(data Sizes) (Sizes, error) {
 func UpdateSizes(data Sizes) (Sizes, error) {
 	sql := `UPDATE "sizes" SET
 	"size"=COALESCE(NULLIF(:size, ''),"size"),
-	"additionalPrice"=COALESCE(NULLIF(:additionalPrice, ''),"additionalPrice")
+	"additionalPrice"=COALESCE(NULLIF(:additionalPrice, 0),"additionalPrice"),
+	"updatedAt" NOW()
 	WHERE id=:id
 	RETURNING *
 	`

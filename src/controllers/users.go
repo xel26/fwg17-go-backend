@@ -1,7 +1,9 @@
 package controllers
 
 import (
+	"coffe-shop-be-golang/src/middleware"
 	"coffe-shop-be-golang/src/models"
+	"fmt"
 	"log"
 	"math"
 	"strings"
@@ -9,6 +11,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/KEINOS/go-argonize"
 	"github.com/gin-gonic/gin"
 )
 
@@ -37,6 +40,10 @@ type Response struct {
 type ResponseOnly struct {
 	Success bool   `json:"success"`
 	Message string `json:"message"`
+}
+type ResponseOnly2 struct {
+	Success bool   `json:"success"`
+	Message error `json:"message"`
 }
 
 
@@ -87,6 +94,18 @@ func ListAllUsers(c *gin.Context) {
 		return
 	}
 
+	isAuthorize := middleware.AuthorizeToken(c)
+	claims := middleware.RoleCheck("admin", c)
+	fmt.Println("claims", claims)
+
+	if isAuthorize == false{
+		c.JSON(http.StatusUnauthorized, &ResponseOnly{
+			Success: false,
+			Message: "Unauthorize",
+		})
+		return
+	}
+
 	c.JSON(http.StatusOK, &ResponseList{
 		Success: true,
 		Message: "List all Users",
@@ -125,14 +144,27 @@ func DetailUser(c *gin.Context) {
 
 func CreateUser(c *gin.Context) {
 	data := models.User{}
-	c.Bind(&data)
+	err := c.ShouldBind(&data)
+
+
+	plain := []byte(data.Password)
+	hash, err := argonize.Hash(plain)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, &ResponseOnly2{
+			Success: false,
+			Message: err,
+		})
+		return
+	}
+	data.Password =  hash.String()
+
 
 	user, err := models.CreateUser(data)
+
 	if err != nil {
-		log.Fatal(err)
-		c.JSON(http.StatusInternalServerError, &ResponseOnly{
+		c.JSON(http.StatusInternalServerError, &ResponseOnly2{
 			Success: false,
-			Message: "Internal server error",
+			Message: err,
 		})
 		return
 	}
@@ -148,17 +180,28 @@ func CreateUser(c *gin.Context) {
 func UpdateUser(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
 	data := models.User{}
+	err := c.ShouldBind(&data)
 
-	c.Bind(&data)
+	plain := []byte(data.Password)
+	hash, err := argonize.Hash(plain)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, &ResponseOnly{
+			Success: false,
+			Message: "failed generate hash",
+		})
+		return
+	}
+	data.Password =  hash.String()
+
 	data.Id = id
 
 	user, err := models.UpdateUser(data)
-	if err != nil {
-		log.Fatal(err)
+
+	if err != nil{
 		if strings.HasPrefix(err.Error(), "sql: no rows"){
 			c.JSON(http.StatusInternalServerError, &ResponseOnly{
 				Success: false,
-				Message: "User not found",
+				Message: "no data found",
 			})
 		return
 		}
@@ -177,6 +220,7 @@ func UpdateUser(c *gin.Context) {
 		Results: user,
 	})
 }
+
 
 
 func DeleteUser(c *gin.Context) {

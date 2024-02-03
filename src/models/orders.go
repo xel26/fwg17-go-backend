@@ -32,7 +32,7 @@ type InfoO struct {
 func FindAllOrders(sortBy string, order string, limit int, offset int) (InfoO, error) {
 	sql := `
 	SELECT * FROM "orders" 
-	ORDER BY "` + sortBy + `" ` + order + `
+	ORDER BY "`+sortBy+`" `+order+`
 	LIMIT $1 OFFSET $2
 	`
 	sqlCount := `
@@ -58,9 +58,9 @@ func FindOneOrders(id int) (Orders, error) {
 }
 
 func CreateOrders(data Orders) (Orders, error) {
-	sql := `INSERT INTO "orders" ("name", "description", "basePrice", "image", "discount", "isRecommended", "tagId") 
+	sql := `INSERT INTO "orders" ("userId", "orderNUmber", "promoId", "total", "deliveryAddress", "fullName", "email", "priceCut", "subtotal", "status", "deliveryFee", "deliveryShipping") 
 	VALUES
-	(:name, :description, :basePrice, :image, :discount, :isRecommended, :tagId)
+	(:userId, :orderNUmber, :promoId, :total, :deliveryAddress, :fullName, :email, :priceCut, :subtotal, :status, :deliveryFee, :deliveryShipping)
 	RETURNING *
 	`
 	result := Orders{}
@@ -78,18 +78,19 @@ func CreateOrders(data Orders) (Orders, error) {
 
 func UpdateOrders(data Orders) (Orders, error) {
 	sql := `UPDATE "orders" SET
-	"userId"=COALESCE(NULLIF(:userId, ''),"userId"),
+	"userId"=COALESCE(NULLIF(:userId, 0),"userId"),
 	"orderNumber"=COALESCE(NULLIF(:orderNumber, ''),"orderNumber"),
-	"promoId"=COALESCE(NULLIF(:promoId, ''),"promoId"),
-	"total"=COALESCE(NULLIF(:total, ''),"total"),
+	"promoId"=COALESCE(NULLIF(:promoId, 0),"promoId"),
+	"total"=COALESCE(NULLIF(:total, 0),"total"),
 	"deliveryAddress"=COALESCE(NULLIF(:deliveryAddress, ''),"deliveryAddress"),
 	"fullName"=COALESCE(NULLIF(:fullName, ''),"fullName"),
 	"email"=COALESCE(NULLIF(:email, ''),"email"),
-	"priceCut"=COALESCE(NULLIF(:priceCut, ''),"priceCut"),
-	"subtotal"=COALESCE(NULLIF(:subtotal, ''),"subtotal"),
+	"priceCut"=COALESCE(NULLIF(:priceCut, 0),"priceCut"),
+	"subtotal"=COALESCE(NULLIF(:subtotal, 0),"subtotal"),
 	"status"=COALESCE(NULLIF(:status, ''),"status"),
-	"deliveryFee"=COALESCE(NULLIF(:deliveryFee, ''),"deliveryFee"),
+	"deliveryFee"=COALESCE(NULLIF(:deliveryFee, 0),"deliveryFee"),
 	"deliveryShipping"=COALESCE(NULLIF(:deliveryShipping, ''),"deliveryShipping"),
+	"updatedAt" NOW()
 	WHERE id=:id
 	RETURNING *
 	`

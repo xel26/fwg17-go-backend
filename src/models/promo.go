@@ -77,10 +77,11 @@ func UpdatePromo(data Promo) (Promo, error) {
 	"name"=COALESCE(NULLIF(:name, ''),"name"),
 	"code"=COALESCE(NULLIF(:code, ''),"code"),
 	"description"=COALESCE(NULLIF(:description, ''),"description"),
-	"percentage"=COALESCE(NULLIF(:percentage, ''),"percentage"),
-	"isExpired"=COALESCE(NULLIF(:isExpired, ''),"isExpired"),
-	"maximumPromo"=COALESCE(NULLIF(:maximumPromo, ''),"maximumPromo"),
-	"minimumAmount"=COALESCE(NULLIF(:minimumAmount, ''),"minimumAmount")
+	"percentage"=COALESCE(NULLIF(:percentage, 0),"percentage"),
+	"isExpired"=COALESCE(NULLIF(:isExpired, false),"isExpired"),
+	"maximumPromo"=COALESCE(NULLIF(:maximumPromo, 0),"maximumPromo"),
+	"minimumAmount"=COALESCE(NULLIF(:minimumAmount, 0),"minimumAmount"),
+	"updatedAt" NOW()
 	WHERE id=:id
 	RETURNING *
 	`

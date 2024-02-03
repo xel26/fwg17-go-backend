@@ -98,7 +98,7 @@ func DetailCategories(c *gin.Context) {
 
 func CreateCategories(c *gin.Context) {
 	data := models.Categories{}
-	c.Bind(&data)
+	c.ShouldBind(&data)
 
 	category, err := models.CreateCategories(data)
 	if err != nil {
@@ -122,7 +122,7 @@ func UpdateCategories(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
 	data := models.Categories{}
 
-	c.Bind(&data)
+	c.ShouldBind(&data)
 	data.Id = id
 
 	category, err := models.UpdateCategories(data)

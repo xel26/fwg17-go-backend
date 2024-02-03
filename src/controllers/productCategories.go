@@ -97,7 +97,7 @@ func DetailProductCategories(c *gin.Context) {
 
 func CreateProductCategories(c *gin.Context) {
 	data := models.ProductCategories{}
-	c.Bind(&data)
+	c.ShouldBind(&data)
 
 	pc, err := models.CreateProductCategories(data)
 	if err != nil {
@@ -121,7 +121,7 @@ func UpdateProductCategories(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
 	data := models.ProductCategories{}
 
-	c.Bind(&data)
+	c.ShouldBind(&data)
 	data.Id = id
 
 	pc, err := models.UpdateProductCategories(data)
@@ -155,6 +155,8 @@ func DeleteProductCategories(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
 	pc, err := models.DeleteProduct(id)
 	if err != nil {
+		log.Fatalln(err)
+		
 		if strings.HasPrefix(err.Error(), "sql: no rows"){
 			c.JSON(http.StatusInternalServerError, &ResponseOnly{
 				Success: false,

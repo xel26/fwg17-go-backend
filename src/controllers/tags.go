@@ -98,7 +98,7 @@ func DetailTags(c *gin.Context) {
 
 func CreateTags(c *gin.Context) {
 	data := models.Tags{}
-	c.Bind(&data)
+	c.ShouldBind(&data)
 
 	tags, err := models.CreateTags(data)
 	if err != nil {
@@ -122,7 +122,7 @@ func UpdateTags(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
 	data := models.Tags{}
 
-	c.Bind(&data)
+	c.ShouldBind(&data)
 	data.Id = id
 
 	tags, err := models.UpdateTags(data)

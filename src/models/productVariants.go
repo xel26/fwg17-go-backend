@@ -67,8 +67,9 @@ func CreateProductVariants(data ProductVariants) (ProductVariants, error) {
 
 func UpdateProductVariants(data ProductVariants) (ProductVariants, error) {
 	sql := `UPDATE "productVariant" SET
-	"productId"=COALESCE(NULLIF(:productId, ''),"productId"),
-	"variantId"=COALESCE(NULLIF(:variantId, ''),"variantId"),
+	"productId"=COALESCE(NULLIF(:productId, 0),"productId"),
+	"variantId"=COALESCE(NULLIF(:variantId, 0),"variantId"),
+	"updatedAt" NOW()
 	WHERE id=:id
 	RETURNING *
 	`

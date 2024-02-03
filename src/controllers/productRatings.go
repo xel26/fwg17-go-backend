@@ -97,7 +97,7 @@ func DetailProductRatings(c *gin.Context) {
 
 func CreateProductRatings(c *gin.Context) {
 	data := models.ProductRatings{}
-	c.Bind(&data)
+	c.ShouldBind(&data)
 
 	pr, err := models.CreateProductRatings(data)
 	if err != nil {
@@ -121,7 +121,7 @@ func UpdatePrductRatings(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
 	data := models.ProductRatings{}
 
-	c.Bind(&data)
+	c.ShouldBind(&data)
 	data.Id = id
 
 	pr, err := models.UpdateProductRatings(data)

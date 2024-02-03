@@ -7,7 +7,7 @@ func CombineAdmin(r *gin.RouterGroup){
 	ProductsRouter(r.Group("/products"))
 	CategoriesRouter(r.Group("/categories"))
 	ForgotPasswordRouter(r.Group("/forgot-password"))
-	MessageRouter(r.Group("/messsage"))
+	MessageRouter(r.Group("/message"))
 	OrderDetailsRouter(r.Group("/order-details"))
 	OrdersRouter(r.Group("/orders"))
 	ProductCategoriesRouter(r.Group("/product-categories"))

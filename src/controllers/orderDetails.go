@@ -97,7 +97,7 @@ func DetailOrderDetails(c *gin.Context) {
 
 func CreateOrderDetails(c *gin.Context) {
 	data := models.OrderDetails{}
-	c.Bind(&data)
+	c.ShouldBind(&data)
 
 	od, err := models.CreateOrderDetails(data)
 	if err != nil {
@@ -121,7 +121,7 @@ func UpdateOrderDetails(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
 	data := models.OrderDetails{}
 
-	c.Bind(&data)
+	c.ShouldBind(&data)
 	data.Id = id
 
 	od, err := models.UpdateOrderDetails(data)

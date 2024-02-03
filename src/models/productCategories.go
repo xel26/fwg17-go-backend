@@ -7,7 +7,7 @@ import (
 
 type ProductCategories struct {
 	Id         int          `db:"id" json:"id"`
-	ProductCategoriesId  int          `db:"productId" json:"productId" form:"productId"`
+	ProductId  int          `db:"productId" json:"productId" form:"productId"`
 	CategoryId int          `db:"categoryId" json:"categoryId" form:"categoryId"`
 	CreatedAt  time.Time    `db:"createdAt" json:"createdAt"`
 	UpdatedAt  sql.NullTime `db:"updatedAt" json:"updatedAt"`
@@ -67,8 +67,9 @@ func CreateProductCategories(data ProductCategories) (ProductCategories, error) 
 
 func UpdateProductCategories(data ProductCategories) (ProductCategories, error) {
 	sql := `UPDATE "productCategories" SET
-	"productId"=COALESCE(NULLIF(:productId, ''),"productId"),
-	"categoryId"=COALESCE(NULLIF(:categoryId, ''),"categoryId"),
+	"productId"=COALESCE(NULLIF(:productId, 0),"productId"),
+	"categoryId"=COALESCE(NULLIF(:categoryId, 0),"categoryId"),
+	"updatedAt" NOW()
 	WHERE id=:id
 	RETURNING *
 	`

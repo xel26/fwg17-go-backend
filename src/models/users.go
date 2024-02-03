@@ -3,7 +3,6 @@ package models
 import (
 	"coffe-shop-be-golang/src/lib"
 	"database/sql"
-	"log"
 	"time"
 
 	"github.com/jmoiron/sqlx"
@@ -17,7 +16,7 @@ type User struct {
 	Email       string       `db:"email" json:"email" form:"email"`
 	Password    string       `db:"password" json:"password" form:"password"`
 	Address     sql.NullString       `db:"address" json:"address" form:"address"`
-	Picture     sql.NullString       `db:"picture" json:"picture"`
+	Picture     sql.NullString       `db:"picture" json:"picture" form:"picture"`
 	PhoneNumber sql.NullString       `db:"phoneNumber" json:"phoneNumber" form:"phoneNumber"`
 	Role        string       `db:"role" json:"role" form:"role"`
 	CreatedAt   time.Time    `db:"createdAt" json:"createdAt"`
@@ -61,6 +60,14 @@ func FindOneUsers(id int) (User, error) {
 }
 
 
+func FindOneUsersByEmail(email string) (User, error) {
+	sql := `SELECT * FROM "users" WHERE email = $1`
+	data := User{}
+	err := db.Get(&data, sql, email)
+	return data, err
+}
+
+
 
 
 func CreateUser(data User) (User, error) {
@@ -92,13 +99,13 @@ func UpdateUser(data User) (User, error) {
 	"password"=COALESCE(NULLIF(:password, ''),"password"),
 	"address"=COALESCE(NULLIF(:address, ''),"address"),
 	"phoneNumber"=COALESCE(NULLIF(:phoneNumber, ''),"phoneNumber"),
-	"role"=COALESCE(NULLIF(:role, ''),"role")
+	"role"=COALESCE(NULLIF(:role, ''),"role"),
+	"updatedAt"=NOW()
 	WHERE id=:id
 	RETURNING *
 	`
 	result := User{}
 	rows, err := db.NamedQuery(sql, data)
-	log.Fatalln(err)
 	if err != nil {
 		return result, err
 	}

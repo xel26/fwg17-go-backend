@@ -98,7 +98,7 @@ func DetailVariants(c *gin.Context) {
 
 func CreateVariants(c *gin.Context) {
 	data := models.Variants{}
-	c.Bind(&data)
+	c.ShouldBind(&data)
 
 	variants, err := models.CreateVariants(data)
 	if err != nil {
@@ -112,7 +112,7 @@ func CreateVariants(c *gin.Context) {
 
 	c.JSON(http.StatusOK, &Response{
 		Success: true,
-		Message: "Varinats created successfully",
+		Message: "Variants created successfully",
 		Results: variants,
 	})
 }
@@ -122,7 +122,7 @@ func UpdateVariants(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
 	data := models.Variants{}
 
-	c.Bind(&data)
+	c.ShouldBind(&data)
 	data.Id = id
 
 	variants, err := models.UpdateVariants(data)

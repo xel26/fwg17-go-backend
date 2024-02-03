@@ -98,7 +98,7 @@ func DetailSizes(c *gin.Context) {
 
 func CreateSize(c *gin.Context) {
 	data := models.Sizes{}
-	c.Bind(&data)
+	c.ShouldBind(&data)
 
 	size, err := models.CreateSizes(data)
 	if err != nil {
@@ -122,7 +122,7 @@ func UpdateSizes(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
 	data := models.Sizes{}
 
-	c.Bind(&data)
+	c.ShouldBind(&data)
 	data.Id = id
 
 	size, err := models.UpdateSizes(data)

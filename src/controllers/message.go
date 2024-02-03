@@ -97,7 +97,7 @@ func DetailMessage(c *gin.Context) {
 
 func CreateMessage(c *gin.Context) {
 	data := models.Message{}
-	c.Bind(&data)
+	c.ShouldBind(&data)
 
 	message, err := models.CreateMessage(data)
 	if err != nil {
@@ -121,7 +121,7 @@ func UpdateMessage(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
 	data := models.Message{}
 
-	c.Bind(&data)
+	c.ShouldBind(&data)
 	data.Id = id
 
 	message, err := models.UpdateMessage(data)

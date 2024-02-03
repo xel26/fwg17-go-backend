@@ -66,7 +66,8 @@ func CreateTags(data Tags) (Tags, error) {
 
 func UpdateTags(data Tags) (Tags, error) {
 	sql := `UPDATE "tags" SET
-	"name"=COALESCE(NULLIF(:name, ''),"name")
+	"name"=COALESCE(NULLIF(:name, ''),"name"),
+	"updatedAt" NOW()
 	WHERE id=:id
 	RETURNING *
 	`

@@ -97,7 +97,7 @@ func DetailOrders(c *gin.Context) {
 
 func CreateOrders(c *gin.Context) {
 	data := models.Orders{}
-	c.Bind(&data)
+	c.ShouldBind(&data)
 
 	order, err := models.CreateOrders(data)
 	if err != nil {
@@ -121,7 +121,7 @@ func UpdateOrders(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
 	data := models.Orders{}
 
-	c.Bind(&data)
+	c.ShouldBind(&data)
 	data.Id = id
 
 	orders, err := models.UpdateOrders(data)
@@ -155,6 +155,7 @@ func DeleteOrders(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
 	orders, err := models.DeleteOrders(id)
 	if err != nil {
+		log.Fatalln(err)
 		if strings.HasPrefix(err.Error(), "sql: no rows"){
 			c.JSON(http.StatusInternalServerError, &ResponseOnly{
 				Success: false,

@@ -98,7 +98,7 @@ func DetailProducts(c *gin.Context) {
 
 func CreateProducts(c *gin.Context) {
 	data := models.Product{}
-	c.Bind(&data)
+	c.ShouldBind(&data)
 
 	product, err := models.CreateProducts(data)
 	if err != nil {
@@ -122,12 +122,12 @@ func UpdatePrducts(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
 	data := models.Product{}
 
-	c.Bind(&data)
+	c.ShouldBind(&data)
 	data.Id = id
 
 	product, err := models.UpdateProduct(data)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalln(err)
 		if strings.HasPrefix(err.Error(), "sql: no rows"){
 			c.JSON(http.StatusInternalServerError, &ResponseOnly{
 				Success: false,
@@ -156,6 +156,7 @@ func DeleteProducts(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
 	product, err := models.DeleteProduct(id)
 	if err != nil {
+		log.Fatalln(err)
 		if strings.HasPrefix(err.Error(), "sql: no rows"){
 			c.JSON(http.StatusInternalServerError, &ResponseOnly{
 				Success: false,
@@ -166,7 +167,7 @@ func DeleteProducts(c *gin.Context) {
 
 		c.JSON(http.StatusInternalServerError, &ResponseOnly{
 			Success: false,
-			Message: "Internal server error",
+			Message: "Internal Server Error",
 		})
 		return
 	}

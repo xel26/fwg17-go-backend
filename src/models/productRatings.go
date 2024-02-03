@@ -69,10 +69,11 @@ func CreateProductRatings(data ProductRatings) (ProductRatings, error) {
 
 func UpdateProductRatings(data ProductRatings) (ProductRatings, error) {
 	sql := `UPDATE "productRatings" SET
-	"productId"=COALESCE(NULLIF(:productId, ''),"productId"),
-	"rate"=COALESCE(NULLIF(:rate, ''),"rate"),
+	"productId"=COALESCE(NULLIF(:productId, 0),"productId"),
+	"rate"=COALESCE(NULLIF(:rate, 0),"rate"),
 	"reviewMessage"=COALESCE(NULLIF(:reviewMessage, ''),"reviewMessage"),
-	"userId"=COALESCE(NULLIF(:userId, ''),"userId"),
+	"userId"=COALESCE(NULLIF(:userId, 0),"userId"),
+	"updatedAt" NOW()
 	WHERE id=:id
 	RETURNING *
 	`

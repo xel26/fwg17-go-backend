@@ -48,6 +48,20 @@ type ResponseOnly2 struct {
 
 
 func ListAllUsers(c *gin.Context) {
+	isAuthorize := middleware.AuthorizeToken(c)
+	claims := middleware.RoleCheck("admin", c)
+	fmt.Println("claims", claims)
+
+
+	if isAuthorize == false || claims == false{
+		c.JSON(http.StatusUnauthorized, &ResponseOnly{
+			Success: false,
+			Message: "Unauthorize",
+		})
+		return
+	}
+
+
 	searchKey := c.DefaultQuery("searchKey", "")
 	sortBy := c.DefaultQuery("sortBy", "id")
 	order := c.DefaultQuery("order", "ASC")
@@ -94,18 +108,6 @@ func ListAllUsers(c *gin.Context) {
 		return
 	}
 
-	isAuthorize := middleware.AuthorizeToken(c)
-	claims := middleware.RoleCheck("admin", c)
-	fmt.Println("claims", claims)
-
-	if isAuthorize == false{
-		c.JSON(http.StatusUnauthorized, &ResponseOnly{
-			Success: false,
-			Message: "Unauthorize",
-		})
-		return
-	}
-
 	c.JSON(http.StatusOK, &ResponseList{
 		Success: true,
 		Message: "List all Users",
@@ -116,6 +118,21 @@ func ListAllUsers(c *gin.Context) {
 
 
 func DetailUser(c *gin.Context) {
+	isAuthorize := middleware.AuthorizeToken(c)
+	claims := middleware.RoleCheck("admin", c)
+	fmt.Println("claims", claims)
+
+
+	if isAuthorize == false || claims == false{
+		c.JSON(http.StatusUnauthorized, &ResponseOnly{
+			Success: false,
+			Message: "Unauthorize",
+		})
+		return
+	}
+
+
+
 	id, _ := strconv.Atoi(c.Param("id"))
 	user, err := models.FindOneUsers(id)
 	if err != nil {
@@ -134,6 +151,7 @@ func DetailUser(c *gin.Context) {
 		return
 	}
 
+
 	c.JSON(http.StatusOK, &Response{
 		Success: true,
 		Message: "Detail user",
@@ -143,6 +161,21 @@ func DetailUser(c *gin.Context) {
 
 
 func CreateUser(c *gin.Context) {
+	isAuthorize := middleware.AuthorizeToken(c)
+	claims := middleware.RoleCheck("admin", c)
+	fmt.Println("claims", claims)
+
+
+	if isAuthorize == false || claims == false{
+		c.JSON(http.StatusUnauthorized, &ResponseOnly{
+			Success: false,
+			Message: "Unauthorize",
+		})
+		return
+	}
+
+
+
 	data := models.User{}
 	err := c.ShouldBind(&data)
 
@@ -178,7 +211,30 @@ func CreateUser(c *gin.Context) {
 
 
 func UpdateUser(c *gin.Context) {
+	isAuthorize := middleware.AuthorizeToken(c)
+	claims := middleware.RoleCheck("admin", c)
+	fmt.Println("claims", claims)
+
+
+	if isAuthorize == false || claims == false{
+		c.JSON(http.StatusUnauthorized, &ResponseOnly{
+			Success: false,
+			Message: "Unauthorize",
+		})
+		return
+	}
+
 	id, _ := strconv.Atoi(c.Param("id"))
+	isExist, error := models.FindOneUsers(id)
+	if error != nil{
+		fmt.Println(isExist, error)
+		c.JSON(http.StatusInternalServerError, &ResponseOnly{
+			Success: false,
+			Message: "no data found",
+		})
+	return
+	}
+
 	data := models.User{}
 	err := c.ShouldBind(&data)
 
@@ -198,14 +254,6 @@ func UpdateUser(c *gin.Context) {
 	user, err := models.UpdateUser(data)
 
 	if err != nil{
-		if strings.HasPrefix(err.Error(), "sql: no rows"){
-			c.JSON(http.StatusInternalServerError, &ResponseOnly{
-				Success: false,
-				Message: "no data found",
-			})
-		return
-		}
-		
 		c.JSON(http.StatusInternalServerError, &ResponseOnly{
 			Success: false,
 			Message: "Internal server error",
@@ -224,17 +272,34 @@ func UpdateUser(c *gin.Context) {
 
 
 func DeleteUser(c *gin.Context) {
+	isAuthorize := middleware.AuthorizeToken(c)
+	claims := middleware.RoleCheck("admin", c)
+	fmt.Println("claims", claims)
+
+
+	if isAuthorize == false || claims == false{
+		c.JSON(http.StatusUnauthorized, &ResponseOnly{
+			Success: false,
+			Message: "Unauthorize",
+		})
+		return
+	}
+
+
 	id, _ := strconv.Atoi(c.Param("id"))
+	isExist, error := models.FindOneUsers(id)
+	if error != nil{
+		fmt.Println(isExist, error)
+		c.JSON(http.StatusInternalServerError, &ResponseOnly{
+			Success: false,
+			Message: "no data found",
+		})
+	return
+	}
+
+	
 	user, err := models.DeleteUser(id)
 	if err != nil {
-		if strings.HasPrefix(err.Error(), "sql: no rows"){
-			c.JSON(http.StatusInternalServerError, &ResponseOnly{
-				Success: false,
-				Message: "User not found",
-			})
-		return
-		}
-
 		c.JSON(http.StatusInternalServerError, &ResponseOnly{
 			Success: false,
 			Message: "Internal server error",

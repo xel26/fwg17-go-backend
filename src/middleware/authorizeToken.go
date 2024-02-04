@@ -11,6 +11,11 @@ import (
 func AuthorizeToken(c *gin.Context)bool{
 	const BEARER_SCHEMA = "Bearer "
 	authHeader := c.GetHeader("Authorization")
+	fmt.Println(authHeader)
+	if authHeader == ""{
+		return false
+	}
+
 	tokenString := authHeader[len(BEARER_SCHEMA):]
 	token, err := service.ValidateToken(tokenString)
 	if token.Valid{

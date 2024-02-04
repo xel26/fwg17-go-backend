@@ -92,7 +92,7 @@ func UpdateProduct(data Product) (Product, error) {
 	"discount"=COALESCE(NULLIF(:discount, 0),"discount"),
 	"isRecommended"=COALESCE(NULLIF(:isRecommended, false),"isRecommended"),
 	"tagId"=COALESCE(NULLIF(:tagId, 0),"tagId"),
-	"updatedAt" NOW()
+	"updatedAt"=NOW()
 	WHERE id=:id
 	RETURNING *
 	`

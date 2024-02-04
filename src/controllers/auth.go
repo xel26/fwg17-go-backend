@@ -43,7 +43,7 @@ func Login(c *gin.Context) {
 		return
 	}
 	
-	token, err := service.GenerateToken(found.Id, found.Email, found.Role)
+	token, err := service.GenerateToken(found.Id, found.Role)
 
 	plain := []byte(form.Password)
 	if decode.IsValidPassword(plain) {
@@ -61,6 +61,8 @@ func Login(c *gin.Context) {
 	}
 
 }
+
+
 
 func Register(c *gin.Context) {
 	form := models.User{}
@@ -101,6 +103,8 @@ func Register(c *gin.Context) {
 		Results: result,
 	})
 }
+
+
 
 func ForgotPassword(c *gin.Context) {
 	form := FormReset{}

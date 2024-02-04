@@ -7,10 +7,9 @@ import (
 	"github.com/dgrijalva/jwt-go"
 )
 
-func GenerateToken(id int, email string, role string) (string, error){
+func GenerateToken(id int, role string) (string, error){
 	claims := jwt.MapClaims{
 		"id": id,
-		"email": email,
 		"role": role,
 	}
 

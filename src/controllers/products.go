@@ -1,7 +1,9 @@
 package controllers
 
 import (
+	"coffe-shop-be-golang/src/middleware"
 	"coffe-shop-be-golang/src/models"
+	"fmt"
 	"log"
 	"math"
 	"strings"
@@ -14,6 +16,20 @@ import (
 
 
 func ListAllProducts(c *gin.Context) {
+	isAuthorize := middleware.AuthorizeToken(c)
+	claims := middleware.RoleCheck("admin", c)
+	fmt.Println("claims", claims)
+
+
+	if isAuthorize == false || claims == false{
+		c.JSON(http.StatusUnauthorized, &ResponseOnly{
+			Success: false,
+			Message: "Unauthorize",
+		})
+		return
+	}
+
+
 	searchKey := c.DefaultQuery("searchKey", "")
 	sortBy := c.DefaultQuery("sortBy", "id")
 	order := c.DefaultQuery("order", "ASC")
@@ -70,11 +86,26 @@ func ListAllProducts(c *gin.Context) {
 
 
 func DetailProducts(c *gin.Context) {
+	isAuthorize := middleware.AuthorizeToken(c)
+	claims := middleware.RoleCheck("admin", c)
+	fmt.Println("claims", claims)
+
+
+	if isAuthorize == false || claims == false{
+		c.JSON(http.StatusUnauthorized, &ResponseOnly{
+			Success: false,
+			Message: "Unauthorize",
+		})
+		return
+	}
+
+
+
 	id, _ := strconv.Atoi(c.Param("id"))
 	product, err := models.FindOneProducts(id)
 	if err != nil {
 		if strings.HasPrefix(err.Error(), "sql: no rows"){
-			c.JSON(http.StatusInternalServerError, &ResponseOnly{
+			c.JSON(http.StatusNotFound, &ResponseOnly{
 				Success: false,
 				Message: "Product not found",
 			})
@@ -97,6 +128,20 @@ func DetailProducts(c *gin.Context) {
 
 
 func CreateProducts(c *gin.Context) {
+	isAuthorize := middleware.AuthorizeToken(c)
+	claims := middleware.RoleCheck("admin", c)
+	fmt.Println("claims", claims)
+
+
+	if isAuthorize == false || claims == false{
+		c.JSON(http.StatusUnauthorized, &ResponseOnly{
+			Success: false,
+			Message: "Unauthorize",
+		})
+		return
+	}
+
+
 	data := models.Product{}
 	c.ShouldBind(&data)
 
@@ -119,23 +164,41 @@ func CreateProducts(c *gin.Context) {
 
 
 func UpdatePrducts(c *gin.Context) {
+	isAuthorize := middleware.AuthorizeToken(c)
+	claims := middleware.RoleCheck("admin", c)
+	fmt.Println("claims", claims)
+
+
+	if isAuthorize == false || claims == false{
+		c.JSON(http.StatusUnauthorized, &ResponseOnly{
+			Success: false,
+			Message: "Unauthorize",
+		})
+		return
+	}
+
+
 	id, _ := strconv.Atoi(c.Param("id"))
 	data := models.Product{}
 
 	c.ShouldBind(&data)
 	data.Id = id
 
+
+	isExist, err := models.FindOneProducts(id)
+	if err != nil{
+		fmt.Println(isExist, err)
+		c.JSON(http.StatusNotFound, &ResponseOnly{
+			Success: false,
+			Message: "Product not found",
+		})
+	return
+	}
+
+
 	product, err := models.UpdateProduct(data)
 	if err != nil {
-		log.Fatalln(err)
-		if strings.HasPrefix(err.Error(), "sql: no rows"){
-			c.JSON(http.StatusInternalServerError, &ResponseOnly{
-				Success: false,
-				Message: "Product not found",
-			})
-		return
-		}
-		
+		fmt.Println(err, product)
 		c.JSON(http.StatusInternalServerError, &ResponseOnly{
 			Success: false,
 			Message: "Internal server error",
@@ -153,18 +216,35 @@ func UpdatePrducts(c *gin.Context) {
 
 
 func DeleteProducts(c *gin.Context) {
+	isAuthorize := middleware.AuthorizeToken(c)
+	claims := middleware.RoleCheck("admin", c)
+	fmt.Println("claims", claims)
+
+
+	if isAuthorize == false || claims == false{
+		c.JSON(http.StatusUnauthorized, &ResponseOnly{
+			Success: false,
+			Message: "Unauthorize",
+		})
+		return
+	}
+
+	
 	id, _ := strconv.Atoi(c.Param("id"))
+	isExist, err := models.FindOneProducts(id)
+	if err != nil{
+		fmt.Println(isExist, err)
+		c.JSON(http.StatusNotFound, &ResponseOnly{
+			Success: false,
+			Message: "Product not found",
+		})
+	return
+	}
+
+
 	product, err := models.DeleteProduct(id)
 	if err != nil {
-		log.Fatalln(err)
-		if strings.HasPrefix(err.Error(), "sql: no rows"){
-			c.JSON(http.StatusInternalServerError, &ResponseOnly{
-				Success: false,
-				Message: "Product not found",
-			})
-		return
-		}
-
+		fmt.Println(err, product)
 		c.JSON(http.StatusInternalServerError, &ResponseOnly{
 			Success: false,
 			Message: "Internal Server Error",

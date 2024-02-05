@@ -12,6 +12,7 @@ import (
 	"strconv"
 
 	"github.com/KEINOS/go-argonize"
+	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 )
 
@@ -162,11 +163,11 @@ func DetailUser(c *gin.Context) {
 
 func CreateUser(c *gin.Context) {
 	isAuthorize := middleware.AuthorizeToken(c)
-	claims := middleware.RoleCheck("admin", c)
-	fmt.Println("claims", claims)
+	claims := middleware.RoleCheck("admin", c).(jwt.MapClaims)
+	fmt.Println("claims", claims["id"])
 
 
-	if isAuthorize == false || claims == false{
+	if isAuthorize == false{
 		c.JSON(http.StatusUnauthorized, &ResponseOnly{
 			Success: false,
 			Message: "Unauthorize",
@@ -176,7 +177,7 @@ func CreateUser(c *gin.Context) {
 
 
 
-	data := models.User{}
+	data := models.UserForm{}
 	err := c.ShouldBind(&data)
 
 

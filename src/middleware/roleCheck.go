@@ -17,7 +17,7 @@ func RecoverPanic()bool{
 	return true
 }
 
-func RoleCheck(role string, c *gin.Context) interface{} {
+func RoleCheck(role string, c *gin.Context) interface{}{
 	defer RecoverPanic()
 	return c.MustGet("user")
 }

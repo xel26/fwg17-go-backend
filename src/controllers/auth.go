@@ -65,7 +65,7 @@ func Login(c *gin.Context) {
 
 
 func Register(c *gin.Context) {
-	form := models.User{}
+	form := models.UserForm{}
 	err := c.ShouldBind(&form)
 
 	plain := []byte(form.Password)

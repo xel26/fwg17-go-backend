@@ -11,20 +11,33 @@ import (
 var db *sqlx.DB = lib.DB
 
 type User struct {
+	Id          int            `db:"id" json:"id"`
+	FullName    string         `db:"fullName" json:"fullName" form:"fullName"`
+	Email       string         `db:"email" json:"email" form:"email"`
+	Password    string         `db:"password" json:"-" form:"password"`
+	Address     sql.NullString `db:"address" json:"address" form:"address"`
+	Picture     sql.NullString `db:"picture" json:"picture" form:"picture"`
+	PhoneNumber sql.NullString `db:"phoneNumber" json:"phoneNumber" form:"phoneNumber"`
+	Role        string         `db:"role" json:"role" form:"role"`
+	CreatedAt   time.Time      `db:"createdAt" json:"createdAt"`
+	UpdatedAt   sql.NullTime   `db:"updatedAt" json:"updatedAt"`
+}
+
+type UserForm struct {
 	Id          int          `db:"id" json:"id"`
-	FullName    string       `db:"fullName" json:"fullName" form:"fullName"`
-	Email       string       `db:"email" json:"email" form:"email"`
-	Password    string       `db:"password" json:"password" form:"password"`
-	Address     sql.NullString       `db:"address" json:"address" form:"address"`
-	Picture     sql.NullString       `db:"picture" json:"picture" form:"picture"`
-	PhoneNumber sql.NullString       `db:"phoneNumber" json:"phoneNumber" form:"phoneNumber"`
-	Role        string       `db:"role" json:"role" form:"role"`
+	FullName    string       `db:"fullName" json:"fullName" form:"fullName" validate:"required"`
+	Email       string       `db:"email" json:"email" form:"email" validate:"email"`
+	Password    string       `db:"password" json:"-" form:"password"`
+	Address     *string      `db:"address" json:"address" form:"address"`
+	Picture     *string      `db:"picture" json:"picture" form:"picture"`
+	PhoneNumber *string      `db:"phoneNumber" json:"phoneNumber" form:"phoneNumber"`
+	Role        *string      `db:"role" json:"role" form:"role"`
 	CreatedAt   time.Time    `db:"createdAt" json:"createdAt"`
 	UpdatedAt   sql.NullTime `db:"updatedAt" json:"updatedAt"`
 }
 
-type Info struct{
-	Data []User
+type Info struct {
+	Data  []User
 	Count int
 }
 
@@ -32,7 +45,7 @@ func FindAllUsers(searchKey string, sortBy string, order string, limit int, offs
 	sql := `
 	SELECT * FROM "users" 
 	WHERE "fullName" ILIKE $1
-	ORDER BY "`+sortBy+`" `+order+`
+	ORDER BY "` + sortBy + `" ` + order + `
 	LIMIT $2 OFFSET $3
 	`
 	sqlCount := `
@@ -42,15 +55,14 @@ func FindAllUsers(searchKey string, sortBy string, order string, limit int, offs
 
 	result := Info{}
 	data := []User{}
-	err := db.Select(&data, sql,"%"+searchKey+"%", limit, offset)
+	err := db.Select(&data, sql, "%"+searchKey+"%", limit, offset)
 	result.Data = data
-	
+
 	row := db.QueryRow(sqlCount, "%"+searchKey+"%")
 	err = row.Scan(&result.Count)
 
 	return result, err
 }
-
 
 func FindOneUsers(id int) (User, error) {
 	sql := `SELECT * FROM "users" WHERE id = $1`
@@ -59,7 +71,6 @@ func FindOneUsers(id int) (User, error) {
 	return data, err
 }
 
-
 func FindOneUsersByEmail(email string) (User, error) {
 	sql := `SELECT * FROM "users" WHERE email = $1`
 	data := User{}
@@ -67,30 +78,24 @@ func FindOneUsersByEmail(email string) (User, error) {
 	return data, err
 }
 
-
-
-
-func CreateUser(data User) (User, error) {
-	sql := `INSERT INTO "users" ("fullName", "email", "password", "address", "phoneNumber", "role") 
+func CreateUser(data UserForm) (UserForm, error) {
+	sql := `INSERT INTO "users" ("fullName", "email", "password", "address", "phoneNumber", "role", "picture") 
 	VALUES
-	(:fullName, :email, :password, :address, :phoneNumber, :role)
+	(:fullName, :email, :password, :address, :phoneNumber, :role, :picture)
 	RETURNING *
 	`
-	result := User{}
+	result := UserForm{}
 	rows, err := db.NamedQuery(sql, data)
 	if err != nil {
 		return result, err
 	}
-	
-	for rows.Next(){
+
+	for rows.Next() {
 		rows.StructScan(&result)
 	}
-	
+
 	return result, err
 }
-
-
-
 
 func UpdateUser(data User) (User, error) {
 	sql := `UPDATE "users" SET
@@ -110,14 +115,12 @@ func UpdateUser(data User) (User, error) {
 		return result, err
 	}
 
-	for rows.Next(){
+	for rows.Next() {
 		rows.StructScan(&result)
 	}
 
 	return result, err
 }
-
-
 
 func DeleteUser(id int) (User, error) {
 	sql := `DELETE FROM "users" WHERE id = $1 RETURNING *`

@@ -67,6 +67,9 @@ func Login(c *gin.Context) {
 func Register(c *gin.Context) {
 	form := models.UserForm{}
 	err := c.ShouldBind(&form)
+	
+	defaultRole := "customer"
+	form.Role = &defaultRole
 
 	plain := []byte(form.Password)
 	hash, err := argonize.Hash(plain)
@@ -77,7 +80,6 @@ func Register(c *gin.Context) {
 		})
 		return
 	}
-
 	form.Password = hash.String()
 
 	result, err := models.CreateUser(form)
@@ -142,7 +144,7 @@ func ForgotPassword(c *gin.Context) {
 		if found.Id != 0{
 			if form.Password == form.ConfirmPassword{
 				foundUser, _ := models.FindOneUsersByEmail(found.Email)
-				data := models.User{
+				data := models.UserForm{
 					Id: foundUser.Id,
 				}
 

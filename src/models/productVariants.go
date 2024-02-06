@@ -31,6 +31,10 @@ func FindAllProductVariants(sortBy string, order string, limit int, offset int) 
 	result := InfoPV{}
 	data := []ProductVariants{}
 	err := db.Select(&data, sql, limit, offset)
+	
+	if err != nil{
+		return result, err
+	}
 	result.Data = data
 
 	row := db.QueryRow(sqlCount)
@@ -69,7 +73,7 @@ func UpdateProductVariants(data ProductVariants) (ProductVariants, error) {
 	sql := `UPDATE "productVariant" SET
 	"productId"=COALESCE(NULLIF(:productId, 0),"productId"),
 	"variantId"=COALESCE(NULLIF(:variantId, 0),"variantId"),
-	"updatedAt" NOW()
+	"updatedAt"=NOW()
 	WHERE id=:id
 	RETURNING *
 	`

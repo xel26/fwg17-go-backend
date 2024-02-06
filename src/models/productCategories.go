@@ -69,7 +69,7 @@ func UpdateProductCategories(data ProductCategories) (ProductCategories, error) 
 	sql := `UPDATE "productCategories" SET
 	"productId"=COALESCE(NULLIF(:productId, 0),"productId"),
 	"categoryId"=COALESCE(NULLIF(:categoryId, 0),"categoryId"),
-	"updatedAt" NOW()
+	"updatedAt"=NOW()
 	WHERE id=:id
 	RETURNING *
 	`

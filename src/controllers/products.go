@@ -4,7 +4,6 @@ import (
 	"coffe-shop-be-golang/src/middleware"
 	"coffe-shop-be-golang/src/models"
 	"fmt"
-	"log"
 	"math"
 	"strings"
 
@@ -24,7 +23,7 @@ func ListAllProducts(c *gin.Context) {
 	if isAuthorize == false || claims == false{
 		c.JSON(http.StatusUnauthorized, &ResponseOnly{
 			Success: false,
-			Message: "Unauthorize",
+			Message: "Unauthorized",
 		})
 		return
 	}
@@ -68,7 +67,7 @@ func ListAllProducts(c *gin.Context) {
 
 
 	if err != nil {
-		log.Fatal(err)
+		fmt.Println(err)
 		c.JSON(http.StatusInternalServerError, &ResponseOnly{
 			Success: false,
 			Message: "Internal server error",
@@ -94,7 +93,7 @@ func DetailProducts(c *gin.Context) {
 	if isAuthorize == false || claims == false{
 		c.JSON(http.StatusUnauthorized, &ResponseOnly{
 			Success: false,
-			Message: "Unauthorize",
+			Message: "Unauthorized",
 		})
 		return
 	}
@@ -136,18 +135,26 @@ func CreateProducts(c *gin.Context) {
 	if isAuthorize == false || claims == false{
 		c.JSON(http.StatusUnauthorized, &ResponseOnly{
 			Success: false,
-			Message: "Unauthorize",
+			Message: "Unauthorized",
 		})
 		return
 	}
 
 
-	data := models.Product{}
-	c.ShouldBind(&data)
+	data := models.ProductForm{}
+	errBind := c.ShouldBind(&data)
+	if errBind != nil {
+		fmt.Println(errBind)
+		c.JSON(http.StatusInternalServerError, &ResponseOnly{
+			Success: false,
+			Message: "Internal server error",
+		})
+		return
+	}
 
-	product, err := models.CreateProducts(data)
-	if err != nil {
-		log.Fatal(err)
+	product, errDB := models.CreateProducts(data)
+	if errDB != nil {
+		fmt.Println(errDB)
 		c.JSON(http.StatusInternalServerError, &ResponseOnly{
 			Success: false,
 			Message: "Internal server error",
@@ -172,16 +179,25 @@ func UpdatePrducts(c *gin.Context) {
 	if isAuthorize == false || claims == false{
 		c.JSON(http.StatusUnauthorized, &ResponseOnly{
 			Success: false,
-			Message: "Unauthorize",
+			Message: "Unauthorized",
 		})
 		return
 	}
 
 
 	id, _ := strconv.Atoi(c.Param("id"))
-	data := models.Product{}
+	data := models.ProductForm{}
 
-	c.ShouldBind(&data)
+	errBind := c.ShouldBind(&data)
+	if errBind != nil{
+		fmt.Println(errBind)
+		c.JSON(http.StatusNotFound, &ResponseOnly{
+			Success: false,
+			Message: errBind.Error(),
+		})
+	return
+	}
+
 	data.Id = id
 
 
@@ -201,7 +217,7 @@ func UpdatePrducts(c *gin.Context) {
 		fmt.Println(err, product)
 		c.JSON(http.StatusInternalServerError, &ResponseOnly{
 			Success: false,
-			Message: "Internal server error",
+			Message: err.Error(),
 		})
 		return
 	}
@@ -224,7 +240,7 @@ func DeleteProducts(c *gin.Context) {
 	if isAuthorize == false || claims == false{
 		c.JSON(http.StatusUnauthorized, &ResponseOnly{
 			Success: false,
-			Message: "Unauthorize",
+			Message: "Unauthorized",
 		})
 		return
 	}

@@ -79,7 +79,7 @@ func UpdateMessage(data Message) (Message, error) {
 	"recipientId"=COALESCE(NULLIF(:recipientId, 0),"recipientId"),
 	"senderId"=COALESCE(NULLIF(:senderId, 0),"senderId"),
 	"text"=COALESCE(NULLIF(:text, ''),"text"),
-	"updatedAt" NOW()
+	"updatedAt"=NOW()
 	WHERE id=:id
 	RETURNING *
 	`

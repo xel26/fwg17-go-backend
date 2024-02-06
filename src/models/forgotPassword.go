@@ -13,6 +13,14 @@ type ForgotPassword struct {
 	CreatedAt time.Time     `db:"createdAt" json:"createdAt"`
 	UpdatedAt sql.NullTime  `db:"updatedAt" json:"updatedAt"`
 }
+type FPForm struct {
+	Id        int          `db:"id" json:"id"`
+	Otp       *string      `db:"otp" json:"otp" form:"otp"`
+	UserId    *int         `db:"userId" json:"userId" form:"userId"`
+	Email     *string      `db:"email" json:"email" form:"email"`
+	CreatedAt time.Time    `db:"createdAt" json:"createdAt"`
+	UpdatedAt sql.NullTime `db:"updatedAt" json:"updatedAt"`
+}
 
 type InfoFP struct {
 	Data  []ForgotPassword
@@ -57,8 +65,8 @@ func FindOneByOtp(otp string) (ForgotPassword, error) {
 }
 
 func CreateForgotPassword(data ForgotPassword) (ForgotPassword, error) {
-	sql := `INSERT INTO "forgotPassword" ("otp", "email") 
-	VALUES (:otp, :email) 
+	sql := `INSERT INTO "forgotPassword" ("otp", "email", "userId") 
+	VALUES (:otp, :email, :userId) 
 	RETURNING *
 	`
 	result := ForgotPassword{}
@@ -74,7 +82,7 @@ func CreateForgotPassword(data ForgotPassword) (ForgotPassword, error) {
 	return result, err
 }
 
-func UpdateForgotPassword(data ForgotPassword) (ForgotPassword, error) {
+func UpdateForgotPassword(data FPForm) (FPForm, error) {
 	sql := `UPDATE "forgotPassword" SET
 	"otp"=COALESCE(NULLIF(:otp, 0),"otp"),
 	"email"=COALESCE(NULLIF(:email, ''),"email"),
@@ -82,7 +90,7 @@ func UpdateForgotPassword(data ForgotPassword) (ForgotPassword, error) {
 	WHERE id=:id
 	RETURNING *
 	`
-	result := ForgotPassword{}
+	result := FPForm{}
 	rows, err := db.NamedQuery(sql, data)
 	if err != nil {
 		return result, err
@@ -95,9 +103,9 @@ func UpdateForgotPassword(data ForgotPassword) (ForgotPassword, error) {
 	return result, err
 }
 
-func DeleteForgotPassword(id int) (ForgotPassword, error) {
+func DeleteForgotPassword(id int) (FPForm, error) {
 	sql := `DELETE FROM "forgotPassword" WHERE id = $1 RETURNING *`
-	data := ForgotPassword{}
+	data := FPForm{}
 	err := db.Get(&data, sql, id)
 	return data, err
 }

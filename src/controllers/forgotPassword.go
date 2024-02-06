@@ -2,7 +2,7 @@ package controllers
 
 import (
 	"coffe-shop-be-golang/src/models"
-	"log"
+	"fmt"
 	"math"
 	"strings"
 
@@ -52,7 +52,7 @@ func ListAllforgotPassword(c *gin.Context) {
 
 
 	if err != nil {
-		log.Fatal(err)
+		fmt.Println(err)
 		c.JSON(http.StatusInternalServerError, &ResponseOnly{
 			Success: false,
 			Message: "Internal server error",
@@ -98,11 +98,12 @@ func DetailForgotPassword(c *gin.Context) {
 
 func CreateForgotPassword(c *gin.Context) {
 	data := models.ForgotPassword{}
-	c.ShouldBind(&data)
+	err := c.ShouldBind(&data)
 
 	fp, err := models.CreateForgotPassword(data)
+	fmt.Println(data)
 	if err != nil {
-		log.Fatal(err)
+		fmt.Println(err)
 		c.JSON(http.StatusInternalServerError, &ResponseOnly{
 			Success: false,
 			Message: "Internal server error",
@@ -120,14 +121,14 @@ func CreateForgotPassword(c *gin.Context) {
 
 func UpdateForgotPassword(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
-	data := models.ForgotPassword{}
+	data := models.FPForm{}
 
 	c.ShouldBind(&data)
 	data.Id = id
 
 	fp, err := models.UpdateForgotPassword(data)
 	if err != nil {
-		log.Fatal(err)
+		fmt.Println(err)
 		if strings.HasPrefix(err.Error(), "sql: no rows"){
 			c.JSON(http.StatusInternalServerError, &ResponseOnly{
 				Success: false,

@@ -2,7 +2,7 @@ package controllers
 
 import (
 	"coffe-shop-be-golang/src/models"
-	"log"
+	"fmt"
 	"math"
 	"strings"
 
@@ -52,7 +52,7 @@ func ListAllSizes(c *gin.Context) {
 
 
 	if err != nil {
-		log.Fatal(err)
+		fmt.Println(err)
 		c.JSON(http.StatusInternalServerError, &ResponseOnly{
 			Success: false,
 			Message: "Internal server error",
@@ -97,12 +97,20 @@ func DetailSizes(c *gin.Context) {
 
 
 func CreateSize(c *gin.Context) {
-	data := models.Sizes{}
+	data := models.SizesForm{}
 	c.ShouldBind(&data)
 
 	size, err := models.CreateSizes(data)
 	if err != nil {
-		log.Fatal(err)
+		fmt.Println(err)
+		if strings.HasPrefix(err.Error(), "pq: duplicate key"){
+			c.JSON(http.StatusBadRequest, &ResponseOnly{
+				Success: false,
+				Message: "duplicate size name",
+			})
+			return
+		}
+
 		c.JSON(http.StatusInternalServerError, &ResponseOnly{
 			Success: false,
 			Message: "Internal server error",
@@ -120,14 +128,24 @@ func CreateSize(c *gin.Context) {
 
 func UpdateSizes(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
-	data := models.Sizes{}
+	data := models.SizesForm{}
 
 	c.ShouldBind(&data)
 	data.Id = id
 
+	isExist, err := models.FindOneSizes(id)
+	if err != nil{
+		fmt.Println(isExist, err)
+		c.JSON(http.StatusNotFound, &ResponseOnly{
+			Success: false,
+			Message: "Size not found",
+		})
+	return
+	}
+
 	size, err := models.UpdateSizes(data)
 	if err != nil {
-		log.Fatal(err)
+		fmt.Println(err)
 		if strings.HasPrefix(err.Error(), "sql: no rows"){
 			c.JSON(http.StatusInternalServerError, &ResponseOnly{
 				Success: false,
@@ -154,16 +172,20 @@ func UpdateSizes(c *gin.Context) {
 
 func DeleteSizes(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
+
+	isExist, err := models.FindOneSizes(id)
+	if err != nil{
+		fmt.Println(isExist, err)
+		c.JSON(http.StatusNotFound, &ResponseOnly{
+			Success: false,
+			Message: "Size not found",
+		})
+	return
+	}
+
 	sizes, err := models.DeleteSizes(id)
 	if err != nil {
-		if strings.HasPrefix(err.Error(), "sql: no rows"){
-			c.JSON(http.StatusInternalServerError, &ResponseOnly{
-				Success: false,
-				Message: "Sizes not found",
-			})
-		return
-		}
-
+		fmt.Println(err)
 		c.JSON(http.StatusInternalServerError, &ResponseOnly{
 			Success: false,
 			Message: "Internal server error",

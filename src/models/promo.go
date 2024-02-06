@@ -18,6 +18,19 @@ type Promo struct {
 	UpdatedAt     sql.NullTime   `db:"updatedAt" json:"updatedAt"`
 }
 
+type PromoForm struct {
+	Id            int          `db:"id" json:"id"`
+	Name          *string      `db:"name" json:"name" form:"name"`
+	Code          *string      `db:"code" json:"code" form:"code"`
+	Description   *string      `db:"description" json:"description" form:"description"`
+	Percentage    *float64     `db:"percentage" json:"percentage" form:"percentage"`
+	IsExpired     *bool        `db:"isExpired" json:"isExpired" form:"isExpired"`
+	MaximumPromo  *int         `db:"maximumPromo" json:"maximumPromo" form:"maximumPromo"`
+	MinimumAmount *int         `db:"minimumAmount" json:"minimumAmount" form:"minimumAmount"`
+	CreatedAt     time.Time    `db:"createdAt" json:"createdAt"`
+	UpdatedAt     sql.NullTime `db:"updatedAt" json:"updatedAt"`
+}
+
 type InfoPo struct {
 	Data  []Promo
 	Count int
@@ -53,13 +66,13 @@ func FindOnePromo(id int) (Promo, error) {
 	return data, err
 }
 
-func CreatePromo(data Promo) (Promo, error) {
+func CreatePromo(data PromoForm) (PromoForm, error) {
 	sql := `INSERT INTO "promo" ("name","code", "description", "percentage", "isExpired", "maximumPromo", "minimumAmount") 
 	VALUES
 	(:name, :code, :description, :percentage, :isExpired, :maximumPromo, :minimumAmount)
 	RETURNING *
 	`
-	result := Promo{}
+	result := PromoForm{}
 	rows, err := db.NamedQuery(sql, data)
 	if err != nil {
 		return result, err
@@ -72,7 +85,7 @@ func CreatePromo(data Promo) (Promo, error) {
 	return result, err
 }
 
-func UpdatePromo(data Promo) (Promo, error) {
+func UpdatePromo(data PromoForm) (PromoForm, error) {
 	sql := `UPDATE "promo" SET
 	"name"=COALESCE(NULLIF(:name, ''),"name"),
 	"code"=COALESCE(NULLIF(:code, ''),"code"),
@@ -81,11 +94,11 @@ func UpdatePromo(data Promo) (Promo, error) {
 	"isExpired"=COALESCE(NULLIF(:isExpired, false),"isExpired"),
 	"maximumPromo"=COALESCE(NULLIF(:maximumPromo, 0),"maximumPromo"),
 	"minimumAmount"=COALESCE(NULLIF(:minimumAmount, 0),"minimumAmount"),
-	"updatedAt" NOW()
+	"updatedAt"=NOW()
 	WHERE id=:id
 	RETURNING *
 	`
-	result := Promo{}
+	result := PromoForm{}
 	rows, err := db.NamedQuery(sql, data)
 	if err != nil {
 		return result, err
@@ -98,9 +111,9 @@ func UpdatePromo(data Promo) (Promo, error) {
 	return result, err
 }
 
-func DeletePromo(id int) (Promo, error) {
+func DeletePromo(id int) (PromoForm, error) {
 	sql := `DELETE FROM "promo" WHERE id = $1 RETURNING *`
-	data := Promo{}
+	data := PromoForm{}
 	err := db.Get(&data, sql, id)
 	return data, err
 }

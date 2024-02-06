@@ -5,34 +5,53 @@ import (
 	"time"
 )
 
-type Orders struct {
+type Order struct {
 	Id               int            `db:"id" json:"id"`
 	UserId           int            `db:"userId" json:"userId" form:"userId"`
-	OrderNumber      string         `db:"orderNumber" json:"orderNumber" form:"orderNumber"`
+	OrderNumber      sql.NullString `db:"orderNumber" json:"orderNumber" form:"orderNumber"`
 	PromoId          sql.NullInt64  `db:"promoId" json:"promoId" form:"promoId"`
-	Total            int            `db:"total" json:"total" form:"total"`
+	Total            sql.NullInt64  `db:"total" json:"total" form:"total"`
 	Tax              sql.NullInt64  `db:"tax" json:"tax" form:"tax"`
-	DeliveryAddress  sql.NullString `db:"deliveryAddress" json:"deliveryAddress" form:"deliveryAddress"`
+	DeliveryAddress  string         `db:"deliveryAddress" json:"deliveryAddress" form:"deliveryAddress"`
 	FullName         sql.NullString `db:"fullName" json:"fullName" form:"fullName"`
 	Email            sql.NullString `db:"email" json:"email" form:"email"`
 	PriceCut         sql.NullInt64  `db:"priceCut" json:"priceCut" form:"priceCut"`
-	Subtotal         int            `db:"subtotal" json:"subtotal" form:"subtotal"`
+	Subtotal         sql.NullInt64  `db:"subtotal" json:"subtotal" form:"subtotal"`
 	Status           string         `db:"status" json:"status" form:"status"`
-	DeliveryFee      int            `db:"deliveryFee" json:"deliveryFee" form:"deliveryFee"`
-	DeliveryShipping string         `db:"deliveryShipping" json:"deliveryShipping" form:"deliveryShipping"`
+	DeliveryFee      sql.NullInt64  `db:"deliveryFee" json:"deliveryFee" form:"deliveryFee"`
+	DeliveryShipping sql.NullString `db:"deliveryShipping" json:"deliveryShipping" form:"deliveryShipping"`
 	CreatedAt        time.Time      `db:"createdAt" json:"createdAt"`
 	UpdatedAt        sql.NullTime   `db:"updatedAt" json:"updatedAt"`
 }
 
+type OrderForm struct {
+	Id               int          `db:"id" json:"id"`
+	UserId           *int         `db:"userId" json:"userId" form:"userId"`
+	OrderNumber      *string      `db:"orderNumber" json:"orderNumber" form:"orderNumber"`
+	PromoId          *int         `db:"promoId" json:"promoId" form:"promoId"`
+	Total            *int         `db:"total" json:"total" form:"total"`
+	Tax              *int         `db:"tax" json:"tax" form:"tax"`
+	DeliveryAddress  *string      `db:"deliveryAddress" json:"deliveryAddress" form:"deliveryAddress"`
+	FullName         *string      `db:"fullName" json:"fullName" form:"fullName"`
+	Email            *string      `db:"email" json:"email" form:"email"`
+	PriceCut         *int         `db:"priceCut" json:"priceCut" form:"priceCut"`
+	Subtotal         *int         `db:"subtotal" json:"subtotal" form:"subtotal"`
+	Status           *string      `db:"status" json:"status" form:"status"`
+	DeliveryFee      *int         `db:"deliveryFee" json:"deliveryFee" form:"deliveryFee"`
+	DeliveryShipping *string         `db:"deliveryShipping" json:"deliveryShipping" form:"deliveryShipping"`
+	CreatedAt        time.Time    `db:"createdAt" json:"createdAt"`
+	UpdatedAt        sql.NullTime `db:"updatedAt" json:"updatedAt"`
+}
+
 type InfoO struct {
-	Data  []Orders
+	Data  []Order
 	Count int
 }
 
 func FindAllOrders(sortBy string, order string, limit int, offset int) (InfoO, error) {
 	sql := `
 	SELECT * FROM "orders" 
-	ORDER BY "`+sortBy+`" `+order+`
+	ORDER BY "` + sortBy + `" ` + order + `
 	LIMIT $1 OFFSET $2
 	`
 	sqlCount := `
@@ -40,30 +59,34 @@ func FindAllOrders(sortBy string, order string, limit int, offset int) (InfoO, e
 	`
 
 	result := InfoO{}
-	data := []Orders{}
-	err := db.Select(&data, sql, limit, offset)
+	data := []Order{}
+	error := db.Select(&data, sql, limit, offset)
+	if error != nil {
+		return result, error
+	}
+
 	result.Data = data
 
 	row := db.QueryRow(sqlCount)
-	err = row.Scan(&result.Count)
+	err := row.Scan(&result.Count)
 
 	return result, err
 }
 
-func FindOneOrders(id int) (Orders, error) {
+func FindOneOrders(id int) (Order, error) {
 	sql := `SELECT * FROM "orders" WHERE id = $1`
-	data := Orders{}
+	data := Order{}
 	err := db.Get(&data, sql, id)
 	return data, err
 }
 
-func CreateOrders(data Orders) (Orders, error) {
-	sql := `INSERT INTO "orders" ("userId", "orderNUmber", "promoId", "total", "deliveryAddress", "fullName", "email", "priceCut", "subtotal", "status", "deliveryFee", "deliveryShipping") 
+func CreateOrders(data OrderForm) (OrderForm, error) {
+	sql := `INSERT INTO "orders" ("userId", "orderNumber", "promoId", "total", "deliveryAddress", "fullName", "email", "priceCut", "subtotal", "status", "deliveryFee", "deliveryShipping", "tax") 
 	VALUES
-	(:userId, :orderNUmber, :promoId, :total, :deliveryAddress, :fullName, :email, :priceCut, :subtotal, :status, :deliveryFee, :deliveryShipping)
+	(:userId, :orderNumber, :promoId, :total, :deliveryAddress, :fullName, :email, :priceCut, :subtotal, :status, :deliveryFee, :deliveryShipping, :tax)
 	RETURNING *
 	`
-	result := Orders{}
+	result := OrderForm{}
 	rows, err := db.NamedQuery(sql, data)
 	if err != nil {
 		return result, err
@@ -76,7 +99,7 @@ func CreateOrders(data Orders) (Orders, error) {
 	return result, err
 }
 
-func UpdateOrders(data Orders) (Orders, error) {
+func UpdateOrders(data OrderForm) (OrderForm, error) {
 	sql := `UPDATE "orders" SET
 	"userId"=COALESCE(NULLIF(:userId, 0),"userId"),
 	"orderNumber"=COALESCE(NULLIF(:orderNumber, ''),"orderNumber"),
@@ -90,11 +113,11 @@ func UpdateOrders(data Orders) (Orders, error) {
 	"status"=COALESCE(NULLIF(:status, ''),"status"),
 	"deliveryFee"=COALESCE(NULLIF(:deliveryFee, 0),"deliveryFee"),
 	"deliveryShipping"=COALESCE(NULLIF(:deliveryShipping, ''),"deliveryShipping"),
-	"updatedAt" NOW()
+	"updatedAt"=NOW()
 	WHERE id=:id
 	RETURNING *
 	`
-	result := Orders{}
+	result := OrderForm{}
 	rows, err := db.NamedQuery(sql, data)
 	if err != nil {
 		return result, err
@@ -107,9 +130,9 @@ func UpdateOrders(data Orders) (Orders, error) {
 	return result, err
 }
 
-func DeleteOrders(id int) (Orders, error) {
+func DeleteOrders(id int) (OrderForm, error) {
 	sql := `DELETE FROM "orders" WHERE id = $1 RETURNING *`
-	data := Orders{}
+	data := OrderForm{}
 	err := db.Get(&data, sql, id)
 	return data, err
 }

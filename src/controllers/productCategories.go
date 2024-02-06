@@ -2,7 +2,7 @@ package controllers
 
 import (
 	"coffe-shop-be-golang/src/models"
-	"log"
+	"fmt"
 	"math"
 	"strings"
 
@@ -51,7 +51,7 @@ func ListAllProductCategories(c *gin.Context) {
 
 
 	if err != nil {
-		log.Fatal(err)
+		fmt.Println(err)
 		c.JSON(http.StatusInternalServerError, &ResponseOnly{
 			Success: false,
 			Message: "Internal server error",
@@ -99,9 +99,29 @@ func CreateProductCategories(c *gin.Context) {
 	data := models.ProductCategories{}
 	c.ShouldBind(&data)
 
+	_, err := models.FindOneProducts(data.ProductId)
+	if err != nil{
+		fmt.Println(err)
+		c.JSON(http.StatusNotFound, &ResponseOnly{
+			Success: false,
+			Message: "product id not found",
+		})
+		return
+	}
+
+	_, err = models.FindOneCategories(data.CategoryId)
+	if err != nil{
+		fmt.Println(err)
+		c.JSON(http.StatusNotFound, &ResponseOnly{
+			Success: false,
+			Message: "category id not found",
+		})
+		return
+	}
+
 	pc, err := models.CreateProductCategories(data)
 	if err != nil {
-		log.Fatal(err)
+		fmt.Println(err)
 		c.JSON(http.StatusInternalServerError, &ResponseOnly{
 			Success: false,
 			Message: "Internal server error",
@@ -122,19 +142,42 @@ func UpdateProductCategories(c *gin.Context) {
 	data := models.ProductCategories{}
 
 	c.ShouldBind(&data)
+
+	_, err := models.FindOneProducts(data.ProductId)
+	if err != nil{
+		fmt.Println(err)
+		c.JSON(http.StatusNotFound, &ResponseOnly{
+			Success: false,
+			Message: "product id not found",
+		})
+		return
+	}
+
+	_, err = models.FindOneCategories(data.CategoryId)
+	if err != nil{
+		fmt.Println(err)
+		c.JSON(http.StatusNotFound, &ResponseOnly{
+			Success: false,
+			Message: "category id not found",
+		})
+		return
+	}
+	
 	data.Id = id
+
+	isExist, err := models.FindOneProductCategories(id)
+	if err != nil{
+		fmt.Println(isExist, err)
+		c.JSON(http.StatusNotFound, &ResponseOnly{
+			Success: false,
+			Message: "Product categories not found",
+		})
+	return
+	}
 
 	pc, err := models.UpdateProductCategories(data)
 	if err != nil {
-		log.Fatal(err)
-		if strings.HasPrefix(err.Error(), "sql: no rows"){
-			c.JSON(http.StatusInternalServerError, &ResponseOnly{
-				Success: false,
-				Message: "Product categories not found",
-			})
-		return
-		}
-		
+		fmt.Println(err)
 		c.JSON(http.StatusInternalServerError, &ResponseOnly{
 			Success: false,
 			Message: "Internal server error",
@@ -153,18 +196,20 @@ func UpdateProductCategories(c *gin.Context) {
 
 func DeleteProductCategories(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
-	pc, err := models.DeleteProduct(id)
-	if err != nil {
-		log.Fatalln(err)
-		
-		if strings.HasPrefix(err.Error(), "sql: no rows"){
-			c.JSON(http.StatusInternalServerError, &ResponseOnly{
-				Success: false,
-				Message: "Product categories not found",
-			})
-		return
-		}
 
+	isExist, err := models.FindOneProductCategories(id)
+	if err != nil{
+		fmt.Println(isExist, err)
+		c.JSON(http.StatusNotFound, &ResponseOnly{
+			Success: false,
+			Message: "Product categories not found",
+		})
+	return
+	}
+
+	pc, err := models.DeleteProductCategories(id)
+	if err != nil {
+		fmt.Println(err)
 		c.JSON(http.StatusInternalServerError, &ResponseOnly{
 			Success: false,
 			Message: "Internal server error",

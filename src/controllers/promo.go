@@ -2,7 +2,7 @@ package controllers
 
 import (
 	"coffe-shop-be-golang/src/models"
-	"log"
+	"fmt"
 	"math"
 	"strings"
 
@@ -52,7 +52,7 @@ func ListAllPromo(c *gin.Context) {
 
 
 	if err != nil {
-		log.Fatal(err)
+		fmt.Println(err)
 		c.JSON(http.StatusInternalServerError, &ResponseOnly{
 			Success: false,
 			Message: "Internal server error",
@@ -97,12 +97,12 @@ func DetailPromo(c *gin.Context) {
 
 
 func CreatePromo(c *gin.Context) {
-	data := models.Promo{}
+	data := models.PromoForm{}
 	c.ShouldBind(&data)
 
 	promo, err := models.CreatePromo(data)
 	if err != nil {
-		log.Fatal(err)
+		fmt.Println(err)
 		c.JSON(http.StatusInternalServerError, &ResponseOnly{
 			Success: false,
 			Message: "Internal server error",
@@ -120,22 +120,33 @@ func CreatePromo(c *gin.Context) {
 
 func UpdatePromo(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
-	data := models.Promo{}
+	data := models.PromoForm{}
 
-	c.ShouldBind(&data)
+	err := c.ShouldBind(&data)
+	if err != nil {
+		fmt.Println(err)
+		c.JSON(http.StatusInternalServerError, &ResponseOnly{
+			Success: false,
+			Message: "Internal server error",
+		})
+		return
+	}
 	data.Id = id
 
+	isExist, err := models.FindOnePromo(id)
+	if err != nil{
+		fmt.Println(isExist, err)
+		c.JSON(http.StatusNotFound, &ResponseOnly{
+			Success: false,
+			Message: "Promo not found",
+		})
+	return
+	}
+
+	fmt.Println(data)
 	promo, err := models.UpdatePromo(data)
 	if err != nil {
-		log.Fatal(err)
-		if strings.HasPrefix(err.Error(), "sql: no rows"){
-			c.JSON(http.StatusInternalServerError, &ResponseOnly{
-				Success: false,
-				Message: "Promo not found",
-			})
-		return
-		}
-		
+		fmt.Println(err)
 		c.JSON(http.StatusInternalServerError, &ResponseOnly{
 			Success: false,
 			Message: "Internal server error",
@@ -154,16 +165,20 @@ func UpdatePromo(c *gin.Context) {
 
 func DeletePromo(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
+
+	isExist, err := models.FindOnePromo(id)
+	if err != nil{
+		fmt.Println(isExist, err)
+		c.JSON(http.StatusNotFound, &ResponseOnly{
+			Success: false,
+			Message: "Promo not found",
+		})
+	return
+	}
+
 	promo, err := models.DeletePromo(id)
 	if err != nil {
-		if strings.HasPrefix(err.Error(), "sql: no rows"){
-			c.JSON(http.StatusInternalServerError, &ResponseOnly{
-				Success: false,
-				Message: "Promo not found",
-			})
-		return
-		}
-
+		fmt.Println(err)
 		c.JSON(http.StatusInternalServerError, &ResponseOnly{
 			Success: false,
 			Message: "Internal server error",

@@ -2,7 +2,7 @@ package controllers
 
 import (
 	"coffe-shop-be-golang/src/models"
-	"log"
+	"fmt"
 	"math"
 	"strings"
 
@@ -51,7 +51,7 @@ func ListAllOrders(c *gin.Context) {
 
 
 	if err != nil {
-		log.Fatal(err)
+		fmt.Println(err)
 		c.JSON(http.StatusInternalServerError, &ResponseOnly{
 			Success: false,
 			Message: "Internal server error",
@@ -75,7 +75,7 @@ func DetailOrders(c *gin.Context) {
 		if strings.HasPrefix(err.Error(), "sql: no rows"){
 			c.JSON(http.StatusInternalServerError, &ResponseOnly{
 				Success: false,
-				Message: "Orders not found",
+				Message: "Order not found",
 			})
 		return
 		}
@@ -96,12 +96,20 @@ func DetailOrders(c *gin.Context) {
 
 
 func CreateOrders(c *gin.Context) {
-	data := models.Orders{}
-	c.ShouldBind(&data)
+	data := models.OrderForm{}
+	err := c.ShouldBind(&data)
 
 	order, err := models.CreateOrders(data)
 	if err != nil {
-		log.Fatal(err)
+		fmt.Println(err)
+		if strings.HasPrefix(err.Error(), "pq: duplicate key"){
+			c.JSON(http.StatusBadRequest, &ResponseOnly{
+				Success: false,
+				Message: "duplicate key for orderNumber",
+			})
+			return
+		}
+
 		c.JSON(http.StatusInternalServerError, &ResponseOnly{
 			Success: false,
 			Message: "Internal server error",
@@ -111,7 +119,7 @@ func CreateOrders(c *gin.Context) {
 
 	c.JSON(http.StatusOK, &Response{
 		Success: true,
-		Message: "Orders created successfully",
+		Message: "Order created successfully",
 		Results: order,
 	})
 }
@@ -119,20 +127,31 @@ func CreateOrders(c *gin.Context) {
 
 func UpdateOrders(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
-	data := models.Orders{}
+	data := models.OrderForm{}
 
 	c.ShouldBind(&data)
 	data.Id = id
 
+	isExist, err := models.FindOneOrders(id)
+	if err != nil{
+		fmt.Println(isExist, err)
+		c.JSON(http.StatusNotFound, &ResponseOnly{
+			Success: false,
+			Message: "Order not found",
+		})
+	return
+	}
+
 	orders, err := models.UpdateOrders(data)
 	if err != nil {
-		log.Fatal(err)
-		if strings.HasPrefix(err.Error(), "sql: no rows"){
-			c.JSON(http.StatusInternalServerError, &ResponseOnly{
+		fmt.Println(err)
+		fmt.Println(err)
+		if strings.HasPrefix(err.Error(), "pq: duplicate key"){
+			c.JSON(http.StatusBadRequest, &ResponseOnly{
 				Success: false,
-				Message: "Orders not found",
+				Message: "duplicate key for orderNumber",
 			})
-		return
+			return
 		}
 		
 		c.JSON(http.StatusInternalServerError, &ResponseOnly{
@@ -145,7 +164,7 @@ func UpdateOrders(c *gin.Context) {
 
 	c.JSON(http.StatusOK, &Response{
 		Success: true,
-		Message: "Orders updated successfully",
+		Message: "Order updated successfully",
 		Results: orders,
 	})
 }
@@ -153,17 +172,20 @@ func UpdateOrders(c *gin.Context) {
 
 func DeleteOrders(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
+
+	isExist, err := models.FindOneOrders(id)
+	if err != nil{
+		fmt.Println(isExist, err)
+		c.JSON(http.StatusNotFound, &ResponseOnly{
+			Success: false,
+			Message: "Order not found",
+		})
+	return
+	}
+
 	orders, err := models.DeleteOrders(id)
 	if err != nil {
-		log.Fatalln(err)
-		if strings.HasPrefix(err.Error(), "sql: no rows"){
-			c.JSON(http.StatusInternalServerError, &ResponseOnly{
-				Success: false,
-				Message: "Orders not found",
-			})
-		return
-		}
-
+		fmt.Println(err)
 		c.JSON(http.StatusInternalServerError, &ResponseOnly{
 			Success: false,
 			Message: "Internal server error",
@@ -173,7 +195,7 @@ func DeleteOrders(c *gin.Context) {
 
 	c.JSON(http.StatusOK, &Response{
 		Success: true,
-		Message: "Delete Orders successfully",
+		Message: "Delete Order successfully",
 		Results: orders,
 	})
 }

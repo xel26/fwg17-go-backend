@@ -15,6 +15,16 @@ type ProductRatings struct {
 	UpdatedAt     sql.NullTime   `db:"updatedAt" json:"updatedAt"`
 }
 
+type PRForm struct {
+	Id            int            `db:"id" json:"id"`
+	ProductId     *int            `db:"productId" json:"productId" form:"productId"`
+	Rate          *int            `db:"rate" json:"rate" form:"rate"`
+	ReviewMessage *string `db:"reviewMessage" json:"reviewMessage" form:"reviewMessage"`
+	UserId        *int            `db:"userId" json:"userId" form:"userId"`
+	CreatedAt     time.Time      `db:"createdAt" json:"createdAt"`
+	UpdatedAt     sql.NullTime   `db:"updatedAt" json:"updatedAt"`
+}
+
 type InfoPR struct {
 	Data  []ProductRatings
 	Count int
@@ -48,13 +58,13 @@ func FindOneProductRatings(id int) (ProductRatings, error) {
 	return data, err
 }
 
-func CreateProductRatings(data ProductRatings) (ProductRatings, error) {
+func CreateProductRatings(data PRForm) (PRForm, error) {
 	sql := `INSERT INTO "productRatings" ("productId", "rate", "reviewMessage", "userId") 
 	VALUES
 	(:productId, :rate, :reviewMessage, :userId)
 	RETURNING *
 	`
-	result := ProductRatings{}
+	result := PRForm{}
 	rows, err := db.NamedQuery(sql, data)
 	if err != nil {
 		return result, err
@@ -67,17 +77,17 @@ func CreateProductRatings(data ProductRatings) (ProductRatings, error) {
 	return result, err
 }
 
-func UpdateProductRatings(data ProductRatings) (ProductRatings, error) {
+func UpdateProductRatings(data PRForm) (PRForm, error) {
 	sql := `UPDATE "productRatings" SET
 	"productId"=COALESCE(NULLIF(:productId, 0),"productId"),
 	"rate"=COALESCE(NULLIF(:rate, 0),"rate"),
 	"reviewMessage"=COALESCE(NULLIF(:reviewMessage, ''),"reviewMessage"),
 	"userId"=COALESCE(NULLIF(:userId, 0),"userId"),
-	"updatedAt" NOW()
+	"updatedAt"=NOW()
 	WHERE id=:id
 	RETURNING *
 	`
-	result := ProductRatings{}
+	result := PRForm{}
 	rows, err := db.NamedQuery(sql, data)
 	if err != nil {
 		return result, err
@@ -90,9 +100,9 @@ func UpdateProductRatings(data ProductRatings) (ProductRatings, error) {
 	return result, err
 }
 
-func DeleteProductRatings(id int) (ProductRatings, error) {
+func DeleteProductRatings(id int) (PRForm, error) {
 	sql := `DELETE FROM "productRatings" WHERE id = $1 RETURNING *`
-	data := ProductRatings{}
+	data := PRForm{}
 	err := db.Get(&data, sql, id)
 	return data, err
 }

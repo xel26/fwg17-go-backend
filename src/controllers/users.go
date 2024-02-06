@@ -4,7 +4,6 @@ import (
 	"coffe-shop-be-golang/src/middleware"
 	"coffe-shop-be-golang/src/models"
 	"fmt"
-	"log"
 	"math"
 	"strings"
 
@@ -57,7 +56,7 @@ func ListAllUsers(c *gin.Context) {
 	if isAuthorize == false || claims == false{
 		c.JSON(http.StatusUnauthorized, &ResponseOnly{
 			Success: false,
-			Message: "Unauthorize",
+			Message: "Unauthorized",
 		})
 		return
 	}
@@ -101,7 +100,7 @@ func ListAllUsers(c *gin.Context) {
 
 
 	if err != nil {
-		log.Fatal(err)
+		fmt.Println(err)
 		c.JSON(http.StatusInternalServerError, &ResponseOnly{
 			Success: false,
 			Message: "Internal server error",
@@ -127,7 +126,7 @@ func DetailUser(c *gin.Context) {
 	if isAuthorize == false || claims == false{
 		c.JSON(http.StatusUnauthorized, &ResponseOnly{
 			Success: false,
-			Message: "Unauthorize",
+			Message: "Unauthorized",
 		})
 		return
 	}
@@ -170,7 +169,7 @@ func CreateUser(c *gin.Context) {
 	if isAuthorize == false{
 		c.JSON(http.StatusUnauthorized, &ResponseOnly{
 			Success: false,
-			Message: "Unauthorize",
+			Message: "Unauthorized",
 		})
 		return
 	}
@@ -178,27 +177,30 @@ func CreateUser(c *gin.Context) {
 
 
 	data := models.UserForm{}
-	err := c.ShouldBind(&data)
+	errBind := c.ShouldBind(&data)
 
-
-	plain := []byte(data.Password)
-	hash, err := argonize.Hash(plain)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, &ResponseOnly2{
+	if errBind != nil {
+		fmt.Println(errBind)
+		c.JSON(http.StatusInternalServerError, &ResponseOnly{
 			Success: false,
-			Message: err,
+			Message: errBind.Error(),
 		})
 		return
 	}
+
+	defaultRole := "customer"
+	data.Role = &defaultRole
+
+
+	plain := []byte(data.Password)
+	hash, _ := argonize.Hash(plain)
 	data.Password =  hash.String()
 
-
-	user, err := models.CreateUser(data)
-
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, &ResponseOnly2{
+	user, errDB := models.CreateUser(data)
+	if errDB != nil {
+		c.JSON(http.StatusInternalServerError, &ResponseOnly{
 			Success: false,
-			Message: err,
+			Message: errDB.Error(),
 		})
 		return
 	}
@@ -220,7 +222,7 @@ func UpdateUser(c *gin.Context) {
 	if isAuthorize == false || claims == false{
 		c.JSON(http.StatusUnauthorized, &ResponseOnly{
 			Success: false,
-			Message: "Unauthorize",
+			Message: "Unauthorized",
 		})
 		return
 	}
@@ -236,7 +238,7 @@ func UpdateUser(c *gin.Context) {
 	return
 	}
 
-	data := models.User{}
+	data := models.UserForm{}
 	err := c.ShouldBind(&data)
 
 	plain := []byte(data.Password)
@@ -281,7 +283,7 @@ func DeleteUser(c *gin.Context) {
 	if isAuthorize == false || claims == false{
 		c.JSON(http.StatusUnauthorized, &ResponseOnly{
 			Success: false,
-			Message: "Unauthorize",
+			Message: "Unauthorized",
 		})
 		return
 	}

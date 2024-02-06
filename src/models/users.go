@@ -25,16 +25,17 @@ type User struct {
 
 type UserForm struct {
 	Id          int          `db:"id" json:"id"`
-	FullName    string       `db:"fullName" json:"fullName" form:"fullName" validate:"required"`
-	Email       string       `db:"email" json:"email" form:"email" validate:"email"`
+	FullName    *string      `db:"fullName" json:"fullName" form:"fullName"`
+	Email       *string      `db:"email" json:"email" form:"email"`
 	Password    string       `db:"password" json:"-" form:"password"`
 	Address     *string      `db:"address" json:"address" form:"address"`
 	Picture     *string      `db:"picture" json:"picture" form:"picture"`
 	PhoneNumber *string      `db:"phoneNumber" json:"phoneNumber" form:"phoneNumber"`
 	Role        *string      `db:"role" json:"role" form:"role"`
 	CreatedAt   time.Time    `db:"createdAt" json:"createdAt"`
-	UpdatedAt   sql.NullTime `db:"updatedAt" json:"updatedAt"`
+	UpdatedAt   sql.NullTime `db:"updatedAt" json:"-"`
 }
+
 
 type Info struct {
 	Data  []User
@@ -97,7 +98,7 @@ func CreateUser(data UserForm) (UserForm, error) {
 	return result, err
 }
 
-func UpdateUser(data User) (User, error) {
+func UpdateUser(data UserForm) (UserForm, error) {
 	sql := `UPDATE "users" SET
 	"fullName"=COALESCE(NULLIF(:fullName, ''),"fullName"),
 	"email"=COALESCE(NULLIF(:email, ''),"email"),
@@ -109,7 +110,7 @@ func UpdateUser(data User) (User, error) {
 	WHERE id=:id
 	RETURNING *
 	`
-	result := User{}
+	result := UserForm{}
 	rows, err := db.NamedQuery(sql, data)
 	if err != nil {
 		return result, err
@@ -122,9 +123,9 @@ func UpdateUser(data User) (User, error) {
 	return result, err
 }
 
-func DeleteUser(id int) (User, error) {
+func DeleteUser(id int) (UserForm, error) {
 	sql := `DELETE FROM "users" WHERE id = $1 RETURNING *`
-	data := User{}
+	data := UserForm{}
 	err := db.Get(&data, sql, id)
 	return data, err
 }

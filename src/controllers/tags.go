@@ -2,7 +2,7 @@ package controllers
 
 import (
 	"coffe-shop-be-golang/src/models"
-	"log"
+	"fmt"
 	"math"
 	"strings"
 
@@ -52,7 +52,7 @@ func ListAllTags(c *gin.Context) {
 
 
 	if err != nil {
-		log.Fatal(err)
+		fmt.Println(err)
 		c.JSON(http.StatusInternalServerError, &ResponseOnly{
 			Success: false,
 			Message: "Internal server error",
@@ -102,7 +102,7 @@ func CreateTags(c *gin.Context) {
 
 	tags, err := models.CreateTags(data)
 	if err != nil {
-		log.Fatal(err)
+		fmt.Println(err)
 		c.JSON(http.StatusInternalServerError, &ResponseOnly{
 			Success: false,
 			Message: "Internal server error",
@@ -125,9 +125,19 @@ func UpdateTags(c *gin.Context) {
 	c.ShouldBind(&data)
 	data.Id = id
 
+	isExist, err := models.FindOneTags(id)
+	if err != nil{
+		fmt.Println(isExist, err)
+		c.JSON(http.StatusNotFound, &ResponseOnly{
+			Success: false,
+			Message: "Tags not found",
+		})
+	return
+	}
+
 	tags, err := models.UpdateTags(data)
 	if err != nil {
-		log.Fatal(err)
+		fmt.Println(err)
 		if strings.HasPrefix(err.Error(), "sql: no rows"){
 			c.JSON(http.StatusInternalServerError, &ResponseOnly{
 				Success: false,
@@ -154,16 +164,20 @@ func UpdateTags(c *gin.Context) {
 
 func DeleteTags(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
+
+	isExist, err := models.FindOneTags(id)
+	if err != nil{
+		fmt.Println(isExist, err)
+		c.JSON(http.StatusNotFound, &ResponseOnly{
+			Success: false,
+			Message: "Tags not found",
+		})
+	return
+	}
+
 	tags, err := models.DeleteTags(id)
 	if err != nil {
-		if strings.HasPrefix(err.Error(), "sql: no rows"){
-			c.JSON(http.StatusInternalServerError, &ResponseOnly{
-				Success: false,
-				Message: "Tags not found",
-			})
-		return
-		}
-
+		fmt.Println(err)
 		c.JSON(http.StatusInternalServerError, &ResponseOnly{
 			Success: false,
 			Message: "Internal server error",

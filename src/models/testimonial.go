@@ -15,6 +15,16 @@ type Testimonial struct {
 	CreatedAt time.Time      `db:"createdAt" json:"createdAt"`
 	UpdatedAt sql.NullTime   `db:"updatedAt" json:"updatedAt"`
 }
+type TestimonialForm struct {
+	Id        int            `db:"id" json:"id"`
+	FullName  *string         `db:"fullName" json:"fullName" form:"fullName"`
+	Role      *string         `db:"role" json:"role" form:"role"`
+	Feedback  *string         `db:"feedback" json:"feedback" form:"feedback"`
+	Image     *string `db:"image" json:"image" form:"image"`
+	Rate      *int            `db:"rate" json:"rate" form:"rate"`
+	CreatedAt time.Time      `db:"createdAt" json:"createdAt"`
+	UpdatedAt sql.NullTime   `db:"updatedAt" json:"updatedAt"`
+}
 
 type InfoTs struct {
 	Data  []Testimonial
@@ -51,13 +61,13 @@ func FindOneTestimonial(id int) (Testimonial, error) {
 	return data, err
 }
 
-func CreateTestimonial(data Testimonial) (Testimonial, error) {
+func CreateTestimonial(data TestimonialForm) (TestimonialForm, error) {
 	sql := `INSERT INTO "testimonial" ("fullName", "role", "feedback", "rate", "image") 
 	VALUES
 	(:fullName, :role, :feedback, :rate, :image)
 	RETURNING *
 	`
-	result := Testimonial{}
+	result := TestimonialForm{}
 	rows, err := db.NamedQuery(sql, data)
 	if err != nil {
 		return result, err
@@ -70,18 +80,18 @@ func CreateTestimonial(data Testimonial) (Testimonial, error) {
 	return result, err
 }
 
-func UpdateTestimonial(data Testimonial) (Testimonial, error) {
+func UpdateTestimonial(data TestimonialForm) (TestimonialForm, error) {
 	sql := `UPDATE "testimonial" SET
 	"fullName"=COALESCE(NULLIF(:fullName, ''),"fullName"),
 	"role"=COALESCE(NULLIF(:role, ''),"role"),
 	"feedback"=COALESCE(NULLIF(:feedback, ''),"feedback"),
 	"rate"=COALESCE(NULLIF(:rate, ''),"rate"),
 	"image"=COALESCE(NULLIF(:image, ''),"image"),
-	"updatedAt" NOW()
+	"updatedAt"=NOW()
 	WHERE id=:id
 	RETURNING *
 	`
-	result := Testimonial{}
+	result := TestimonialForm{}
 	rows, err := db.NamedQuery(sql, data)
 	if err != nil {
 		return result, err
@@ -94,9 +104,9 @@ func UpdateTestimonial(data Testimonial) (Testimonial, error) {
 	return result, err
 }
 
-func DeleteTestimonial(id int) (Testimonial, error) {
+func DeleteTestimonial(id int) (TestimonialForm, error) {
 	sql := `DELETE FROM "testimonial" WHERE id = $1 RETURNING *`
-	data := Testimonial{}
+	data := TestimonialForm{}
 	err := db.Get(&data, sql, id)
 	return data, err
 }

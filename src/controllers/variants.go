@@ -2,7 +2,7 @@ package controllers
 
 import (
 	"coffe-shop-be-golang/src/models"
-	"log"
+	"fmt"
 	"math"
 	"strings"
 
@@ -52,7 +52,7 @@ func ListAllVariants(c *gin.Context) {
 
 
 	if err != nil {
-		log.Fatal(err)
+		fmt.Println(err)
 		c.JSON(http.StatusInternalServerError, &ResponseOnly{
 			Success: false,
 			Message: "Internal server error",
@@ -102,7 +102,15 @@ func CreateVariants(c *gin.Context) {
 
 	variants, err := models.CreateVariants(data)
 	if err != nil {
-		log.Fatal(err)
+		fmt.Println(err)
+		if strings.HasPrefix(err.Error(), "pq: duplicate key"){
+			c.JSON(http.StatusBadRequest, &ResponseOnly{
+				Success: false,
+				Message: "duplicate variant name",
+			})
+			return
+		}
+
 		c.JSON(http.StatusInternalServerError, &ResponseOnly{
 			Success: false,
 			Message: "Internal server error",
@@ -125,17 +133,19 @@ func UpdateVariants(c *gin.Context) {
 	c.ShouldBind(&data)
 	data.Id = id
 
+	isExist, err := models.FindOneVariants(id)
+	if err != nil{
+		fmt.Println(isExist, err)
+		c.JSON(http.StatusNotFound, &ResponseOnly{
+			Success: false,
+			Message: "Variants not found",
+		})
+	return
+	}
+
 	variants, err := models.UpdateVariants(data)
 	if err != nil {
-		log.Fatal(err)
-		if strings.HasPrefix(err.Error(), "sql: no rows"){
-			c.JSON(http.StatusInternalServerError, &ResponseOnly{
-				Success: false,
-				Message: "Variants not found",
-			})
-		return
-		}
-		
+		fmt.Println(err)
 		c.JSON(http.StatusInternalServerError, &ResponseOnly{
 			Success: false,
 			Message: "Internal server error",
@@ -154,16 +164,20 @@ func UpdateVariants(c *gin.Context) {
 
 func DeleteVariants(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
+
+	isExist, err := models.FindOneVariants(id)
+	if err != nil{
+		fmt.Println(isExist, err)
+		c.JSON(http.StatusNotFound, &ResponseOnly{
+			Success: false,
+			Message: "Variants not found",
+		})
+	return
+	}
+
 	variants, err := models.DeleteVariants(id)
 	if err != nil {
-		if strings.HasPrefix(err.Error(), "sql: no rows"){
-			c.JSON(http.StatusInternalServerError, &ResponseOnly{
-				Success: false,
-				Message: "Variants not found",
-			})
-		return
-		}
-
+		fmt.Println(err)
 		c.JSON(http.StatusInternalServerError, &ResponseOnly{
 			Success: false,
 			Message: "Internal server error",

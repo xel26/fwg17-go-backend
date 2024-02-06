@@ -2,7 +2,7 @@ package controllers
 
 import (
 	"coffe-shop-be-golang/src/models"
-	"log"
+	"fmt"
 	"math"
 	"strings"
 
@@ -51,7 +51,7 @@ func ListAllProductVariants(c *gin.Context) {
 
 
 	if err != nil {
-		log.Fatal(err)
+		fmt.Println(err)
 		c.JSON(http.StatusInternalServerError, &ResponseOnly{
 			Success: false,
 			Message: "Internal server error",
@@ -99,9 +99,29 @@ func CreateProductVariants(c *gin.Context) {
 	data := models.ProductVariants{}
 	c.ShouldBind(&data)
 
+	_, err := models.FindOneProducts(data.ProductId)
+	if err != nil{
+		fmt.Println(err, data)
+		c.JSON(http.StatusNotFound, &ResponseOnly{
+			Success: false,
+			Message: "product id not found",
+		})
+		return
+	}
+
+	_, err = models.FindOneVariants(data.VariantId)
+	if err != nil{
+		fmt.Println(err, data)
+		c.JSON(http.StatusNotFound, &ResponseOnly{
+			Success: false,
+			Message: "Variant id not found",
+		})
+		return
+	}
+
 	pv, err := models.CreateProductVariants(data)
 	if err != nil {
-		log.Fatal(err)
+		fmt.Println(err)
 		c.JSON(http.StatusInternalServerError, &ResponseOnly{
 			Success: false,
 			Message: "Internal server error",
@@ -122,19 +142,42 @@ func UpdateProductVariants(c *gin.Context) {
 	data := models.ProductVariants{}
 
 	c.ShouldBind(&data)
+
+	_, err := models.FindOneProducts(data.ProductId)
+	if err != nil{
+		fmt.Println(err)
+		c.JSON(http.StatusNotFound, &ResponseOnly{
+			Success: false,
+			Message: "product id not found",
+		})
+		return
+	}
+
+	isExist, err := models.FindOneProductVariants(id)
+	if err != nil{
+		fmt.Println(isExist, err)
+		c.JSON(http.StatusNotFound, &ResponseOnly{
+			Success: false,
+			Message: "Product variants not found",
+		})
+	return
+	}
+
+	_, err = models.FindOneVariants(data.VariantId)
+	if err != nil{
+		fmt.Println(err)
+		c.JSON(http.StatusNotFound, &ResponseOnly{
+			Success: false,
+			Message: "Variant id not found",
+		})
+		return
+	}
+
 	data.Id = id
 
 	pv, err := models.UpdateProductVariants(data)
 	if err != nil {
-		log.Fatal(err)
-		if strings.HasPrefix(err.Error(), "sql: no rows"){
-			c.JSON(http.StatusInternalServerError, &ResponseOnly{
-				Success: false,
-				Message: "Product variants not found",
-			})
-		return
-		}
-		
+		fmt.Println(err)
 		c.JSON(http.StatusInternalServerError, &ResponseOnly{
 			Success: false,
 			Message: "Internal server error",
@@ -153,16 +196,21 @@ func UpdateProductVariants(c *gin.Context) {
 
 func DeleteProductVariants(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
+
+	isExist, err := models.FindOneProductVariants(id)
+	if err != nil{
+		fmt.Println(isExist, err)
+		c.JSON(http.StatusNotFound, &ResponseOnly{
+			Success: false,
+			Message: "Product varinants not found",
+		})
+	return
+	}
+
+
 	pv, err := models.DeleteProductVariants(id)
 	if err != nil {
-		if strings.HasPrefix(err.Error(), "sql: no rows"){
-			c.JSON(http.StatusInternalServerError, &ResponseOnly{
-				Success: false,
-				Message: "Product variants not found",
-			})
-		return
-		}
-
+		fmt.Println(err)
 		c.JSON(http.StatusInternalServerError, &ResponseOnly{
 			Success: false,
 			Message: "Internal server error",

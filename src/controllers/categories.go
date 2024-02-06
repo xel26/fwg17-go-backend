@@ -2,7 +2,7 @@ package controllers
 
 import (
 	"coffe-shop-be-golang/src/models"
-	"log"
+	"fmt"
 	"math"
 	"strings"
 
@@ -52,7 +52,7 @@ func ListAllCategories(c *gin.Context) {
 
 
 	if err != nil {
-		log.Fatal(err)
+		fmt.Println(err)
 		c.JSON(http.StatusInternalServerError, &ResponseOnly{
 			Success: false,
 			Message: "Internal server error",
@@ -73,10 +73,11 @@ func DetailCategories(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
 	category, err := models.FindOneCategories(id)
 	if err != nil {
-		if strings.HasPrefix(err.Error(), "sql: no rows"){
+		fmt.Println(err)
+		if strings.HasPrefix(err.Error(), "sql: no rows in result set"){
 			c.JSON(http.StatusInternalServerError, &ResponseOnly{
 				Success: false,
-				Message: "Categories not found",
+				Message: "Category not found",
 			})
 		return
 		}
@@ -102,7 +103,7 @@ func CreateCategories(c *gin.Context) {
 
 	category, err := models.CreateCategories(data)
 	if err != nil {
-		log.Fatal(err)
+		fmt.Println(err)
 		c.JSON(http.StatusInternalServerError, &ResponseOnly{
 			Success: false,
 			Message: "Internal server error",
@@ -125,18 +126,18 @@ func UpdateCategories(c *gin.Context) {
 	c.ShouldBind(&data)
 	data.Id = id
 
+	isExist, err := models.FindOneCategories(id)
+	if err != nil{
+		fmt.Println(isExist, err)
+		c.JSON(http.StatusNotFound, &ResponseOnly{
+			Success: false,
+			Message: "Category not found",
+		})
+	return
+	}
+
 	category, err := models.UpdateCategories(data)
 	if err != nil {
-		log.Fatal(err)
-		
-		if strings.HasPrefix(err.Error(), "sql: no rows"){
-			c.JSON(http.StatusInternalServerError, &ResponseOnly{
-				Success: false,
-				Message: "Category not found",
-			})
-		return
-		}
-
 		c.JSON(http.StatusInternalServerError, &ResponseOnly{
 			Success: false,
 			Message: "Internal server error",
@@ -155,16 +156,19 @@ func UpdateCategories(c *gin.Context) {
 
 func DeleteCategories(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
+
+	isExist, err := models.FindOneCategories(id)
+	if err != nil{
+		fmt.Println(isExist, err)
+		c.JSON(http.StatusNotFound, &ResponseOnly{
+			Success: false,
+			Message: "Category not found",
+		})
+	return
+	}
+
 	category, err := models.DeleteCategories(id)
 	if err != nil {
-		if strings.HasPrefix(err.Error(), "sql: no rows"){
-			c.JSON(http.StatusInternalServerError, &ResponseOnly{
-				Success: false,
-				Message: "Category not found",
-			})
-		return
-		}
-
 		c.JSON(http.StatusInternalServerError, &ResponseOnly{
 			Success: false,
 			Message: "Internal server error",

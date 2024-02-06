@@ -2,7 +2,7 @@ package controllers
 
 import (
 	"coffe-shop-be-golang/src/models"
-	"log"
+	"fmt"
 	"math"
 	"strings"
 
@@ -52,7 +52,7 @@ func ListAllTestimonial(c *gin.Context) {
 
 
 	if err != nil {
-		log.Fatal(err)
+		fmt.Println(err)
 		c.JSON(http.StatusInternalServerError, &ResponseOnly{
 			Success: false,
 			Message: "Internal server error",
@@ -97,12 +97,12 @@ func DetailTestimonial(c *gin.Context) {
 
 
 func CreateTestimonial(c *gin.Context) {
-	data := models.Testimonial{}
+	data := models.TestimonialForm{}
 	c.ShouldBind(&data)
 
 	testimonial, err := models.CreateTestimonial(data)
 	if err != nil {
-		log.Fatal(err)
+		fmt.Println(err)
 		c.JSON(http.StatusInternalServerError, &ResponseOnly{
 			Success: false,
 			Message: "Internal server error",
@@ -120,14 +120,24 @@ func CreateTestimonial(c *gin.Context) {
 
 func UpdateTestimonial(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
-	data := models.Testimonial{}
+	data := models.TestimonialForm{}
 
 	c.ShouldBind(&data)
 	data.Id = id
 
+	isExist, err := models.FindOneTestimonial(id)
+	if err != nil{
+		fmt.Println(isExist, err)
+		c.JSON(http.StatusNotFound, &ResponseOnly{
+			Success: false,
+			Message: "Testimonial not found",
+		})
+	return
+	}
+
 	testimonial, err := models.UpdateTestimonial(data)
 	if err != nil {
-		log.Fatal(err)
+		fmt.Println(err)
 		if strings.HasPrefix(err.Error(), "sql: no rows"){
 			c.JSON(http.StatusInternalServerError, &ResponseOnly{
 				Success: false,
@@ -154,16 +164,19 @@ func UpdateTestimonial(c *gin.Context) {
 
 func DeleteTestimonial(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
+
+	isExist, err := models.FindOneTestimonial(id)
+	if err != nil{
+		fmt.Println(isExist, err)
+		c.JSON(http.StatusNotFound, &ResponseOnly{
+			Success: false,
+			Message: "Testimonial not found",
+		})
+	return
+	}
+
 	testimonial, err := models.DeleteTestimonial(id)
 	if err != nil {
-		if strings.HasPrefix(err.Error(), "sql: no rows"){
-			c.JSON(http.StatusInternalServerError, &ResponseOnly{
-				Success: false,
-				Message: "Testimonial not found",
-			})
-		return
-		}
-
 		c.JSON(http.StatusInternalServerError, &ResponseOnly{
 			Success: false,
 			Message: "Internal server error",

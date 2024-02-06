@@ -66,7 +66,8 @@ func CreateVariants(data Variants) (Variants, error) {
 func UpdateVariants(data Variants) (Variants, error) {
 	sql := `UPDATE "variant" SET
 	"name"=COALESCE(NULLIF(:name, ''),"name"),
-	"updatedAt" NOW()
+	"additionalPrice"=COALESCE(NULLIF(:additionalPrice, 0),"additionalPrice"),
+	"updatedAt"=NOW()
 	WHERE id=:id
 	RETURNING *
 	`

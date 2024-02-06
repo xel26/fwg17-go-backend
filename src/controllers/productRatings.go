@@ -2,7 +2,7 @@ package controllers
 
 import (
 	"coffe-shop-be-golang/src/models"
-	"log"
+	"fmt"
 	"math"
 	"strings"
 
@@ -51,7 +51,7 @@ func ListAllProductRatings(c *gin.Context) {
 
 
 	if err != nil {
-		log.Fatal(err)
+		fmt.Println(err)
 		c.JSON(http.StatusInternalServerError, &ResponseOnly{
 			Success: false,
 			Message: "Internal server error",
@@ -73,7 +73,7 @@ func DetailProductRatings(c *gin.Context) {
 	pr, err := models.FindOneProductRatings(id)
 	if err != nil {
 		if strings.HasPrefix(err.Error(), "sql: no rows"){
-			c.JSON(http.StatusInternalServerError, &ResponseOnly{
+			c.JSON(http.StatusNotFound, &ResponseOnly{
 				Success: false,
 				Message: "Product ratings not found",
 			})
@@ -99,9 +99,33 @@ func CreateProductRatings(c *gin.Context) {
 	data := models.ProductRatings{}
 	c.ShouldBind(&data)
 
-	pr, err := models.CreateProductRatings(data)
+	_, err := models.FindOneProducts(data.ProductId)
+	if err != nil{
+		fmt.Println(err)
+		c.JSON(http.StatusNotFound, &ResponseOnly{
+			Success: false,
+			Message: "product id not found",
+		})
+		return
+	}
+
+	_, err = models.FindOneUsers(data.UserId)
+	if err != nil{
+		fmt.Println(err)
+		c.JSON(http.StatusNotFound, &ResponseOnly{
+			Success: false,
+			Message: "user id not found",
+		})
+		return
+	}
+
+	dataForm := models.PRForm{}
+	c.ShouldBind(&dataForm)
+	fmt.Println(dataForm)
+
+	pr, err := models.CreateProductRatings(dataForm)
 	if err != nil {
-		log.Fatal(err)
+		fmt.Println(err)
 		c.JSON(http.StatusInternalServerError, &ResponseOnly{
 			Success: false,
 			Message: "Internal server error",
@@ -122,19 +146,35 @@ func UpdatePrductRatings(c *gin.Context) {
 	data := models.ProductRatings{}
 
 	c.ShouldBind(&data)
-	data.Id = id
 
-	pr, err := models.UpdateProductRatings(data)
-	if err != nil {
-		log.Fatal(err)
-		if strings.HasPrefix(err.Error(), "sql: no rows"){
-			c.JSON(http.StatusInternalServerError, &ResponseOnly{
-				Success: false,
-				Message: "Product ratings not found",
-			})
+	_, err := models.FindOneProducts(data.ProductId)
+	if err != nil{
+		fmt.Println(err)
+		c.JSON(http.StatusNotFound, &ResponseOnly{
+			Success: false,
+			Message: "product id not found",
+		})
 		return
-		}
-		
+	}
+
+	_, err = models.FindOneUsers(data.UserId)
+	if err != nil{
+		fmt.Println(err)
+		c.JSON(http.StatusNotFound, &ResponseOnly{
+			Success: false,
+			Message: "user id not found",
+		})
+		return
+	}
+
+	dataForm := models.PRForm{}
+	c.ShouldBind(&dataForm)
+	dataForm.Id = id
+	fmt.Println(dataForm)
+
+	pr, err := models.UpdateProductRatings(dataForm)
+	if err != nil {
+		fmt.Println(err)
 		c.JSON(http.StatusInternalServerError, &ResponseOnly{
 			Success: false,
 			Message: "Internal server error",
@@ -153,16 +193,20 @@ func UpdatePrductRatings(c *gin.Context) {
 
 func DeleteProductRatings(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
+
+	isExist, err := models.FindOneProductRatings(id)
+	if err != nil{
+		fmt.Println(isExist, err)
+		c.JSON(http.StatusNotFound, &ResponseOnly{
+			Success: false,
+			Message: "Product ratings not found",
+		})
+	return
+	}
+
 	pr, err := models.DeleteProductRatings(id)
 	if err != nil {
-		if strings.HasPrefix(err.Error(), "sql: no rows"){
-			c.JSON(http.StatusInternalServerError, &ResponseOnly{
-				Success: false,
-				Message: "Product ratings not found",
-			})
-		return
-		}
-
+		fmt.Println(err)
 		c.JSON(http.StatusInternalServerError, &ResponseOnly{
 			Success: false,
 			Message: "Internal server error",

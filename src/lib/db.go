@@ -1,7 +1,7 @@
 package lib
 
 import (
-	"log"
+	"fmt"
 
 	"github.com/jmoiron/sqlx"
 
@@ -12,7 +12,7 @@ import (
 func connectDB()*sqlx.DB{
 	db, err := sqlx.Connect("postgres", "user=postgres dbname=coffee_shop_implementation_basic password=1 sslmode=disable")
 	if err !=  nil {
-		log.Fatal(err)
+		fmt.Println(err)
 	}
 	return db
 }

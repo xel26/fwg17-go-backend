@@ -86,7 +86,7 @@ func UpdateOrderDetails(data OrderDetails) (OrderDetails, error) {
 	"quantity"=COALESCE(NULLIF(:quantity, 0),"quantity"),
 	"orderId"=COALESCE(NULLIF(:orderId, 0),"orderId"),
 	"subtotal"=COALESCE(NULLIF(:subtotal, 0),"subtotal"),
-	"updatedAt" NOW()
+	"updatedAt"=NOW()
 	WHERE id=:id
 	RETURNING *
 	`

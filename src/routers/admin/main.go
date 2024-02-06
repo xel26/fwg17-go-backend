@@ -1,8 +1,15 @@
 package routers
 
-import "github.com/gin-gonic/gin"
+import (
+	"coffe-shop-be-golang/src/middleware"
+
+	"github.com/gin-gonic/gin"
+)
 
 func CombineAdmin(r *gin.RouterGroup){
+	authMiddleware, _ := middleware.Auth()
+	r.Use(authMiddleware.MiddlewareFunc())
+
 	UserRouter(r.Group("/users"))
 	ProductsRouter(r.Group("/products"))
 	CategoriesRouter(r.Group("/categories"))

@@ -3,7 +3,6 @@ package controllers
 import (
 	"coffe-shop-be-golang/src/lib"
 	"coffe-shop-be-golang/src/models"
-	"coffe-shop-be-golang/src/service"
 	"fmt"
 	"net/http"
 	"strings"
@@ -19,48 +18,48 @@ type FormReset struct {
 	ConfirmPassword string `form:"confirmPassword"`
 }
 
-func Login(c *gin.Context) {
-	form := models.User{}
-	err := c.ShouldBind(&form)
+// func Login(c *gin.Context) {
+// 	form := models.User{}
+// 	err := c.ShouldBind(&form)
 
-	found, err := models.FindOneUsersByEmail(form.Email)
+// 	found, err := models.FindOneUsersByEmail(form.Email)
 
-	if err != nil {
-		c.JSON(http.StatusUnauthorized, ResponseOnly{
-			Success: false,
-			Message: "wrong email",
-		})
-		return
-	}
+// 	if err != nil {
+// 		c.JSON(http.StatusUnauthorized, ResponseOnly{
+// 			Success: false,
+// 			Message: "wrong email",
+// 		})
+// 		return
+// 	}
 
-	decode, err := argonize.DecodeHashStr(found.Password)
+// 	decode, err := argonize.DecodeHashStr(found.Password)
 	
-	if err != nil {
-		c.JSON(http.StatusUnauthorized, ResponseOnly{
-			Success: false,
-			Message: "pass error",
-		})
-		return
-	}
+// 	if err != nil {
+// 		c.JSON(http.StatusUnauthorized, ResponseOnly{
+// 			Success: false,
+// 			Message: "pass error",
+// 		})
+// 		return
+// 	}
 	
-	token, err := service.GenerateToken(found.Id, found.Role)
+// 	token, err := service.GenerateToken(found.Id, found.Role)
 
-	plain := []byte(form.Password)
-	if decode.IsValidPassword(plain) {
-		c.JSON(http.StatusOK, Response{
-			Success: true,
-			Message: "Login success",
-			Results: token,
-		})
-		return
-	} else {
-		c.JSON(http.StatusUnauthorized, ResponseOnly{
-			Success: false,
-			Message: "wrong password",
-		})
-	}
+// 	plain := []byte(form.Password)
+// 	if decode.IsValidPassword(plain) {
+// 		c.JSON(http.StatusOK, Response{
+// 			Success: true,
+// 			Message: "Login success",
+// 			Results: token,
+// 		})
+// 		return
+// 	} else {
+// 		c.JSON(http.StatusUnauthorized, ResponseOnly{
+// 			Success: false,
+// 			Message: "wrong password",
+// 		})
+// 	}
 
-}
+// }
 
 
 

@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"coffe-shop-be-golang/src/middleware"
 	"coffe-shop-be-golang/src/models"
 	"fmt"
 	"math"
@@ -15,20 +14,6 @@ import (
 
 
 func ListAllProducts(c *gin.Context) {
-	isAuthorize := middleware.AuthorizeToken(c)
-	claims := middleware.RoleCheck("admin", c)
-	fmt.Println("claims", claims)
-
-
-	if isAuthorize == false || claims == false{
-		c.JSON(http.StatusUnauthorized, &ResponseOnly{
-			Success: false,
-			Message: "Unauthorized",
-		})
-		return
-	}
-
-
 	searchKey := c.DefaultQuery("searchKey", "")
 	sortBy := c.DefaultQuery("sortBy", "id")
 	order := c.DefaultQuery("order", "ASC")
@@ -85,21 +70,6 @@ func ListAllProducts(c *gin.Context) {
 
 
 func DetailProducts(c *gin.Context) {
-	isAuthorize := middleware.AuthorizeToken(c)
-	claims := middleware.RoleCheck("admin", c)
-	fmt.Println("claims", claims)
-
-
-	if isAuthorize == false || claims == false{
-		c.JSON(http.StatusUnauthorized, &ResponseOnly{
-			Success: false,
-			Message: "Unauthorized",
-		})
-		return
-	}
-
-
-
 	id, _ := strconv.Atoi(c.Param("id"))
 	product, err := models.FindOneProducts(id)
 	if err != nil {
@@ -127,20 +97,6 @@ func DetailProducts(c *gin.Context) {
 
 
 func CreateProducts(c *gin.Context) {
-	isAuthorize := middleware.AuthorizeToken(c)
-	claims := middleware.RoleCheck("admin", c)
-	fmt.Println("claims", claims)
-
-
-	if isAuthorize == false || claims == false{
-		c.JSON(http.StatusUnauthorized, &ResponseOnly{
-			Success: false,
-			Message: "Unauthorized",
-		})
-		return
-	}
-
-
 	data := models.ProductForm{}
 	errBind := c.ShouldBind(&data)
 	if errBind != nil {
@@ -171,20 +127,6 @@ func CreateProducts(c *gin.Context) {
 
 
 func UpdatePrducts(c *gin.Context) {
-	isAuthorize := middleware.AuthorizeToken(c)
-	claims := middleware.RoleCheck("admin", c)
-	fmt.Println("claims", claims)
-
-
-	if isAuthorize == false || claims == false{
-		c.JSON(http.StatusUnauthorized, &ResponseOnly{
-			Success: false,
-			Message: "Unauthorized",
-		})
-		return
-	}
-
-
 	id, _ := strconv.Atoi(c.Param("id"))
 	data := models.ProductForm{}
 
@@ -232,20 +174,6 @@ func UpdatePrducts(c *gin.Context) {
 
 
 func DeleteProducts(c *gin.Context) {
-	isAuthorize := middleware.AuthorizeToken(c)
-	claims := middleware.RoleCheck("admin", c)
-	fmt.Println("claims", claims)
-
-
-	if isAuthorize == false || claims == false{
-		c.JSON(http.StatusUnauthorized, &ResponseOnly{
-			Success: false,
-			Message: "Unauthorized",
-		})
-		return
-	}
-
-	
 	id, _ := strconv.Atoi(c.Param("id"))
 	isExist, err := models.FindOneProducts(id)
 	if err != nil{

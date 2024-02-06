@@ -1,7 +1,7 @@
 package controllers
 
 import (
-	"coffe-shop-be-golang/src/middleware"
+	"coffe-shop-be-golang/src/lib"
 	"coffe-shop-be-golang/src/models"
 	"fmt"
 	"math"
@@ -11,7 +11,6 @@ import (
 	"strconv"
 
 	"github.com/KEINOS/go-argonize"
-	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 )
 
@@ -48,20 +47,6 @@ type ResponseOnly2 struct {
 
 
 func ListAllUsers(c *gin.Context) {
-	isAuthorize := middleware.AuthorizeToken(c)
-	claims := middleware.RoleCheck("admin", c)
-	fmt.Println("claims", claims)
-
-
-	if isAuthorize == false || claims == false{
-		c.JSON(http.StatusUnauthorized, &ResponseOnly{
-			Success: false,
-			Message: "Unauthorized",
-		})
-		return
-	}
-
-
 	searchKey := c.DefaultQuery("searchKey", "")
 	sortBy := c.DefaultQuery("sortBy", "id")
 	order := c.DefaultQuery("order", "ASC")
@@ -118,21 +103,6 @@ func ListAllUsers(c *gin.Context) {
 
 
 func DetailUser(c *gin.Context) {
-	isAuthorize := middleware.AuthorizeToken(c)
-	claims := middleware.RoleCheck("admin", c)
-	fmt.Println("claims", claims)
-
-
-	if isAuthorize == false || claims == false{
-		c.JSON(http.StatusUnauthorized, &ResponseOnly{
-			Success: false,
-			Message: "Unauthorized",
-		})
-		return
-	}
-
-
-
 	id, _ := strconv.Atoi(c.Param("id"))
 	user, err := models.FindOneUsers(id)
 	if err != nil {
@@ -161,21 +131,6 @@ func DetailUser(c *gin.Context) {
 
 
 func CreateUser(c *gin.Context) {
-	isAuthorize := middleware.AuthorizeToken(c)
-	claims := middleware.RoleCheck("admin", c).(jwt.MapClaims)
-	fmt.Println("claims", claims["id"])
-
-
-	if isAuthorize == false{
-		c.JSON(http.StatusUnauthorized, &ResponseOnly{
-			Success: false,
-			Message: "Unauthorized",
-		})
-		return
-	}
-
-
-
 	data := models.UserForm{}
 	errBind := c.ShouldBind(&data)
 
@@ -196,8 +151,20 @@ func CreateUser(c *gin.Context) {
 	hash, _ := argonize.Hash(plain)
 	data.Password =  hash.String()
 
+	file, err := lib.Upload(c, "picture", "users")
+	if err != nil{
+		fmt.Println(err)
+		c.JSON(http.StatusInternalServerError, &ResponseOnly{
+			Success: false,
+			Message: "error upload file",
+		})
+		return
+	}
+	data.Picture = file
+
 	user, errDB := models.CreateUser(data)
 	if errDB != nil {
+		fmt.Println(errDB)
 		c.JSON(http.StatusInternalServerError, &ResponseOnly{
 			Success: false,
 			Message: errDB.Error(),
@@ -214,19 +181,6 @@ func CreateUser(c *gin.Context) {
 
 
 func UpdateUser(c *gin.Context) {
-	isAuthorize := middleware.AuthorizeToken(c)
-	claims := middleware.RoleCheck("admin", c)
-	fmt.Println("claims", claims)
-
-
-	if isAuthorize == false || claims == false{
-		c.JSON(http.StatusUnauthorized, &ResponseOnly{
-			Success: false,
-			Message: "Unauthorized",
-		})
-		return
-	}
-
 	id, _ := strconv.Atoi(c.Param("id"))
 	isExist, error := models.FindOneUsers(id)
 	if error != nil{
@@ -275,20 +229,6 @@ func UpdateUser(c *gin.Context) {
 
 
 func DeleteUser(c *gin.Context) {
-	isAuthorize := middleware.AuthorizeToken(c)
-	claims := middleware.RoleCheck("admin", c)
-	fmt.Println("claims", claims)
-
-
-	if isAuthorize == false || claims == false{
-		c.JSON(http.StatusUnauthorized, &ResponseOnly{
-			Success: false,
-			Message: "Unauthorized",
-		})
-		return
-	}
-
-
 	id, _ := strconv.Atoi(c.Param("id"))
 	isExist, error := models.FindOneUsers(id)
 	if error != nil{

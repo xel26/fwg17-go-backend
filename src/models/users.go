@@ -29,7 +29,7 @@ type UserForm struct {
 	Email       *string      `db:"email" json:"email" form:"email"`
 	Password    string       `db:"password" json:"-" form:"password"`
 	Address     *string      `db:"address" json:"address" form:"address"`
-	Picture     *string      `db:"picture" json:"picture" form:"picture"`
+	Picture     string      `db:"picture" json:"picture" form:"picture"`
 	PhoneNumber *string      `db:"phoneNumber" json:"phoneNumber" form:"phoneNumber"`
 	Role        *string      `db:"role" json:"role" form:"role"`
 	CreatedAt   time.Time    `db:"createdAt" json:"createdAt"`

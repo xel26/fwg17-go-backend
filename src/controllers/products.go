@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"coffe-shop-be-golang/src/lib"
 	"coffe-shop-be-golang/src/models"
 	"fmt"
 	"math"
@@ -108,6 +109,19 @@ func CreateProducts(c *gin.Context) {
 		return
 	}
 
+
+	file, err := lib.Upload(c, "image", "products")
+	if err != nil {
+		fmt.Println(err)
+		c.JSON(http.StatusInternalServerError, &ResponseOnly{
+			Success: false,
+			Message: err.Error(),
+		})
+		return
+	}
+	data.Image = file
+
+
 	product, errDB := models.CreateProducts(data)
 	if errDB != nil {
 		fmt.Println(errDB)
@@ -152,6 +166,18 @@ func UpdatePrducts(c *gin.Context) {
 		})
 	return
 	}
+
+
+	file, err := lib.Upload(c, "image", "products")
+	if err != nil {
+		fmt.Println(err)
+		c.JSON(http.StatusInternalServerError, &ResponseOnly{
+			Success: false,
+			Message: err.Error(),
+		})
+		return
+	}
+	data.Image = file
 
 
 	product, err := models.UpdateProduct(data)

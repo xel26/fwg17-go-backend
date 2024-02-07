@@ -7,22 +7,22 @@ import (
 
 type ProductRatings struct {
 	Id            int            `db:"id" json:"id"`
-	ProductId     int            `db:"productId" json:"productId" form:"productId"`
-	Rate          int            `db:"rate" json:"rate" form:"rate"`
-	ReviewMessage sql.NullString `db:"reviewMessage" json:"reviewMessage" form:"reviewMessage"`
-	UserId        int            `db:"userId" json:"userId" form:"userId"`
+	ProductId     int            `db:"productId" json:"productId"`
+	Rate          int            `db:"rate" json:"rate"`
+	ReviewMessage sql.NullString `db:"reviewMessage" json:"reviewMessage"`
+	UserId        int            `db:"userId" json:"userId"`
 	CreatedAt     time.Time      `db:"createdAt" json:"createdAt"`
 	UpdatedAt     sql.NullTime   `db:"updatedAt" json:"updatedAt"`
 }
 
 type PRForm struct {
-	Id            int            `db:"id" json:"id"`
-	ProductId     *int            `db:"productId" json:"productId" form:"productId"`
-	Rate          *int            `db:"rate" json:"rate" form:"rate"`
-	ReviewMessage *string `db:"reviewMessage" json:"reviewMessage" form:"reviewMessage"`
-	UserId        *int            `db:"userId" json:"userId" form:"userId"`
-	CreatedAt     time.Time      `db:"createdAt" json:"createdAt"`
-	UpdatedAt     sql.NullTime   `db:"updatedAt" json:"updatedAt"`
+	Id            int          `db:"id" json:"id"`
+	ProductId     *int         `db:"productId" json:"productId" form:"productId" binding:"required,numeric"`
+	Rate          *int         `db:"rate" json:"rate" form:"rate" binding:"required,eq=5|eq=4|eq=3|eq=2|eq=1"`
+	ReviewMessage *string      `db:"reviewMessage" json:"reviewMessage" form:"reviewMessage"`
+	UserId        *int         `db:"userId" json:"userId" form:"userId" binding:"required,numeric"`
+	CreatedAt     time.Time    `db:"createdAt" json:"createdAt"`
+	UpdatedAt     sql.NullTime `db:"updatedAt" json:"updatedAt"`
 }
 
 type InfoPR struct {

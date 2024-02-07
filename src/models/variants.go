@@ -7,8 +7,8 @@ import (
 
 type Variants struct {
 	Id              int          `db:"id" json:"id"`
-	Name            string       `db:"name" json:"name" form:"name"`
-	AdditionalPrice int          `db:"additionalPrice" json:"additionalPrice" form:"additionalPrice"`
+	Name            string       `db:"name" json:"name" form:"name" binding:"required,min=3"`
+	AdditionalPrice int          `db:"additionalPrice" json:"additionalPrice" form:"additionalPrice" binding:"required,numeric"`
 	CreatedAt       time.Time    `db:"createdAt" json:"createdAt"`
 	UpdatedAt       sql.NullTime `db:"updatedAt" json:"updatedAt"`
 }

@@ -3,6 +3,7 @@ package models
 import (
 	"coffe-shop-be-golang/src/lib"
 	"database/sql"
+	"fmt"
 	"time"
 
 	"github.com/jmoiron/sqlx"
@@ -12,30 +13,29 @@ var db *sqlx.DB = lib.DB
 
 type User struct {
 	Id          int            `db:"id" json:"id"`
-	FullName    string         `db:"fullName" json:"fullName" form:"fullName"`
-	Email       string         `db:"email" json:"email" form:"email"`
-	Password    string         `db:"password" json:"-" form:"password"`
-	Address     sql.NullString `db:"address" json:"address" form:"address"`
-	Picture     sql.NullString `db:"picture" json:"picture" form:"picture"`
-	PhoneNumber sql.NullString `db:"phoneNumber" json:"phoneNumber" form:"phoneNumber"`
-	Role        string         `db:"role" json:"role" form:"role"`
+	FullName    string         `db:"fullName" json:"fullName"`
+	Email       string         `db:"email" json:"email"`
+	Password    string         `db:"password" json:"-"`
+	Address     sql.NullString `db:"address" json:"address"`
+	Picture     sql.NullString `db:"picture" json:"picture"`
+	PhoneNumber sql.NullString `db:"phoneNumber" json:"phoneNumber"`
+	Role        string         `db:"role" json:"role"`
 	CreatedAt   time.Time      `db:"createdAt" json:"createdAt"`
 	UpdatedAt   sql.NullTime   `db:"updatedAt" json:"updatedAt"`
 }
 
 type UserForm struct {
 	Id          int          `db:"id" json:"id"`
-	FullName    *string      `db:"fullName" json:"fullName" form:"fullName"`
-	Email       *string      `db:"email" json:"email" form:"email"`
-	Password    string       `db:"password" json:"-" form:"password"`
+	FullName    *string      `db:"fullName" json:"fullName" form:"fullName" binding:"required,min=3"`
+	Email       *string      `db:"email" json:"email" form:"email" binding:"email,required"`
+	Password    string       `db:"password" json:"-" form:"password" binding:"required,min=6"`
 	Address     *string      `db:"address" json:"address" form:"address"`
-	Picture     string      `db:"picture" json:"picture" form:"picture"`
+	Picture     string       `db:"picture" json:"picture"`
 	PhoneNumber *string      `db:"phoneNumber" json:"phoneNumber" form:"phoneNumber"`
-	Role        *string      `db:"role" json:"role" form:"role"`
+	Role        *string      `db:"role" json:"role"`
 	CreatedAt   time.Time    `db:"createdAt" json:"createdAt"`
-	UpdatedAt   sql.NullTime `db:"updatedAt" json:"-"`
+	UpdatedAt   sql.NullTime `db:"updatedAt" json:"updatedAt"`
 }
-
 
 type Info struct {
 	Data  []User
@@ -80,6 +80,12 @@ func FindOneUsersByEmail(email string) (User, error) {
 }
 
 func CreateUser(data UserForm) (UserForm, error) {
+	fmt.Println(data.PhoneNumber)
+	fmt.Println(data.Picture)
+	// if data.Picture == ""{
+	// 	data.Picture = ""
+	// }
+
 	sql := `INSERT INTO "users" ("fullName", "email", "password", "address", "phoneNumber", "role", "picture") 
 	VALUES
 	(:fullName, :email, :password, :address, :phoneNumber, :role, :picture)

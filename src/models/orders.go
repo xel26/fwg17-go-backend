@@ -26,19 +26,19 @@ type Order struct {
 
 type OrderForm struct {
 	Id               int          `db:"id" json:"id"`
-	UserId           *int         `db:"userId" json:"userId" form:"userId"`
-	OrderNumber      *string      `db:"orderNumber" json:"orderNumber" form:"orderNumber"`
+	UserId           *int         `db:"userId" json:"userId" form:"userId" binding:"required,numeric"`
+	OrderNumber      *string      `db:"orderNumber" json:"orderNumber" form:"orderNumber" binding:"required,numeric"`
 	PromoId          *int         `db:"promoId" json:"promoId" form:"promoId"`
-	Total            *int         `db:"total" json:"total" form:"total"`
-	Tax              *int         `db:"tax" json:"tax" form:"tax"`
+	Total            *int         `db:"total" json:"total" form:"total" binding:"required,numeric"`
+	Tax              *int         `db:"tax" json:"tax" form:"tax" binding:"required,numeric"`
 	DeliveryAddress  *string      `db:"deliveryAddress" json:"deliveryAddress" form:"deliveryAddress"`
 	FullName         *string      `db:"fullName" json:"fullName" form:"fullName"`
 	Email            *string      `db:"email" json:"email" form:"email"`
-	PriceCut         *int         `db:"priceCut" json:"priceCut" form:"priceCut"`
-	Subtotal         *int         `db:"subtotal" json:"subtotal" form:"subtotal"`
-	Status           *string      `db:"status" json:"status" form:"status"`
-	DeliveryFee      *int         `db:"deliveryFee" json:"deliveryFee" form:"deliveryFee"`
-	DeliveryShipping *string         `db:"deliveryShipping" json:"deliveryShipping" form:"deliveryShipping"`
+	PriceCut         *int         `db:"priceCut" json:"priceCut" form:"priceCut" binding:"required,numeric"`
+	Subtotal         *int         `db:"subtotal" json:"subtotal" form:"subtotal" binding:"required,numeric"`
+	Status           *string      `db:"status" json:"status" form:"status" binding:"eq=On Progress|eq=Finish Order|eq=Sending Goods"`
+	DeliveryFee      *int         `db:"deliveryFee" json:"deliveryFee" form:"deliveryFee" binding:"required,numeric"`
+	DeliveryShipping *string         `db:"deliveryShipping" json:"deliveryShipping" form:"deliveryShipping" binding:"eq=Dine In|eq=Pick Up|eq=Door Delivery"`
 	CreatedAt        time.Time    `db:"createdAt" json:"createdAt"`
 	UpdatedAt        sql.NullTime `db:"updatedAt" json:"updatedAt"`
 }

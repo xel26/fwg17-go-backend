@@ -15,8 +15,8 @@ type Sizes struct {
 
 type SizesForm struct {
 	Id              int           `db:"id" json:"id"`
-	Size            string        `db:"size" json:"size" form:"size"`
-	AdditionalPrice *int `db:"additionalPrice" json:"additionalPrice" form:"additionalPrice"`
+	Size            string        `db:"size" json:"size" form:"size" binding:"required,min=3"`
+	AdditionalPrice *int `db:"additionalPrice" json:"additionalPrice" form:"additionalPrice" binding:"required"`
 	CreatedAt       time.Time     `db:"createdAt" json:"createdAt"`
 	UpdatedAt       sql.NullTime  `db:"updatedAt" json:"updatedAt"`
 }

@@ -15,7 +15,7 @@ type FormReset struct {
 	Email           string `form:"email"`
 	Otp             string `form:"otp"`
 	Password        string `form:"password"`
-	ConfirmPassword string `form:"confirmPassword"`
+	ConfirmPassword string `form:"confirmPassword" binding:"eqfield=Password"`
 }
 
 // func Login(c *gin.Context) {
@@ -66,19 +66,19 @@ type FormReset struct {
 func Register(c *gin.Context) {
 	form := models.UserForm{}
 	err := c.ShouldBind(&form)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, ResponseOnly{
+			Success: false,
+			Message: err.Error(),
+		})
+		return
+	}
 	
 	defaultRole := "customer"
 	form.Role = &defaultRole
 
 	plain := []byte(form.Password)
 	hash, err := argonize.Hash(plain)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, ResponseOnly{
-			Success: false,
-			Message: "failed to hash password",
-		})
-		return
-	}
 	form.Password = hash.String()
 
 	result, err := models.CreateUser(form)

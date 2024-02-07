@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"coffe-shop-be-golang/src/lib"
 	"coffe-shop-be-golang/src/models"
 	"fmt"
 	"math"
@@ -98,7 +99,20 @@ func DetailTestimonial(c *gin.Context) {
 
 func CreateTestimonial(c *gin.Context) {
 	data := models.TestimonialForm{}
-	c.ShouldBind(&data)
+	err := c.ShouldBind(&data)
+
+	
+	file, err := lib.Upload(c, "image", "testimonial")
+	if err != nil {
+		fmt.Println(err)
+		c.JSON(http.StatusInternalServerError, &ResponseOnly{
+			Success: false,
+			Message: err.Error(),
+		})
+		return
+	}
+	data.Image = file
+
 
 	testimonial, err := models.CreateTestimonial(data)
 	if err != nil {
@@ -134,6 +148,19 @@ func UpdateTestimonial(c *gin.Context) {
 		})
 	return
 	}
+
+
+	file, err := lib.Upload(c, "image", "testimonial")
+	if err != nil {
+		fmt.Println(err)
+		c.JSON(http.StatusInternalServerError, &ResponseOnly{
+			Success: false,
+			Message: err.Error(),
+		})
+		return
+	}
+	data.Image = file
+
 
 	testimonial, err := models.UpdateTestimonial(data)
 	if err != nil {

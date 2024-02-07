@@ -7,9 +7,9 @@ import (
 
 type Message struct {
 	Id          int          `db:"id" json:"id"`
-	RecipientId int          `db:"recipientId" json:"recipientId" form:"recipientId"`
-	SenderId    int          `db:"senderId" json:"senderId" form:"senderId"`
-	Text        string       `db:"text" json:"text" form:"text"`
+	RecipientId int          `db:"recipientId" json:"recipientId" form:"recipientId" binding:"required,numeric"`
+	SenderId    int          `db:"senderId" json:"senderId" form:"senderId" binding:"required,numeric"`
+	Text        string       `db:"text" json:"text" form:"text" binding:"required"`
 	CreatedAt   time.Time    `db:"createdAt" json:"createdAt"`
 	UpdatedAt   sql.NullTime `db:"updatedAt" json:"updatedAt"`
 }

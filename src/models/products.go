@@ -7,24 +7,24 @@ import (
 
 type Product struct {
 	Id            int            `db:"id" json:"id"`
-	Name          string         `db:"name" json:"name" form:"name"`
-	Description   sql.NullString `db:"description" json:"description" form:"description"`
-	Image         sql.NullString `db:"image" json:"image" form:"image"`
-	Discount      sql.NullInt64  `db:"discount" json:"discount" form:"discount"`
-	BasePrice     int            `db:"basePrice" json:"basePrice" form:"basePrice"`
-	IsRecommended sql.NullBool   `db:"isRecommended" json:"isRecommended" form:"isRecommended"`
-	TagId         sql.NullInt64  `db:"tagId" json:"tagId" form:"tagId"`
+	Name          string         `db:"name" json:"name"`
+	Description   sql.NullString `db:"description" json:"description"`
+	Image         sql.NullString `db:"image" json:"image"`
+	Discount      sql.NullInt64  `db:"discount" json:"discount"`
+	BasePrice     int            `db:"basePrice" json:"basePrice"`
+	IsRecommended sql.NullBool   `db:"isRecommended" json:"isRecommended"`
+	TagId         sql.NullInt64  `db:"tagId" json:"tagId"`
 	CreatedAt     time.Time      `db:"createdAt" json:"createdAt"`
 	UpdatedAt     sql.NullTime   `db:"updatedAt" json:"updatedAt"`
 }
 
 type ProductForm struct {
 	Id            int          `db:"id" json:"id"`
-	Name          *string      `db:"name" json:"name" form:"name"`
+	Name          *string      `db:"name" json:"name" form:"name" binding:"required,min=3"`
 	Description   *string      `db:"description" json:"description" form:"description"`
-	Image         *string      `db:"image" json:"image" form:"image"`
+	Image         string      `db:"image" json:"image"`
 	Discount      *int      `db:"discount" json:"discount" form:"discount"`
-	BasePrice     *int         `db:"basePrice" json:"basePrice" form:"basePrice"`
+	BasePrice     *int         `db:"basePrice" json:"basePrice" form:"basePrice" binding:"required,numeric"`
 	IsRecommended *bool        `db:"isRecommended" json:"isRecommended" form:"isRecommended"`
 	TagId         *int         `db:"tagId" json:"tagId" form:"tagId"`
 	CreatedAt     time.Time    `db:"createdAt" json:"createdAt"`

@@ -7,8 +7,8 @@ import (
 
 type ProductCategories struct {
 	Id         int          `db:"id" json:"id"`
-	ProductId  int          `db:"productId" json:"productId" form:"productId"`
-	CategoryId int          `db:"categoryId" json:"categoryId" form:"categoryId"`
+	ProductId  int          `db:"productId" json:"productId" form:"productId" binding:"required,numeric"`
+	CategoryId int          `db:"categoryId" json:"categoryId" form:"categoryId" binding:"required,numeric"`
 	CreatedAt  time.Time    `db:"createdAt" json:"createdAt"`
 	UpdatedAt  sql.NullTime `db:"updatedAt" json:"updatedAt"`
 }

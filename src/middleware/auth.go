@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/KEINOS/go-argonize"
@@ -28,9 +29,10 @@ func Auth()(*jwt.GinJWTMiddleware, error){
 			}
 		},
 		IdentityHandler: func(c *gin.Context) interface{} {
-			claims := jwt.ExtractClaims(c)
+			claims := jwt.ExtractClaims(c) // membaca payload
 			return &models.User{
 				Id: int(claims["id"].(float64)),
+				Role: claims["role"].(string),
 			}
 		},
 		Authenticator: func(c *gin.Context) (interface{}, error) {
@@ -53,15 +55,30 @@ func Auth()(*jwt.GinJWTMiddleware, error){
 			if decode.IsValidPassword(plain) {
 				return &models.User{
 					Id: found.Id,
+					Role: found.Role,
 				}, nil
 			} else {
 				return nil, errors.New("invalid_password")
 			}
 		},
 		Authorizator: func(data interface{}, c *gin.Context) bool {
+			user := data.(*models.User)
+			if strings.HasPrefix(c.Request.URL.Path, "/admin"){
+				if user.Role != "admin"{
+					return false
+				}
+			}
 			return true
 		},
 		Unauthorized: func(c *gin.Context, code int, message string) {
+			if strings.HasPrefix(c.Request.URL.Path, "/login"){
+				c.JSON(http.StatusUnauthorized, &controllers.ResponseOnly{
+					Success: false,
+					Message: "wrong Email or password",
+				})
+				return
+			}
+
 			c.JSON(http.StatusUnauthorized, &controllers.ResponseOnly{
 				Success: false,
 				Message: "Unauthorized",

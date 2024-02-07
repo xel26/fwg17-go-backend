@@ -7,17 +7,17 @@ import (
 
 type ForgotPassword struct {
 	Id        int           `db:"id" json:"id"`
-	Otp       string        `db:"otp" json:"otp" form:"otp"`
-	UserId    sql.NullInt64 `db:"userId" json:"userId" form:"userId"`
-	Email     string        `db:"email" json:"email" form:"email"`
+	Otp       string        `db:"otp" json:"otp"`
+	UserId    sql.NullInt64 `db:"userId" json:"userId"`
+	Email     string        `db:"email" json:"email"`
 	CreatedAt time.Time     `db:"createdAt" json:"createdAt"`
 	UpdatedAt sql.NullTime  `db:"updatedAt" json:"updatedAt"`
 }
 type FPForm struct {
 	Id        int          `db:"id" json:"id"`
-	Otp       *string      `db:"otp" json:"otp" form:"otp"`
-	UserId    *int         `db:"userId" json:"userId" form:"userId"`
-	Email     *string      `db:"email" json:"email" form:"email"`
+	Otp       *string      `db:"otp" json:"otp" form:"otp" binding:"required"`
+	UserId    *int         `db:"userId" json:"userId" form:"userId" binding:"required"`
+	Email     *string      `db:"email" json:"email" form:"email" binding:"required"`
 	CreatedAt time.Time    `db:"createdAt" json:"createdAt"`
 	UpdatedAt sql.NullTime `db:"updatedAt" json:"updatedAt"`
 }

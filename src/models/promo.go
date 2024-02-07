@@ -20,13 +20,13 @@ type Promo struct {
 
 type PromoForm struct {
 	Id            int          `db:"id" json:"id"`
-	Name          *string      `db:"name" json:"name" form:"name"`
-	Code          *string      `db:"code" json:"code" form:"code"`
+	Name          *string      `db:"name" json:"name" form:"name" binding:"required,min=3"`
+	Code          *string      `db:"code" json:"code" form:"code" binding:"required,min=3"`
 	Description   *string      `db:"description" json:"description" form:"description"`
-	Percentage    *float64     `db:"percentage" json:"percentage" form:"percentage"`
+	Percentage    *float64     `db:"percentage" json:"percentage" form:"percentage" binding:"required"`
 	IsExpired     *bool        `db:"isExpired" json:"isExpired" form:"isExpired"`
-	MaximumPromo  *int         `db:"maximumPromo" json:"maximumPromo" form:"maximumPromo"`
-	MinimumAmount *int         `db:"minimumAmount" json:"minimumAmount" form:"minimumAmount"`
+	MaximumPromo  *int         `db:"maximumPromo" json:"maximumPromo" form:"maximumPromo" binding:"required"`
+	MinimumAmount *int         `db:"minimumAmount" json:"minimumAmount" form:"minimumAmount" binding:"required"`
 	CreatedAt     time.Time    `db:"createdAt" json:"createdAt"`
 	UpdatedAt     sql.NullTime `db:"updatedAt" json:"updatedAt"`
 }

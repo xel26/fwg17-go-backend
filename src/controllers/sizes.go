@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"coffe-shop-be-golang/src/models"
+	"coffe-shop-be-golang/src/service"
 	"fmt"
 	"math"
 	"strings"
@@ -23,7 +24,7 @@ func ListAllSizes(c *gin.Context) {
 
 	result, err := models.FindAllSizes(searchKey, sortBy, order, limit, offset)
 	if len(result.Data) == 0 {
-		c.JSON(http.StatusNotFound, &ResponseOnly{
+		c.JSON(http.StatusNotFound, &service.ResponseOnly{
 			Success: false,
 			Message: "data not found",
 		})
@@ -41,7 +42,7 @@ func ListAllSizes(c *gin.Context) {
 		prevPage = 0
 	}
 
-	PageInfo := PageInfo{
+	PageInfo := service.PageInfo{
 		CurrentPage: page,
 		NextPage: nextPage,
 		PrevPage: prevPage,
@@ -53,14 +54,14 @@ func ListAllSizes(c *gin.Context) {
 
 	if err != nil {
 		fmt.Println(err)
-		c.JSON(http.StatusInternalServerError, &ResponseOnly{
+		c.JSON(http.StatusInternalServerError, &service.ResponseOnly{
 			Success: false,
 			Message: "Internal server error",
 		})
 		return
 	}
 
-	c.JSON(http.StatusOK, &ResponseList{
+	c.JSON(http.StatusOK, &service.ResponseList{
 		Success: true,
 		Message: "List all sizes",
 		PageInfo: PageInfo,
@@ -74,21 +75,21 @@ func DetailSizes(c *gin.Context) {
 	size, err := models.FindOneSizes(id)
 	if err != nil {
 		if strings.HasPrefix(err.Error(), "sql: no rows"){
-			c.JSON(http.StatusInternalServerError, &ResponseOnly{
+			c.JSON(http.StatusInternalServerError, &service.ResponseOnly{
 				Success: false,
 				Message: "Sizes not found",
 			})
 		return
 		}
 
-		c.JSON(http.StatusInternalServerError, &ResponseOnly{
+		c.JSON(http.StatusInternalServerError, &service.ResponseOnly{
 			Success: false,
 			Message: "Internal server error",
 		})
 		return
 	}
 
-	c.JSON(http.StatusOK, &Response{
+	c.JSON(http.StatusOK, &service.Response{
 		Success: true,
 		Message: "Detail size",
 		Results: size,
@@ -104,21 +105,21 @@ func CreateSize(c *gin.Context) {
 	if err != nil {
 		fmt.Println(err)
 		if strings.HasPrefix(err.Error(), "pq: duplicate key"){
-			c.JSON(http.StatusBadRequest, &ResponseOnly{
+			c.JSON(http.StatusBadRequest, &service.ResponseOnly{
 				Success: false,
 				Message: "duplicate size name",
 			})
 			return
 		}
 
-		c.JSON(http.StatusInternalServerError, &ResponseOnly{
+		c.JSON(http.StatusInternalServerError, &service.ResponseOnly{
 			Success: false,
 			Message: "Internal server error",
 		})
 		return
 	}
 
-	c.JSON(http.StatusOK, &Response{
+	c.JSON(http.StatusOK, &service.Response{
 		Success: true,
 		Message: "Sizes created successfully",
 		Results: size,
@@ -136,7 +137,7 @@ func UpdateSizes(c *gin.Context) {
 	isExist, err := models.FindOneSizes(id)
 	if err != nil{
 		fmt.Println(isExist, err)
-		c.JSON(http.StatusNotFound, &ResponseOnly{
+		c.JSON(http.StatusNotFound, &service.ResponseOnly{
 			Success: false,
 			Message: "Size not found",
 		})
@@ -147,14 +148,14 @@ func UpdateSizes(c *gin.Context) {
 	if err != nil {
 		fmt.Println(err)
 		if strings.HasPrefix(err.Error(), "sql: no rows"){
-			c.JSON(http.StatusInternalServerError, &ResponseOnly{
+			c.JSON(http.StatusInternalServerError, &service.ResponseOnly{
 				Success: false,
 				Message: "Sizes not found",
 			})
 		return
 		}
 		
-		c.JSON(http.StatusInternalServerError, &ResponseOnly{
+		c.JSON(http.StatusInternalServerError, &service.ResponseOnly{
 			Success: false,
 			Message: "Internal server error",
 		})
@@ -162,7 +163,7 @@ func UpdateSizes(c *gin.Context) {
 	}
 
 
-	c.JSON(http.StatusOK, &Response{
+	c.JSON(http.StatusOK, &service.Response{
 		Success: true,
 		Message: "Sizes updated successfully",
 		Results: size,
@@ -176,7 +177,7 @@ func DeleteSizes(c *gin.Context) {
 	isExist, err := models.FindOneSizes(id)
 	if err != nil{
 		fmt.Println(isExist, err)
-		c.JSON(http.StatusNotFound, &ResponseOnly{
+		c.JSON(http.StatusNotFound, &service.ResponseOnly{
 			Success: false,
 			Message: "Size not found",
 		})
@@ -186,14 +187,14 @@ func DeleteSizes(c *gin.Context) {
 	sizes, err := models.DeleteSizes(id)
 	if err != nil {
 		fmt.Println(err)
-		c.JSON(http.StatusInternalServerError, &ResponseOnly{
+		c.JSON(http.StatusInternalServerError, &service.ResponseOnly{
 			Success: false,
 			Message: "Internal server error",
 		})
 		return
 	}
 
-	c.JSON(http.StatusOK, &Response{
+	c.JSON(http.StatusOK, &service.Response{
 		Success: true,
 		Message: "Delete sizes successfully",
 		Results: sizes,

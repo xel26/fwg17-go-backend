@@ -1,8 +1,8 @@
 package main
 
 import (
-	"coffe-shop-be-golang/src/controllers"
 	"coffe-shop-be-golang/src/routers"
+	"coffe-shop-be-golang/src/service"
 	"log"
 	"net/http"
 
@@ -23,7 +23,7 @@ func main(){
 	}
 	routers.Combine(r)
 	r.NoRoute(func(c *gin.Context) {
-		c.JSON(http.StatusNotFound, controllers.ResponseOnly{
+		c.JSON(http.StatusNotFound, &service.ResponseOnly{
 			Success: false,
 			Message: "Resource not found",
 		})

@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"coffe-shop-be-golang/src/models"
+	"coffe-shop-be-golang/src/service"
 	"fmt"
 	"math"
 	"strings"
@@ -22,7 +23,7 @@ func ListAllProductCategories(c *gin.Context) {
 
 	result, err := models.FindAllProductCategories(sortBy, order, limit, offset)
 	if len(result.Data) == 0 {
-		c.JSON(http.StatusNotFound, &ResponseOnly{
+		c.JSON(http.StatusNotFound, &service.ResponseOnly{
 			Success: false,
 			Message: "data not found",
 		})
@@ -40,7 +41,7 @@ func ListAllProductCategories(c *gin.Context) {
 		prevPage = 0
 	}
 
-	PageInfo := PageInfo{
+	PageInfo := service.PageInfo{
 		CurrentPage: page,
 		NextPage: nextPage,
 		PrevPage: prevPage,
@@ -52,14 +53,14 @@ func ListAllProductCategories(c *gin.Context) {
 
 	if err != nil {
 		fmt.Println(err)
-		c.JSON(http.StatusInternalServerError, &ResponseOnly{
+		c.JSON(http.StatusInternalServerError, &service.ResponseOnly{
 			Success: false,
 			Message: "Internal server error",
 		})
 		return
 	}
 
-	c.JSON(http.StatusOK, &ResponseList{
+	c.JSON(http.StatusOK, &service.ResponseList{
 		Success: true,
 		Message: "List all product categories",
 		PageInfo: PageInfo,
@@ -73,21 +74,21 @@ func DetailProductCategories(c *gin.Context) {
 	pc, err := models.FindOneProductCategories(id)
 	if err != nil {
 		if strings.HasPrefix(err.Error(), "sql: no rows"){
-			c.JSON(http.StatusInternalServerError, &ResponseOnly{
+			c.JSON(http.StatusInternalServerError, &service.ResponseOnly{
 				Success: false,
 				Message: "Product categories not found",
 			})
 		return
 		}
 
-		c.JSON(http.StatusInternalServerError, &ResponseOnly{
+		c.JSON(http.StatusInternalServerError, &service.ResponseOnly{
 			Success: false,
 			Message: "Internal server error",
 		})
 		return
 	}
 
-	c.JSON(http.StatusOK, &Response{
+	c.JSON(http.StatusOK, &service.Response{
 		Success: true,
 		Message: "Detail product categories",
 		Results: pc,
@@ -102,7 +103,7 @@ func CreateProductCategories(c *gin.Context) {
 	_, err := models.FindOneProducts(data.ProductId)
 	if err != nil{
 		fmt.Println(err)
-		c.JSON(http.StatusNotFound, &ResponseOnly{
+		c.JSON(http.StatusNotFound, &service.ResponseOnly{
 			Success: false,
 			Message: "product id not found",
 		})
@@ -112,7 +113,7 @@ func CreateProductCategories(c *gin.Context) {
 	_, err = models.FindOneCategories(data.CategoryId)
 	if err != nil{
 		fmt.Println(err)
-		c.JSON(http.StatusNotFound, &ResponseOnly{
+		c.JSON(http.StatusNotFound, &service.ResponseOnly{
 			Success: false,
 			Message: "category id not found",
 		})
@@ -122,14 +123,14 @@ func CreateProductCategories(c *gin.Context) {
 	pc, err := models.CreateProductCategories(data)
 	if err != nil {
 		fmt.Println(err)
-		c.JSON(http.StatusInternalServerError, &ResponseOnly{
+		c.JSON(http.StatusInternalServerError, &service.ResponseOnly{
 			Success: false,
 			Message: "Internal server error",
 		})
 		return
 	}
 
-	c.JSON(http.StatusOK, &Response{
+	c.JSON(http.StatusOK, &service.Response{
 		Success: true,
 		Message: "Product categories created successfully",
 		Results: pc,
@@ -146,7 +147,7 @@ func UpdateProductCategories(c *gin.Context) {
 	_, err := models.FindOneProducts(data.ProductId)
 	if err != nil{
 		fmt.Println(err)
-		c.JSON(http.StatusNotFound, &ResponseOnly{
+		c.JSON(http.StatusNotFound, &service.ResponseOnly{
 			Success: false,
 			Message: "product id not found",
 		})
@@ -156,7 +157,7 @@ func UpdateProductCategories(c *gin.Context) {
 	_, err = models.FindOneCategories(data.CategoryId)
 	if err != nil{
 		fmt.Println(err)
-		c.JSON(http.StatusNotFound, &ResponseOnly{
+		c.JSON(http.StatusNotFound, &service.ResponseOnly{
 			Success: false,
 			Message: "category id not found",
 		})
@@ -168,7 +169,7 @@ func UpdateProductCategories(c *gin.Context) {
 	isExist, err := models.FindOneProductCategories(id)
 	if err != nil{
 		fmt.Println(isExist, err)
-		c.JSON(http.StatusNotFound, &ResponseOnly{
+		c.JSON(http.StatusNotFound, &service.ResponseOnly{
 			Success: false,
 			Message: "Product categories not found",
 		})
@@ -178,7 +179,7 @@ func UpdateProductCategories(c *gin.Context) {
 	pc, err := models.UpdateProductCategories(data)
 	if err != nil {
 		fmt.Println(err)
-		c.JSON(http.StatusInternalServerError, &ResponseOnly{
+		c.JSON(http.StatusInternalServerError, &service.ResponseOnly{
 			Success: false,
 			Message: "Internal server error",
 		})
@@ -186,7 +187,7 @@ func UpdateProductCategories(c *gin.Context) {
 	}
 
 
-	c.JSON(http.StatusOK, &Response{
+	c.JSON(http.StatusOK, &service.Response{
 		Success: true,
 		Message: "Product categories updated successfully",
 		Results: pc,
@@ -200,7 +201,7 @@ func DeleteProductCategories(c *gin.Context) {
 	isExist, err := models.FindOneProductCategories(id)
 	if err != nil{
 		fmt.Println(isExist, err)
-		c.JSON(http.StatusNotFound, &ResponseOnly{
+		c.JSON(http.StatusNotFound, &service.ResponseOnly{
 			Success: false,
 			Message: "Product categories not found",
 		})
@@ -210,14 +211,14 @@ func DeleteProductCategories(c *gin.Context) {
 	pc, err := models.DeleteProductCategories(id)
 	if err != nil {
 		fmt.Println(err)
-		c.JSON(http.StatusInternalServerError, &ResponseOnly{
+		c.JSON(http.StatusInternalServerError, &service.ResponseOnly{
 			Success: false,
 			Message: "Internal server error",
 		})
 		return
 	}
 
-	c.JSON(http.StatusOK, &Response{
+	c.JSON(http.StatusOK, &service.Response{
 		Success: true,
 		Message: "Delete product categories successfully",
 		Results: pc,

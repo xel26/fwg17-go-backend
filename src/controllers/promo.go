@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"coffe-shop-be-golang/src/models"
+	"coffe-shop-be-golang/src/service"
 	"fmt"
 	"math"
 	"strings"
@@ -23,7 +24,7 @@ func ListAllPromo(c *gin.Context) {
 
 	result, err := models.FindAllPromo(searchKey, sortBy, order, limit, offset)
 	if len(result.Data) == 0 {
-		c.JSON(http.StatusNotFound, &ResponseOnly{
+		c.JSON(http.StatusNotFound, &service.ResponseOnly{
 			Success: false,
 			Message: "data not found",
 		})
@@ -41,7 +42,7 @@ func ListAllPromo(c *gin.Context) {
 		prevPage = 0
 	}
 
-	PageInfo := PageInfo{
+	PageInfo := service.PageInfo{
 		CurrentPage: page,
 		NextPage: nextPage,
 		PrevPage: prevPage,
@@ -53,14 +54,14 @@ func ListAllPromo(c *gin.Context) {
 
 	if err != nil {
 		fmt.Println(err)
-		c.JSON(http.StatusInternalServerError, &ResponseOnly{
+		c.JSON(http.StatusInternalServerError, &service.ResponseOnly{
 			Success: false,
 			Message: "Internal server error",
 		})
 		return
 	}
 
-	c.JSON(http.StatusOK, &ResponseList{
+	c.JSON(http.StatusOK, &service.ResponseList{
 		Success: true,
 		Message: "List all promo",
 		PageInfo: PageInfo,
@@ -74,21 +75,21 @@ func DetailPromo(c *gin.Context) {
 	promo, err := models.FindOnePromo(id)
 	if err != nil {
 		if strings.HasPrefix(err.Error(), "sql: no rows"){
-			c.JSON(http.StatusInternalServerError, &ResponseOnly{
+			c.JSON(http.StatusInternalServerError, &service.ResponseOnly{
 				Success: false,
 				Message: "Promo not found",
 			})
 		return
 		}
 
-		c.JSON(http.StatusInternalServerError, &ResponseOnly{
+		c.JSON(http.StatusInternalServerError, &service.ResponseOnly{
 			Success: false,
 			Message: "Internal server error",
 		})
 		return
 	}
 
-	c.JSON(http.StatusOK, &Response{
+	c.JSON(http.StatusOK, &service.Response{
 		Success: true,
 		Message: "Detail promo",
 		Results: promo,
@@ -103,14 +104,14 @@ func CreatePromo(c *gin.Context) {
 	promo, err := models.CreatePromo(data)
 	if err != nil {
 		fmt.Println(err)
-		c.JSON(http.StatusInternalServerError, &ResponseOnly{
+		c.JSON(http.StatusInternalServerError, &service.ResponseOnly{
 			Success: false,
 			Message: "Internal server error",
 		})
 		return
 	}
 
-	c.JSON(http.StatusOK, &Response{
+	c.JSON(http.StatusOK, &service.Response{
 		Success: true,
 		Message: "Promo created successfully",
 		Results: promo,
@@ -125,7 +126,7 @@ func UpdatePromo(c *gin.Context) {
 	err := c.ShouldBind(&data)
 	if err != nil {
 		fmt.Println(err)
-		c.JSON(http.StatusInternalServerError, &ResponseOnly{
+		c.JSON(http.StatusInternalServerError, &service.ResponseOnly{
 			Success: false,
 			Message: "Internal server error",
 		})
@@ -136,7 +137,7 @@ func UpdatePromo(c *gin.Context) {
 	isExist, err := models.FindOnePromo(id)
 	if err != nil{
 		fmt.Println(isExist, err)
-		c.JSON(http.StatusNotFound, &ResponseOnly{
+		c.JSON(http.StatusNotFound, &service.ResponseOnly{
 			Success: false,
 			Message: "Promo not found",
 		})
@@ -147,7 +148,7 @@ func UpdatePromo(c *gin.Context) {
 	promo, err := models.UpdatePromo(data)
 	if err != nil {
 		fmt.Println(err)
-		c.JSON(http.StatusInternalServerError, &ResponseOnly{
+		c.JSON(http.StatusInternalServerError, &service.ResponseOnly{
 			Success: false,
 			Message: "Internal server error",
 		})
@@ -155,7 +156,7 @@ func UpdatePromo(c *gin.Context) {
 	}
 
 
-	c.JSON(http.StatusOK, &Response{
+	c.JSON(http.StatusOK, &service.Response{
 		Success: true,
 		Message: "Promo updated successfully",
 		Results: promo,
@@ -169,7 +170,7 @@ func DeletePromo(c *gin.Context) {
 	isExist, err := models.FindOnePromo(id)
 	if err != nil{
 		fmt.Println(isExist, err)
-		c.JSON(http.StatusNotFound, &ResponseOnly{
+		c.JSON(http.StatusNotFound, &service.ResponseOnly{
 			Success: false,
 			Message: "Promo not found",
 		})
@@ -179,14 +180,14 @@ func DeletePromo(c *gin.Context) {
 	promo, err := models.DeletePromo(id)
 	if err != nil {
 		fmt.Println(err)
-		c.JSON(http.StatusInternalServerError, &ResponseOnly{
+		c.JSON(http.StatusInternalServerError, &service.ResponseOnly{
 			Success: false,
 			Message: "Internal server error",
 		})
 		return
 	}
 
-	c.JSON(http.StatusOK, &Response{
+	c.JSON(http.StatusOK, &service.Response{
 		Success: true,
 		Message: "Delete promo successfully",
 		Results: promo,

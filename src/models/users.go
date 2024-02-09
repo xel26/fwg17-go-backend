@@ -14,10 +14,10 @@ var db *sqlx.DB = lib.DB
 type User struct {
 	Id          int            `db:"id" json:"id"`
 	FullName    string         `db:"fullName" json:"fullName"`
-	Email       string         `db:"email" json:"email"`
-	Password    string         `db:"password" json:"-"`
+	Email       string        `db:"email" json:"email" form:"email"`
+	Password    string        `db:"password" json:"-" form:"password"`
 	Address     sql.NullString `db:"address" json:"address"`
-	Picture     sql.NullString `db:"picture" json:"picture"`
+	Picture     string `db:"picture" json:"picture"`
 	PhoneNumber sql.NullString `db:"phoneNumber" json:"phoneNumber"`
 	Role        string         `db:"role" json:"role"`
 	CreatedAt   time.Time      `db:"createdAt" json:"createdAt"`
@@ -28,7 +28,7 @@ type UserForm struct {
 	Id          int          `db:"id" json:"id"`
 	FullName    *string      `db:"fullName" json:"fullName" form:"fullName" binding:"required,min=3"`
 	Email       *string      `db:"email" json:"email" form:"email" binding:"email,required"`
-	Password    string       `db:"password" json:"-" form:"password" binding:"required,min=6"`
+	Password    string       `db:"password" json:"-" form:"password" binding:"required"`
 	Address     *string      `db:"address" json:"address" form:"address"`
 	Picture     string       `db:"picture" json:"picture"`
 	PhoneNumber *string      `db:"phoneNumber" json:"phoneNumber" form:"phoneNumber"`
@@ -123,7 +123,7 @@ func UpdateUser(data UserForm) (UserForm, error) {
 	}
 
 	for rows.Next() {
-		rows.StructScan(&result)
+		rows.StructScan(result)
 	}
 
 	return result, err

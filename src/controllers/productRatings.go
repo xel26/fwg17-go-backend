@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"coffe-shop-be-golang/src/models"
+	"coffe-shop-be-golang/src/service"
 	"fmt"
 	"math"
 	"strings"
@@ -22,7 +23,7 @@ func ListAllProductRatings(c *gin.Context) {
 
 	result, err := models.FindAllProductRatings(sortBy, order, limit, offset)
 	if len(result.Data) == 0 {
-		c.JSON(http.StatusNotFound, &ResponseOnly{
+		c.JSON(http.StatusNotFound, &service.ResponseOnly{
 			Success: false,
 			Message: "data not found",
 		})
@@ -40,7 +41,7 @@ func ListAllProductRatings(c *gin.Context) {
 		prevPage = 0
 	}
 
-	PageInfo := PageInfo{
+	PageInfo := service.PageInfo{
 		CurrentPage: page,
 		NextPage: nextPage,
 		PrevPage: prevPage,
@@ -52,14 +53,14 @@ func ListAllProductRatings(c *gin.Context) {
 
 	if err != nil {
 		fmt.Println(err)
-		c.JSON(http.StatusInternalServerError, &ResponseOnly{
+		c.JSON(http.StatusInternalServerError, &service.ResponseOnly{
 			Success: false,
 			Message: "Internal server error",
 		})
 		return
 	}
 
-	c.JSON(http.StatusOK, &ResponseList{
+	c.JSON(http.StatusOK, &service.ResponseList{
 		Success: true,
 		Message: "List all product ratings",
 		PageInfo: PageInfo,
@@ -73,21 +74,21 @@ func DetailProductRatings(c *gin.Context) {
 	pr, err := models.FindOneProductRatings(id)
 	if err != nil {
 		if strings.HasPrefix(err.Error(), "sql: no rows"){
-			c.JSON(http.StatusNotFound, &ResponseOnly{
+			c.JSON(http.StatusNotFound, &service.ResponseOnly{
 				Success: false,
 				Message: "Product ratings not found",
 			})
 		return
 		}
 
-		c.JSON(http.StatusInternalServerError, &ResponseOnly{
+		c.JSON(http.StatusInternalServerError, &service.ResponseOnly{
 			Success: false,
 			Message: "Internal server error",
 		})
 		return
 	}
 
-	c.JSON(http.StatusOK, &Response{
+	c.JSON(http.StatusOK, &service.Response{
 		Success: true,
 		Message: "Detail product ratings",
 		Results: pr,
@@ -102,7 +103,7 @@ func CreateProductRatings(c *gin.Context) {
 	_, err := models.FindOneProducts(data.ProductId)
 	if err != nil{
 		fmt.Println(err)
-		c.JSON(http.StatusNotFound, &ResponseOnly{
+		c.JSON(http.StatusNotFound, &service.ResponseOnly{
 			Success: false,
 			Message: "product id not found",
 		})
@@ -112,7 +113,7 @@ func CreateProductRatings(c *gin.Context) {
 	_, err = models.FindOneUsers(data.UserId)
 	if err != nil{
 		fmt.Println(err)
-		c.JSON(http.StatusNotFound, &ResponseOnly{
+		c.JSON(http.StatusNotFound, &service.ResponseOnly{
 			Success: false,
 			Message: "user id not found",
 		})
@@ -126,14 +127,14 @@ func CreateProductRatings(c *gin.Context) {
 	pr, err := models.CreateProductRatings(dataForm)
 	if err != nil {
 		fmt.Println(err)
-		c.JSON(http.StatusInternalServerError, &ResponseOnly{
+		c.JSON(http.StatusInternalServerError, &service.ResponseOnly{
 			Success: false,
 			Message: "Internal server error",
 		})
 		return
 	}
 
-	c.JSON(http.StatusOK, &Response{
+	c.JSON(http.StatusOK, &service.Response{
 		Success: true,
 		Message: "Product ratings created successfully",
 		Results: pr,
@@ -150,7 +151,7 @@ func UpdatePrductRatings(c *gin.Context) {
 	_, err := models.FindOneProducts(data.ProductId)
 	if err != nil{
 		fmt.Println(err)
-		c.JSON(http.StatusNotFound, &ResponseOnly{
+		c.JSON(http.StatusNotFound, &service.ResponseOnly{
 			Success: false,
 			Message: "product id not found",
 		})
@@ -160,7 +161,7 @@ func UpdatePrductRatings(c *gin.Context) {
 	_, err = models.FindOneUsers(data.UserId)
 	if err != nil{
 		fmt.Println(err)
-		c.JSON(http.StatusNotFound, &ResponseOnly{
+		c.JSON(http.StatusNotFound, &service.ResponseOnly{
 			Success: false,
 			Message: "user id not found",
 		})
@@ -175,7 +176,7 @@ func UpdatePrductRatings(c *gin.Context) {
 	pr, err := models.UpdateProductRatings(dataForm)
 	if err != nil {
 		fmt.Println(err)
-		c.JSON(http.StatusInternalServerError, &ResponseOnly{
+		c.JSON(http.StatusInternalServerError, &service.ResponseOnly{
 			Success: false,
 			Message: "Internal server error",
 		})
@@ -183,7 +184,7 @@ func UpdatePrductRatings(c *gin.Context) {
 	}
 
 
-	c.JSON(http.StatusOK, &Response{
+	c.JSON(http.StatusOK, &service.Response{
 		Success: true,
 		Message: "Product ratings updated successfully",
 		Results: pr,
@@ -197,7 +198,7 @@ func DeleteProductRatings(c *gin.Context) {
 	isExist, err := models.FindOneProductRatings(id)
 	if err != nil{
 		fmt.Println(isExist, err)
-		c.JSON(http.StatusNotFound, &ResponseOnly{
+		c.JSON(http.StatusNotFound, &service.ResponseOnly{
 			Success: false,
 			Message: "Product ratings not found",
 		})
@@ -207,14 +208,14 @@ func DeleteProductRatings(c *gin.Context) {
 	pr, err := models.DeleteProductRatings(id)
 	if err != nil {
 		fmt.Println(err)
-		c.JSON(http.StatusInternalServerError, &ResponseOnly{
+		c.JSON(http.StatusInternalServerError, &service.ResponseOnly{
 			Success: false,
 			Message: "Internal server error",
 		})
 		return
 	}
 
-	c.JSON(http.StatusOK, &Response{
+	c.JSON(http.StatusOK, &service.Response{
 		Success: true,
 		Message: "Delete product successfully",
 		Results: pr,

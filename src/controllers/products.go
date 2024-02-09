@@ -3,6 +3,7 @@ package controllers
 import (
 	"coffe-shop-be-golang/src/lib"
 	"coffe-shop-be-golang/src/models"
+	"coffe-shop-be-golang/src/service"
 	"fmt"
 	"math"
 	"strings"
@@ -16,15 +17,16 @@ import (
 
 func ListAllProducts(c *gin.Context) {
 	searchKey := c.DefaultQuery("searchKey", "")
+	category := c.DefaultQuery("category", "")
 	sortBy := c.DefaultQuery("sortBy", "id")
 	order := c.DefaultQuery("order", "ASC")
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "6"))
 	offset := (page - 1) * limit
 
-	result, err := models.FindAllProducts(searchKey, sortBy, order, limit, offset)
+	result, err := models.FindAllProducts(searchKey, category, sortBy, order, limit, offset)
 	if len(result.Data) == 0 {
-		c.JSON(http.StatusNotFound, &ResponseOnly{
+		c.JSON(http.StatusNotFound, &service.ResponseOnly{
 			Success: false,
 			Message: "data not found",
 		})
@@ -42,7 +44,7 @@ func ListAllProducts(c *gin.Context) {
 		prevPage = 0
 	}
 
-	PageInfo := PageInfo{
+	PageInfo := service.PageInfo{
 		CurrentPage: page,
 		NextPage: nextPage,
 		PrevPage: prevPage,
@@ -54,14 +56,14 @@ func ListAllProducts(c *gin.Context) {
 
 	if err != nil {
 		fmt.Println(err)
-		c.JSON(http.StatusInternalServerError, &ResponseOnly{
+		c.JSON(http.StatusInternalServerError, &service.ResponseOnly{
 			Success: false,
 			Message: "Internal server error",
 		})
 		return
 	}
 
-	c.JSON(http.StatusOK, &ResponseList{
+	c.JSON(http.StatusOK, &service.ResponseList{
 		Success: true,
 		Message: "List all products",
 		PageInfo: PageInfo,
@@ -75,21 +77,21 @@ func DetailProducts(c *gin.Context) {
 	product, err := models.FindOneProducts(id)
 	if err != nil {
 		if strings.HasPrefix(err.Error(), "sql: no rows"){
-			c.JSON(http.StatusNotFound, &ResponseOnly{
+			c.JSON(http.StatusNotFound, &service.ResponseOnly{
 				Success: false,
 				Message: "Product not found",
 			})
 		return
 		}
 
-		c.JSON(http.StatusInternalServerError, &ResponseOnly{
+		c.JSON(http.StatusInternalServerError, &service.ResponseOnly{
 			Success: false,
 			Message: "Internal server error",
 		})
 		return
 	}
 
-	c.JSON(http.StatusOK, &Response{
+	c.JSON(http.StatusOK, &service.Response{
 		Success: true,
 		Message: "Detail product",
 		Results: product,
@@ -102,7 +104,7 @@ func CreateProducts(c *gin.Context) {
 	errBind := c.ShouldBind(&data)
 	if errBind != nil {
 		fmt.Println(errBind)
-		c.JSON(http.StatusInternalServerError, &ResponseOnly{
+		c.JSON(http.StatusInternalServerError, &service.ResponseOnly{
 			Success: false,
 			Message: "Internal server error",
 		})
@@ -113,7 +115,7 @@ func CreateProducts(c *gin.Context) {
 	file, err := lib.Upload(c, "image", "products")
 	if err != nil {
 		fmt.Println(err)
-		c.JSON(http.StatusInternalServerError, &ResponseOnly{
+		c.JSON(http.StatusInternalServerError, &service.ResponseOnly{
 			Success: false,
 			Message: err.Error(),
 		})
@@ -125,14 +127,14 @@ func CreateProducts(c *gin.Context) {
 	product, errDB := models.CreateProducts(data)
 	if errDB != nil {
 		fmt.Println(errDB)
-		c.JSON(http.StatusInternalServerError, &ResponseOnly{
+		c.JSON(http.StatusInternalServerError, &service.ResponseOnly{
 			Success: false,
 			Message: "Internal server error",
 		})
 		return
 	}
 
-	c.JSON(http.StatusOK, &Response{
+	c.JSON(http.StatusOK, &service.Response{
 		Success: true,
 		Message: "Products created successfully",
 		Results: product,
@@ -147,7 +149,7 @@ func UpdatePrducts(c *gin.Context) {
 	errBind := c.ShouldBind(&data)
 	if errBind != nil{
 		fmt.Println(errBind)
-		c.JSON(http.StatusNotFound, &ResponseOnly{
+		c.JSON(http.StatusNotFound, &service.ResponseOnly{
 			Success: false,
 			Message: errBind.Error(),
 		})
@@ -160,7 +162,7 @@ func UpdatePrducts(c *gin.Context) {
 	isExist, err := models.FindOneProducts(id)
 	if err != nil{
 		fmt.Println(isExist, err)
-		c.JSON(http.StatusNotFound, &ResponseOnly{
+		c.JSON(http.StatusNotFound, &service.ResponseOnly{
 			Success: false,
 			Message: "Product not found",
 		})
@@ -171,7 +173,7 @@ func UpdatePrducts(c *gin.Context) {
 	file, err := lib.Upload(c, "image", "products")
 	if err != nil {
 		fmt.Println(err)
-		c.JSON(http.StatusInternalServerError, &ResponseOnly{
+		c.JSON(http.StatusInternalServerError, &service.ResponseOnly{
 			Success: false,
 			Message: err.Error(),
 		})
@@ -183,7 +185,7 @@ func UpdatePrducts(c *gin.Context) {
 	product, err := models.UpdateProduct(data)
 	if err != nil {
 		fmt.Println(err, product)
-		c.JSON(http.StatusInternalServerError, &ResponseOnly{
+		c.JSON(http.StatusInternalServerError, &service.ResponseOnly{
 			Success: false,
 			Message: err.Error(),
 		})
@@ -191,7 +193,7 @@ func UpdatePrducts(c *gin.Context) {
 	}
 
 
-	c.JSON(http.StatusOK, &Response{
+	c.JSON(http.StatusOK, &service.Response{
 		Success: true,
 		Message: "Product updated successfully",
 		Results: product,
@@ -204,7 +206,7 @@ func DeleteProducts(c *gin.Context) {
 	isExist, err := models.FindOneProducts(id)
 	if err != nil{
 		fmt.Println(isExist, err)
-		c.JSON(http.StatusNotFound, &ResponseOnly{
+		c.JSON(http.StatusNotFound, &service.ResponseOnly{
 			Success: false,
 			Message: "Product not found",
 		})
@@ -215,14 +217,14 @@ func DeleteProducts(c *gin.Context) {
 	product, err := models.DeleteProduct(id)
 	if err != nil {
 		fmt.Println(err, product)
-		c.JSON(http.StatusInternalServerError, &ResponseOnly{
+		c.JSON(http.StatusInternalServerError, &service.ResponseOnly{
 			Success: false,
 			Message: "Internal Server Error",
 		})
 		return
 	}
 
-	c.JSON(http.StatusOK, &Response{
+	c.JSON(http.StatusOK, &service.Response{
 		Success: true,
 		Message: "Delete product successfully",
 		Results: product,

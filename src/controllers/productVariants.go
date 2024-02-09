@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"coffe-shop-be-golang/src/models"
+	"coffe-shop-be-golang/src/service"
 	"fmt"
 	"math"
 	"strings"
@@ -22,7 +23,7 @@ func ListAllProductVariants(c *gin.Context) {
 
 	result, err := models.FindAllProductVariants(sortBy, order, limit, offset)
 	if len(result.Data) == 0 {
-		c.JSON(http.StatusNotFound, &ResponseOnly{
+		c.JSON(http.StatusNotFound, &service.ResponseOnly{
 			Success: false,
 			Message: "data not found",
 		})
@@ -40,7 +41,7 @@ func ListAllProductVariants(c *gin.Context) {
 		prevPage = 0
 	}
 
-	PageInfo := PageInfo{
+	PageInfo := service.PageInfo{
 		CurrentPage: page,
 		NextPage: nextPage,
 		PrevPage: prevPage,
@@ -52,14 +53,14 @@ func ListAllProductVariants(c *gin.Context) {
 
 	if err != nil {
 		fmt.Println(err)
-		c.JSON(http.StatusInternalServerError, &ResponseOnly{
+		c.JSON(http.StatusInternalServerError, &service.ResponseOnly{
 			Success: false,
 			Message: "Internal server error",
 		})
 		return
 	}
 
-	c.JSON(http.StatusOK, &ResponseList{
+	c.JSON(http.StatusOK, &service.ResponseList{
 		Success: true,
 		Message: "List all product variants",
 		PageInfo: PageInfo,
@@ -73,21 +74,21 @@ func DetailProductVariant(c *gin.Context) {
 	pv, err := models.FindOneProductVariants(id)
 	if err != nil {
 		if strings.HasPrefix(err.Error(), "sql: no rows"){
-			c.JSON(http.StatusInternalServerError, &ResponseOnly{
+			c.JSON(http.StatusInternalServerError, &service.ResponseOnly{
 				Success: false,
 				Message: "Product variants not found",
 			})
 		return
 		}
 
-		c.JSON(http.StatusInternalServerError, &ResponseOnly{
+		c.JSON(http.StatusInternalServerError, &service.ResponseOnly{
 			Success: false,
 			Message: "Internal server error",
 		})
 		return
 	}
 
-	c.JSON(http.StatusOK, &Response{
+	c.JSON(http.StatusOK, &service.Response{
 		Success: true,
 		Message: "Detail product variants",
 		Results: pv,
@@ -102,7 +103,7 @@ func CreateProductVariants(c *gin.Context) {
 	_, err := models.FindOneProducts(data.ProductId)
 	if err != nil{
 		fmt.Println(err, data)
-		c.JSON(http.StatusNotFound, &ResponseOnly{
+		c.JSON(http.StatusNotFound, &service.ResponseOnly{
 			Success: false,
 			Message: "product id not found",
 		})
@@ -112,7 +113,7 @@ func CreateProductVariants(c *gin.Context) {
 	_, err = models.FindOneVariants(data.VariantId)
 	if err != nil{
 		fmt.Println(err, data)
-		c.JSON(http.StatusNotFound, &ResponseOnly{
+		c.JSON(http.StatusNotFound, &service.ResponseOnly{
 			Success: false,
 			Message: "Variant id not found",
 		})
@@ -122,14 +123,14 @@ func CreateProductVariants(c *gin.Context) {
 	pv, err := models.CreateProductVariants(data)
 	if err != nil {
 		fmt.Println(err)
-		c.JSON(http.StatusInternalServerError, &ResponseOnly{
+		c.JSON(http.StatusInternalServerError, &service.ResponseOnly{
 			Success: false,
 			Message: "Internal server error",
 		})
 		return
 	}
 
-	c.JSON(http.StatusOK, &Response{
+	c.JSON(http.StatusOK, &service.Response{
 		Success: true,
 		Message: "Product variants created successfully",
 		Results: pv,
@@ -146,7 +147,7 @@ func UpdateProductVariants(c *gin.Context) {
 	_, err := models.FindOneProducts(data.ProductId)
 	if err != nil{
 		fmt.Println(err)
-		c.JSON(http.StatusNotFound, &ResponseOnly{
+		c.JSON(http.StatusNotFound, &service.ResponseOnly{
 			Success: false,
 			Message: "product id not found",
 		})
@@ -156,7 +157,7 @@ func UpdateProductVariants(c *gin.Context) {
 	isExist, err := models.FindOneProductVariants(id)
 	if err != nil{
 		fmt.Println(isExist, err)
-		c.JSON(http.StatusNotFound, &ResponseOnly{
+		c.JSON(http.StatusNotFound, &service.ResponseOnly{
 			Success: false,
 			Message: "Product variants not found",
 		})
@@ -166,7 +167,7 @@ func UpdateProductVariants(c *gin.Context) {
 	_, err = models.FindOneVariants(data.VariantId)
 	if err != nil{
 		fmt.Println(err)
-		c.JSON(http.StatusNotFound, &ResponseOnly{
+		c.JSON(http.StatusNotFound, &service.ResponseOnly{
 			Success: false,
 			Message: "Variant id not found",
 		})
@@ -178,7 +179,7 @@ func UpdateProductVariants(c *gin.Context) {
 	pv, err := models.UpdateProductVariants(data)
 	if err != nil {
 		fmt.Println(err)
-		c.JSON(http.StatusInternalServerError, &ResponseOnly{
+		c.JSON(http.StatusInternalServerError, &service.ResponseOnly{
 			Success: false,
 			Message: "Internal server error",
 		})
@@ -186,7 +187,7 @@ func UpdateProductVariants(c *gin.Context) {
 	}
 
 
-	c.JSON(http.StatusOK, &Response{
+	c.JSON(http.StatusOK, &service.Response{
 		Success: true,
 		Message: "Product variant updated successfully",
 		Results: pv,
@@ -200,7 +201,7 @@ func DeleteProductVariants(c *gin.Context) {
 	isExist, err := models.FindOneProductVariants(id)
 	if err != nil{
 		fmt.Println(isExist, err)
-		c.JSON(http.StatusNotFound, &ResponseOnly{
+		c.JSON(http.StatusNotFound, &service.ResponseOnly{
 			Success: false,
 			Message: "Product varinants not found",
 		})
@@ -211,14 +212,14 @@ func DeleteProductVariants(c *gin.Context) {
 	pv, err := models.DeleteProductVariants(id)
 	if err != nil {
 		fmt.Println(err)
-		c.JSON(http.StatusInternalServerError, &ResponseOnly{
+		c.JSON(http.StatusInternalServerError, &service.ResponseOnly{
 			Success: false,
 			Message: "Internal server error",
 		})
 		return
 	}
 
-	c.JSON(http.StatusOK, &Response{
+	c.JSON(http.StatusOK, &service.Response{
 		Success: true,
 		Message: "Delete product variants successfully",
 		Results: pv,

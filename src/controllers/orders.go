@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"coffe-shop-be-golang/src/models"
+	"coffe-shop-be-golang/src/service"
 	"fmt"
 	"math"
 	"strings"
@@ -22,7 +23,7 @@ func ListAllOrders(c *gin.Context) {
 
 	result, err := models.FindAllOrders(sortBy, order, limit, offset)
 	if len(result.Data) == 0 {
-		c.JSON(http.StatusNotFound, &ResponseOnly{
+		c.JSON(http.StatusNotFound, &service.ResponseOnly{
 			Success: false,
 			Message: "data not found",
 		})
@@ -40,7 +41,7 @@ func ListAllOrders(c *gin.Context) {
 		prevPage = 0
 	}
 
-	PageInfo := PageInfo{
+	PageInfo := service.PageInfo{
 		CurrentPage: page,
 		NextPage: nextPage,
 		PrevPage: prevPage,
@@ -52,14 +53,14 @@ func ListAllOrders(c *gin.Context) {
 
 	if err != nil {
 		fmt.Println(err)
-		c.JSON(http.StatusInternalServerError, &ResponseOnly{
+		c.JSON(http.StatusInternalServerError, &service.ResponseOnly{
 			Success: false,
 			Message: "Internal server error",
 		})
 		return
 	}
 
-	c.JSON(http.StatusOK, &ResponseList{
+	c.JSON(http.StatusOK, &service.ResponseList{
 		Success: true,
 		Message: "List all orders",
 		PageInfo: PageInfo,
@@ -73,21 +74,21 @@ func DetailOrders(c *gin.Context) {
 	orders, err := models.FindOneOrders(id)
 	if err != nil {
 		if strings.HasPrefix(err.Error(), "sql: no rows"){
-			c.JSON(http.StatusInternalServerError, &ResponseOnly{
+			c.JSON(http.StatusInternalServerError, &service.ResponseOnly{
 				Success: false,
 				Message: "Order not found",
 			})
 		return
 		}
 
-		c.JSON(http.StatusInternalServerError, &ResponseOnly{
+		c.JSON(http.StatusInternalServerError, &service.ResponseOnly{
 			Success: false,
 			Message: "Internal server error",
 		})
 		return
 	}
 
-	c.JSON(http.StatusOK, &Response{
+	c.JSON(http.StatusOK, &service.Response{
 		Success: true,
 		Message: "Detail orders",
 		Results: orders,
@@ -103,21 +104,21 @@ func CreateOrders(c *gin.Context) {
 	if err != nil {
 		fmt.Println(err)
 		if strings.HasPrefix(err.Error(), "pq: duplicate key"){
-			c.JSON(http.StatusBadRequest, &ResponseOnly{
+			c.JSON(http.StatusBadRequest, &service.ResponseOnly{
 				Success: false,
 				Message: "duplicate key for orderNumber",
 			})
 			return
 		}
 
-		c.JSON(http.StatusInternalServerError, &ResponseOnly{
+		c.JSON(http.StatusInternalServerError, &service.ResponseOnly{
 			Success: false,
 			Message: "Internal server error",
 		})
 		return
 	}
 
-	c.JSON(http.StatusOK, &Response{
+	c.JSON(http.StatusOK, &service.Response{
 		Success: true,
 		Message: "Order created successfully",
 		Results: order,
@@ -135,7 +136,7 @@ func UpdateOrders(c *gin.Context) {
 	isExist, err := models.FindOneOrders(id)
 	if err != nil{
 		fmt.Println(isExist, err)
-		c.JSON(http.StatusNotFound, &ResponseOnly{
+		c.JSON(http.StatusNotFound, &service.ResponseOnly{
 			Success: false,
 			Message: "Order not found",
 		})
@@ -147,14 +148,14 @@ func UpdateOrders(c *gin.Context) {
 		fmt.Println(err)
 		fmt.Println(err)
 		if strings.HasPrefix(err.Error(), "pq: duplicate key"){
-			c.JSON(http.StatusBadRequest, &ResponseOnly{
+			c.JSON(http.StatusBadRequest, &service.ResponseOnly{
 				Success: false,
 				Message: "duplicate key for orderNumber",
 			})
 			return
 		}
 		
-		c.JSON(http.StatusInternalServerError, &ResponseOnly{
+		c.JSON(http.StatusInternalServerError, &service.ResponseOnly{
 			Success: false,
 			Message: "Internal server error",
 		})
@@ -162,7 +163,7 @@ func UpdateOrders(c *gin.Context) {
 	}
 
 
-	c.JSON(http.StatusOK, &Response{
+	c.JSON(http.StatusOK, &service.Response{
 		Success: true,
 		Message: "Order updated successfully",
 		Results: orders,
@@ -176,7 +177,7 @@ func DeleteOrders(c *gin.Context) {
 	isExist, err := models.FindOneOrders(id)
 	if err != nil{
 		fmt.Println(isExist, err)
-		c.JSON(http.StatusNotFound, &ResponseOnly{
+		c.JSON(http.StatusNotFound, &service.ResponseOnly{
 			Success: false,
 			Message: "Order not found",
 		})
@@ -186,14 +187,14 @@ func DeleteOrders(c *gin.Context) {
 	orders, err := models.DeleteOrders(id)
 	if err != nil {
 		fmt.Println(err)
-		c.JSON(http.StatusInternalServerError, &ResponseOnly{
+		c.JSON(http.StatusInternalServerError, &service.ResponseOnly{
 			Success: false,
 			Message: "Internal server error",
 		})
 		return
 	}
 
-	c.JSON(http.StatusOK, &Response{
+	c.JSON(http.StatusOK, &service.Response{
 		Success: true,
 		Message: "Delete Order successfully",
 		Results: orders,

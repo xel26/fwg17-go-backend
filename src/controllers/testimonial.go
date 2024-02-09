@@ -3,6 +3,7 @@ package controllers
 import (
 	"coffe-shop-be-golang/src/lib"
 	"coffe-shop-be-golang/src/models"
+	"coffe-shop-be-golang/src/service"
 	"fmt"
 	"math"
 	"strings"
@@ -24,7 +25,7 @@ func ListAllTestimonial(c *gin.Context) {
 
 	result, err := models.FindAllTestimonial(searchKey, sortBy, order, limit, offset)
 	if len(result.Data) == 0 {
-		c.JSON(http.StatusNotFound, &ResponseOnly{
+		c.JSON(http.StatusNotFound, &service.ResponseOnly{
 			Success: false,
 			Message: "data not found",
 		})
@@ -42,7 +43,7 @@ func ListAllTestimonial(c *gin.Context) {
 		prevPage = 0
 	}
 
-	PageInfo := PageInfo{
+	PageInfo := service.PageInfo{
 		CurrentPage: page,
 		NextPage: nextPage,
 		PrevPage: prevPage,
@@ -54,14 +55,14 @@ func ListAllTestimonial(c *gin.Context) {
 
 	if err != nil {
 		fmt.Println(err)
-		c.JSON(http.StatusInternalServerError, &ResponseOnly{
+		c.JSON(http.StatusInternalServerError, &service.ResponseOnly{
 			Success: false,
 			Message: "Internal server error",
 		})
 		return
 	}
 
-	c.JSON(http.StatusOK, &ResponseList{
+	c.JSON(http.StatusOK, &service.ResponseList{
 		Success: true,
 		Message: "List all testimonial",
 		PageInfo: PageInfo,
@@ -75,21 +76,21 @@ func DetailTestimonial(c *gin.Context) {
 	testimonial, err := models.FindOneTestimonial(id)
 	if err != nil {
 		if strings.HasPrefix(err.Error(), "sql: no rows"){
-			c.JSON(http.StatusInternalServerError, &ResponseOnly{
+			c.JSON(http.StatusInternalServerError, &service.ResponseOnly{
 				Success: false,
 				Message: "Testimonial not found",
 			})
 		return
 		}
 
-		c.JSON(http.StatusInternalServerError, &ResponseOnly{
+		c.JSON(http.StatusInternalServerError, &service.ResponseOnly{
 			Success: false,
 			Message: "Internal server error",
 		})
 		return
 	}
 
-	c.JSON(http.StatusOK, &Response{
+	c.JSON(http.StatusOK, &service.Response{
 		Success: true,
 		Message: "Detail testimonial",
 		Results: testimonial,
@@ -105,7 +106,7 @@ func CreateTestimonial(c *gin.Context) {
 	file, err := lib.Upload(c, "image", "testimonial")
 	if err != nil {
 		fmt.Println(err)
-		c.JSON(http.StatusInternalServerError, &ResponseOnly{
+		c.JSON(http.StatusInternalServerError, &service.ResponseOnly{
 			Success: false,
 			Message: err.Error(),
 		})
@@ -117,14 +118,14 @@ func CreateTestimonial(c *gin.Context) {
 	testimonial, err := models.CreateTestimonial(data)
 	if err != nil {
 		fmt.Println(err)
-		c.JSON(http.StatusInternalServerError, &ResponseOnly{
+		c.JSON(http.StatusInternalServerError, &service.ResponseOnly{
 			Success: false,
 			Message: "Internal server error",
 		})
 		return
 	}
 
-	c.JSON(http.StatusOK, &Response{
+	c.JSON(http.StatusOK, &service.Response{
 		Success: true,
 		Message: "Testimonial created successfully",
 		Results: testimonial,
@@ -142,7 +143,7 @@ func UpdateTestimonial(c *gin.Context) {
 	isExist, err := models.FindOneTestimonial(id)
 	if err != nil{
 		fmt.Println(isExist, err)
-		c.JSON(http.StatusNotFound, &ResponseOnly{
+		c.JSON(http.StatusNotFound, &service.ResponseOnly{
 			Success: false,
 			Message: "Testimonial not found",
 		})
@@ -153,7 +154,7 @@ func UpdateTestimonial(c *gin.Context) {
 	file, err := lib.Upload(c, "image", "testimonial")
 	if err != nil {
 		fmt.Println(err)
-		c.JSON(http.StatusInternalServerError, &ResponseOnly{
+		c.JSON(http.StatusInternalServerError, &service.ResponseOnly{
 			Success: false,
 			Message: err.Error(),
 		})
@@ -166,14 +167,14 @@ func UpdateTestimonial(c *gin.Context) {
 	if err != nil {
 		fmt.Println(err)
 		if strings.HasPrefix(err.Error(), "sql: no rows"){
-			c.JSON(http.StatusInternalServerError, &ResponseOnly{
+			c.JSON(http.StatusInternalServerError, &service.ResponseOnly{
 				Success: false,
 				Message: "Testimonial not found",
 			})
 		return
 		}
 		
-		c.JSON(http.StatusInternalServerError, &ResponseOnly{
+		c.JSON(http.StatusInternalServerError, &service.ResponseOnly{
 			Success: false,
 			Message: "Internal server error",
 		})
@@ -181,7 +182,7 @@ func UpdateTestimonial(c *gin.Context) {
 	}
 
 
-	c.JSON(http.StatusOK, &Response{
+	c.JSON(http.StatusOK, &service.Response{
 		Success: true,
 		Message: "Testimonial updated successfully",
 		Results: testimonial,
@@ -195,7 +196,7 @@ func DeleteTestimonial(c *gin.Context) {
 	isExist, err := models.FindOneTestimonial(id)
 	if err != nil{
 		fmt.Println(isExist, err)
-		c.JSON(http.StatusNotFound, &ResponseOnly{
+		c.JSON(http.StatusNotFound, &service.ResponseOnly{
 			Success: false,
 			Message: "Testimonial not found",
 		})
@@ -204,14 +205,14 @@ func DeleteTestimonial(c *gin.Context) {
 
 	testimonial, err := models.DeleteTestimonial(id)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, &ResponseOnly{
+		c.JSON(http.StatusInternalServerError, &service.ResponseOnly{
 			Success: false,
 			Message: "Internal server error",
 		})
 		return
 	}
 
-	c.JSON(http.StatusOK, &Response{
+	c.JSON(http.StatusOK, &service.Response{
 		Success: true,
 		Message: "Delete testimonial successfully",
 		Results: testimonial,

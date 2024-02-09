@@ -3,6 +3,7 @@ package controllers
 import (
 	"coffe-shop-be-golang/src/lib"
 	"coffe-shop-be-golang/src/models"
+	"coffe-shop-be-golang/src/service"
 	"fmt"
 	"math"
 	"strings"
@@ -14,37 +15,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type PageInfo struct {
-	CurrentPage int `json:"currentPage"`
-	TotalPage   int `json:"totalPage"`
-	NextPage    int `json:"nextPage"`
-	PrevPage    int `json:"prevPage"`
-	Limit       int `json:"limit"`
-	TotalData   int `json:"totalData"`
-}
-
-type ResponseList struct {
-	Success  bool        `json:"success"`
-	Message  string      `json:"message"`
-	PageInfo PageInfo    `json:"PageInfo"`
-	Results  interface{} `json:"results"`
-}
-
-type Response struct {
-	Success bool        `json:"success"`
-	Message string      `json:"message"`
-	Results interface{} `json:"results"`
-}
-
-type ResponseOnly struct {
-	Success bool   `json:"success"`
-	Message string `json:"message"`
-}
-type ResponseOnly2 struct {
-	Success bool  `json:"success"`
-	Message error `json:"message"`
-}
-
 func ListAllUsers(c *gin.Context) {
 	searchKey := c.DefaultQuery("searchKey", "")
 	sortBy := c.DefaultQuery("sortBy", "id")
@@ -55,7 +25,7 @@ func ListAllUsers(c *gin.Context) {
 
 	result, err := models.FindAllUsers(searchKey, sortBy, order, limit, offset)
 	if len(result.Data) == 0 {
-		c.JSON(http.StatusNotFound, &ResponseOnly{
+		c.JSON(http.StatusNotFound, &service.ResponseOnly{
 			Success: false,
 			Message: "data not found",
 		})
@@ -72,7 +42,7 @@ func ListAllUsers(c *gin.Context) {
 		prevPage = 0
 	}
 
-	PageInfo := PageInfo{
+	PageInfo := service.PageInfo{
 		CurrentPage: page,
 		NextPage:    nextPage,
 		PrevPage:    prevPage,
@@ -83,14 +53,14 @@ func ListAllUsers(c *gin.Context) {
 
 	if err != nil {
 		fmt.Println(err)
-		c.JSON(http.StatusInternalServerError, &ResponseOnly{
+		c.JSON(http.StatusInternalServerError, &service.ResponseOnly{
 			Success: false,
 			Message: "Internal server error",
 		})
 		return
 	}
 
-	c.JSON(http.StatusOK, &ResponseList{
+	c.JSON(http.StatusOK, &service.ResponseList{
 		Success:  true,
 		Message:  "List all Users",
 		PageInfo: PageInfo,
@@ -103,21 +73,21 @@ func DetailUser(c *gin.Context) {
 	user, err := models.FindOneUsers(id)
 	if err != nil {
 		if strings.HasPrefix(err.Error(), "sql: no rows") {
-			c.JSON(http.StatusInternalServerError, &ResponseOnly{
+			c.JSON(http.StatusInternalServerError, &service.ResponseOnly{
 				Success: false,
 				Message: "User not found",
 			})
 			return
 		}
 
-		c.JSON(http.StatusInternalServerError, &ResponseOnly{
+		c.JSON(http.StatusInternalServerError, &service.ResponseOnly{
 			Success: false,
 			Message: "Internal server error",
 		})
 		return
 	}
 
-	c.JSON(http.StatusOK, &Response{
+	c.JSON(http.StatusOK, &service.Response{
 		Success: true,
 		Message: "Detail user",
 		Results: user,
@@ -130,7 +100,7 @@ func CreateUser(c *gin.Context) {
 
 	if errBind != nil {
 		fmt.Println(errBind)
-		c.JSON(http.StatusInternalServerError, &ResponseOnly{
+		c.JSON(http.StatusInternalServerError, &service.ResponseOnly{
 			Success: false,
 			Message: errBind.Error(),
 		})
@@ -147,7 +117,7 @@ func CreateUser(c *gin.Context) {
 	file, err := lib.Upload(c, "picture", "users")
 	if err != nil {
 		fmt.Println(err)
-		c.JSON(http.StatusInternalServerError, &ResponseOnly{
+		c.JSON(http.StatusInternalServerError, &service.ResponseOnly{
 			Success: false,
 			Message: err.Error(),
 		})
@@ -159,14 +129,14 @@ func CreateUser(c *gin.Context) {
 	if errDB != nil {
 
 		fmt.Println(errDB)
-		c.JSON(http.StatusInternalServerError, &ResponseOnly{
+		c.JSON(http.StatusInternalServerError, &service.ResponseOnly{
 			Success: false,
 			Message: errDB.Error(),
 		})
 		return
 	}
 
-	c.JSON(http.StatusOK, &Response{
+	c.JSON(http.StatusOK, &service.Response{
 		Success: true,
 		Message: "User created successfully",
 		Results: user,
@@ -178,7 +148,7 @@ func UpdateUser(c *gin.Context) {
 	isExist, error := models.FindOneUsers(id)
 	if error != nil {
 		fmt.Println(isExist, error)
-		c.JSON(http.StatusInternalServerError, &ResponseOnly{
+		c.JSON(http.StatusInternalServerError, &service.ResponseOnly{
 			Success: false,
 			Message: "no data found",
 		})
@@ -188,7 +158,7 @@ func UpdateUser(c *gin.Context) {
 	data := models.UserForm{}
 	err := c.ShouldBind(&data)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, &ResponseOnly{
+		c.JSON(http.StatusInternalServerError, &service.ResponseOnly{
 			Success: false,
 			Message: "err bind",
 		})
@@ -203,7 +173,7 @@ func UpdateUser(c *gin.Context) {
 	file, err := lib.Upload(c, "picture", "users")
 	if err != nil {
 		fmt.Println(err)
-		c.JSON(http.StatusInternalServerError, &ResponseOnly{
+		c.JSON(http.StatusInternalServerError, &service.ResponseOnly{
 			Success: false,
 			Message: err.Error(),
 		})
@@ -214,14 +184,14 @@ func UpdateUser(c *gin.Context) {
 	user, err := models.UpdateUser(data)
 
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, &ResponseOnly{
+		c.JSON(http.StatusInternalServerError, &service.ResponseOnly{
 			Success: false,
 			Message: "Internal server error",
 		})
 		return
 	}
 
-	c.JSON(http.StatusOK, &Response{
+	c.JSON(http.StatusOK, &service.Response{
 		Success: true,
 		Message: "User updated successfully",
 		Results: user,
@@ -233,7 +203,7 @@ func DeleteUser(c *gin.Context) {
 	isExist, error := models.FindOneUsers(id)
 	if error != nil {
 		fmt.Println(isExist, error)
-		c.JSON(http.StatusInternalServerError, &ResponseOnly{
+		c.JSON(http.StatusInternalServerError, &service.ResponseOnly{
 			Success: false,
 			Message: "no data found",
 		})
@@ -242,14 +212,14 @@ func DeleteUser(c *gin.Context) {
 
 	user, err := models.DeleteUser(id)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, &ResponseOnly{
+		c.JSON(http.StatusInternalServerError, &service.ResponseOnly{
 			Success: false,
 			Message: "Internal server error",
 		})
 		return
 	}
 
-	c.JSON(http.StatusOK, &Response{
+	c.JSON(http.StatusOK, &service.Response{
 		Success: true,
 		Message: "Delete User Successfully",
 		Results: user,

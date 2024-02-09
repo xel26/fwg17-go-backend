@@ -2,29 +2,31 @@ package models
 
 import (
 	"database/sql"
+	"fmt"
 	"time"
 )
 
 type Product struct {
-	Id            int            `db:"id" json:"id"`
-	Name          string         `db:"name" json:"name"`
-	Description   sql.NullString `db:"description" json:"description"`
-	Image         sql.NullString `db:"image" json:"image"`
-	Discount      sql.NullInt64  `db:"discount" json:"discount"`
-	BasePrice     int            `db:"basePrice" json:"basePrice"`
-	IsRecommended sql.NullBool   `db:"isRecommended" json:"isRecommended"`
-	TagId         sql.NullInt64  `db:"tagId" json:"tagId"`
-	CreatedAt     time.Time      `db:"createdAt" json:"createdAt"`
-	UpdatedAt     sql.NullTime   `db:"updatedAt" json:"updatedAt"`
+	Id          int            `db:"id" json:"id"`
+	Name        string         `db:"name" json:"name"`
+	Description sql.NullString `db:"description" json:"description"`
+	Image       sql.NullString `db:"image" json:"image"`
+	Discount    sql.NullInt64  `db:"discount" json:"discount"`
+	BasePrice   int            `db:"basePrice" json:"basePrice"`
+	Category    sql.NullString `db:"category" json:"category"`
+	Tag         sql.NullString `db:"tag" json:"tag"`
+	Rating      sql.NullInt64  `db:"rating" json:"rating"`
+	CreatedAt   time.Time      `db:"createdAt" json:"createdAt"`
+	UpdatedAt   sql.NullTime   `db:"updatedAt" json:"updatedAt"`
 }
 
 type ProductForm struct {
 	Id            int          `db:"id" json:"id"`
 	Name          *string      `db:"name" json:"name" form:"name" binding:"required,min=3"`
 	Description   *string      `db:"description" json:"description" form:"description"`
-	Image         string      `db:"image" json:"image"`
-	Discount      *int      `db:"discount" json:"discount" form:"discount"`
 	BasePrice     *int         `db:"basePrice" json:"basePrice" form:"basePrice" binding:"required,numeric"`
+	Image         string       `db:"image" json:"image"`
+	Discount      *int         `db:"discount" json:"discount" form:"discount"`
 	IsRecommended *bool        `db:"isRecommended" json:"isRecommended" form:"isRecommended"`
 	TagId         *int         `db:"tagId" json:"tagId" form:"tagId"`
 	CreatedAt     time.Time    `db:"createdAt" json:"createdAt"`
@@ -36,26 +38,45 @@ type InfoP struct {
 	Count int
 }
 
-func FindAllProducts(searchKey string, sortBy string, order string, limit int, offset int) (InfoP, error) {
+func FindAllProducts(searchKey string, category string, sortBy string, order string, limit int, offset int) (InfoP, error) {
 	sql := `
-	SELECT * FROM "products" 
-	WHERE "name" ILIKE $1
-	ORDER BY "` + sortBy + `" ` + order + `
-	LIMIT $2 OFFSET $3
+	SELECT
+	"p"."id",
+	"p"."name",
+	"p"."description",
+	"p"."basePrice",
+	"p"."image",
+	"p"."discount",
+	"c"."name" AS "category",
+	"t"."name" as "tag",
+	sum("pr"."rate")/count("pr"."id") as "rating"
+	FROM "products" "p"
+	LEFT JOIN "productRatings" "pr" ON ("pr"."productId" = "p"."id")
+	LEFT JOIN "productCategories" "pc" on ("pc"."productId" = "p"."id")
+	LEFT JOIN "categories" "c" on ("c"."id" = "pc"."categoryId")
+	LEFT join "tags" "t" on ("t"."id" = "p"."tagId")
+	WHERE "p"."name" ILIKE $1 AND "c"."name" ILIKE $2
+	GROUP BY "p"."id", "c"."name", "t"."name"
+	ORDER BY "p"."` + sortBy + `" ` + order + `
+	LIMIT $3 OFFSET $4
 	`
 	sqlCount := `
-	SELECT COUNT(*) FROM "products"
-	WHERE "name" ILIKE $1
+	SELECT COUNT(*) FROM "products" "p"
+	LEFT JOIN "productCategories" "pc" on ("pc"."productId" = "p"."id")
+	LEFT JOIN "categories" "c" on ("c"."id" = "pc"."categoryId")
+	WHERE "p"."name" ILIKE $1 AND "c"."name" ILIKE $2
 	`
 
 	result := InfoP{}
 	data := []Product{}
-	err := db.Select(&data, sql, "%"+searchKey+"%", limit, offset)
+	err := db.Select(&data, sql, "%"+searchKey+"%", "%"+category+"%", limit, offset)
+	// err := db.Select(&data, sql, "%"+searchKey+"%", "%"+category+"%", `"`+sortBy+`"`, order, limit, offset)
 	result.Data = data
 
-	row := db.QueryRow(sqlCount, "%"+searchKey+"%")
+	row := db.QueryRow(sqlCount, "%"+searchKey+"%", "%"+category+"%")
 	err = row.Scan(&result.Count)
 
+	fmt.Println(sql)
 	return result, err
 }
 

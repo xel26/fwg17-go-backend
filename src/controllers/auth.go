@@ -3,6 +3,7 @@ package controllers
 import (
 	"coffe-shop-be-golang/src/lib"
 	"coffe-shop-be-golang/src/models"
+	"coffe-shop-be-golang/src/service"
 	"fmt"
 	"net/http"
 	"strings"
@@ -25,7 +26,7 @@ type FormReset struct {
 // 	found, err := models.FindOneUsersByEmail(form.Email)
 
 // 	if err != nil {
-// 		c.JSON(http.StatusUnauthorized, ResponseOnly{
+// 		c.JSON(http.StatusUnauthorized, &service.ResponseOnly{
 // 			Success: false,
 // 			Message: "wrong email",
 // 		})
@@ -35,7 +36,7 @@ type FormReset struct {
 // 	decode, err := argonize.DecodeHashStr(found.Password)
 	
 // 	if err != nil {
-// 		c.JSON(http.StatusUnauthorized, ResponseOnly{
+// 		c.JSON(http.StatusUnauthorized, &service.ResponseOnly{
 // 			Success: false,
 // 			Message: "pass error",
 // 		})
@@ -46,14 +47,14 @@ type FormReset struct {
 
 // 	plain := []byte(form.Password)
 // 	if decode.IsValidPassword(plain) {
-// 		c.JSON(http.StatusOK, Response{
+// 		c.JSON(http.StatusOK, &service.Response{
 // 			Success: true,
 // 			Message: "Login success",
 // 			Results: token,
 // 		})
 // 		return
 // 	} else {
-// 		c.JSON(http.StatusUnauthorized, ResponseOnly{
+// 		c.JSON(http.StatusUnauthorized, &service.ResponseOnly{
 // 			Success: false,
 // 			Message: "wrong password",
 // 		})
@@ -67,7 +68,7 @@ func Register(c *gin.Context) {
 	form := models.UserForm{}
 	err := c.ShouldBind(&form)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, ResponseOnly{
+		c.JSON(http.StatusBadRequest, &service.ResponseOnly{
 			Success: false,
 			Message: err.Error(),
 		})
@@ -85,20 +86,20 @@ func Register(c *gin.Context) {
 
 	if err != nil {
 		if strings.HasSuffix(err.Error(), `unique constraint "users_email_key"`) {
-			c.JSON(http.StatusBadRequest, ResponseOnly{
+			c.JSON(http.StatusBadRequest, &service.ResponseOnly{
 				Success: false,
 				Message: "Email already registered",
 			})
 			return
 		}
-		c.JSON(http.StatusBadRequest, ResponseOnly{
+		c.JSON(http.StatusBadRequest, &service.ResponseOnly{
 			Success: false,
 			Message: "Register failed",
 		})
 		return
 	}
 
-	c.JSON(http.StatusOK, Response{
+	c.JSON(http.StatusOK, &service.Response{
 		Success: true,
 		Message: "Register success",
 		Results: result,
@@ -122,14 +123,14 @@ func ForgotPassword(c *gin.Context) {
 			// START SEND EMAIL
 			fmt.Println(FormReset.Otp)
 			// END SEND EMAIL
-			c.JSON(http.StatusOK, ResponseOnly{
+			c.JSON(http.StatusOK, &service.ResponseOnly{
 				Success: true,
 				Message: "OTP has been sent to your email",
 			})
 			return
 			
 		}else{
-			c.JSON(http.StatusBadRequest, ResponseOnly{
+			c.JSON(http.StatusBadRequest, &service.ResponseOnly{
 				Success: false,
 				Message: "email not registered... failed to reset password",
 			})
@@ -138,8 +139,7 @@ func ForgotPassword(c *gin.Context) {
 	}
 
 	if form.Otp != ""{
-		found, err := models.FindOneByOtp(form.Otp)
-		fmt.Println(found.Id, err)
+		found, _ := models.FindOneByOtp(form.Otp)
 		if found.Id != 0{
 			if form.Password == form.ConfirmPassword{
 				foundUser, _ := models.FindOneUsersByEmail(found.Email)
@@ -150,25 +150,33 @@ func ForgotPassword(c *gin.Context) {
 				hash, _ := argonize.Hash([]byte(form.Password))
 				data.Password = hash.String()
 
-				updated, _ := models.UpdateUser(data)
-
-
+				updated, err := models.UpdateUser(data)
+				if err != nil{
+					fmt.Println(updated, err)
+					c.JSON(http.StatusBadRequest, &service.ResponseOnly{
+						Success: false,
+						Message: err.Error(),
+					})
+				}
+				
+				
 				models.DeleteForgotPassword(found.Id)
 				message := fmt.Sprintf("Reset password for %v success", updated.Email)
-				c.JSON(http.StatusOK, ResponseOnly{
+				fmt.Println(updated.Email, updated)
+				c.JSON(http.StatusOK, &service.ResponseOnly{
 					Success: true,
 					Message: message,
 				})
 				return
 			}else{
-				c.JSON(http.StatusBadRequest, ResponseOnly{
+				c.JSON(http.StatusBadRequest, &service.ResponseOnly{
 					Success: false,
 					Message: "Confirm password does not match",
 				})
 				return
 			}
 		}else{
-			c.JSON(http.StatusBadRequest, ResponseOnly{
+			c.JSON(http.StatusBadRequest, &service.ResponseOnly{
 				Success: false,
 				Message: "invalid otp code",
 			})
@@ -176,7 +184,7 @@ func ForgotPassword(c *gin.Context) {
 		}
 	}
 
-	c.JSON(http.StatusInternalServerError, ResponseOnly{
+	c.JSON(http.StatusInternalServerError, &service.ResponseOnly{
 		Success: false,
 		Message: "Internal server error",
 	})

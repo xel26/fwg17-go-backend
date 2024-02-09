@@ -1,12 +1,10 @@
 package middleware
 
 import (
-	"coffe-shop-be-golang/src/controllers"
 	"coffe-shop-be-golang/src/models"
+	"coffe-shop-be-golang/src/service"
 	"errors"
-	"fmt"
 	"net/http"
-	"os"
 	"strings"
 	"time"
 
@@ -18,12 +16,11 @@ import (
 func Auth()(*jwt.GinJWTMiddleware, error){
 	authMiddleware, err := jwt.New(&jwt.GinJWTMiddleware{
 		Realm: "go-backend",
-		Key: []byte(os.Getenv("APP_SECRET")),
+		Key: []byte("secret"),
 		IdentityKey: "id",
 		PayloadFunc: func(data interface{}) jwt.MapClaims {
-			user := data.(*models.User)
-			fmt.Println(user)
-			return jwt.MapClaims{
+			user := data.(*models.User)	//user di dapat dari authenticator-login
+			return jwt.MapClaims{		//memasukan payload ke jwt
 				"id": user.Id,
 				"role": user.Role,
 			}
@@ -38,6 +35,9 @@ func Auth()(*jwt.GinJWTMiddleware, error){
 		Authenticator: func(c *gin.Context) (interface{}, error) {
 			form := models.User{}
 			err := c.ShouldBind(&form)
+			if err != nil {
+				return nil, err
+			}
 		
 			found, err := models.FindOneUsersByEmail(form.Email)
 		
@@ -72,20 +72,20 @@ func Auth()(*jwt.GinJWTMiddleware, error){
 		},
 		Unauthorized: func(c *gin.Context, code int, message string) {
 			if strings.HasPrefix(c.Request.URL.Path, "/login"){
-				c.JSON(http.StatusUnauthorized, &controllers.ResponseOnly{
+				c.JSON(http.StatusUnauthorized, &service.ResponseOnly{
 					Success: false,
 					Message: "wrong Email or password",
 				})
 				return
 			}
 
-			c.JSON(http.StatusUnauthorized, &controllers.ResponseOnly{
+			c.JSON(http.StatusUnauthorized, &service.Response{
 				Success: false,
 				Message: "Unauthorized",
 			})
 		},
 		LoginResponse: func(c *gin.Context, code int, token string, time time.Time) {
-			c.JSON(http.StatusOK, &controllers.Response{
+			c.JSON(http.StatusOK, &service.Response{
 				Success: true,
 				Message: "Login success",
 				Results: struct{

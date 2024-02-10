@@ -13,13 +13,13 @@ var db *sqlx.DB = lib.DB
 
 type User struct {
 	Id          int            `db:"id" json:"id"`
-	FullName    string         `db:"fullName" json:"fullName"`
-	Email       string        `db:"email" json:"email" form:"email"`
-	Password    string        `db:"password" json:"-" form:"password"`
-	Address     sql.NullString `db:"address" json:"address"`
-	Picture     string `db:"picture" json:"picture"`
-	PhoneNumber sql.NullString `db:"phoneNumber" json:"phoneNumber"`
-	Role        string         `db:"role" json:"role"`
+	FullName    string         `db:"fullName" json:"fullName" form:"fullName"`
+	Email       string         `db:"email" json:"email" form:"email" form:"email"`
+	Password    string         `db:"password" json:"-" form:"password" form:"password"`
+	Address     sql.NullString `db:"address" json:"address" form:"address"`
+	Picture     string         `db:"picture" json:"picture"`
+	PhoneNumber sql.NullString `db:"phoneNumber" json:"phoneNumber" form:"phoneNumber"`
+	Role        string         `db:"role" json:"role" form:"role"`
 	CreatedAt   time.Time      `db:"createdAt" json:"createdAt"`
 	UpdatedAt   sql.NullTime   `db:"updatedAt" json:"updatedAt"`
 }
@@ -32,7 +32,7 @@ type UserForm struct {
 	Address     *string      `db:"address" json:"address" form:"address"`
 	Picture     string       `db:"picture" json:"picture"`
 	PhoneNumber *string      `db:"phoneNumber" json:"phoneNumber" form:"phoneNumber"`
-	Role        *string      `db:"role" json:"role"`
+	Role        *string      `db:"role" json:"role" form:"role"`
 	CreatedAt   time.Time    `db:"createdAt" json:"createdAt"`
 	UpdatedAt   sql.NullTime `db:"updatedAt" json:"updatedAt"`
 }
@@ -82,9 +82,6 @@ func FindOneUsersByEmail(email string) (User, error) {
 func CreateUser(data UserForm) (UserForm, error) {
 	fmt.Println(data.PhoneNumber)
 	fmt.Println(data.Picture)
-	// if data.Picture == ""{
-	// 	data.Picture = ""
-	// }
 
 	sql := `INSERT INTO "users" ("fullName", "email", "password", "address", "phoneNumber", "role", "picture") 
 	VALUES
@@ -110,8 +107,8 @@ func UpdateUser(data UserForm) (UserForm, error) {
 	"email"=COALESCE(NULLIF(:email, ''),"email"),
 	"password"=COALESCE(NULLIF(:password, ''),"password"),
 	"address"=COALESCE(NULLIF(:address, ''),"address"),
+	"picture"=COALESCE(NULLIF(:picture, ''),"picture"),
 	"phoneNumber"=COALESCE(NULLIF(:phoneNumber, ''),"phoneNumber"),
-	"role"=COALESCE(NULLIF(:role, ''),"role"),
 	"updatedAt"=NOW()
 	WHERE id=:id
 	RETURNING *
@@ -123,7 +120,7 @@ func UpdateUser(data UserForm) (UserForm, error) {
 	}
 
 	for rows.Next() {
-		rows.StructScan(result)
+		rows.StructScan(&result)
 	}
 
 	return result, err

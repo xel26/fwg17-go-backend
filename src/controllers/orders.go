@@ -15,13 +15,14 @@ import (
 
 
 func ListAllOrders(c *gin.Context) {
+	deliveryShipping := c.DefaultQuery("deliveryShipping", "")
 	sortBy := c.DefaultQuery("sortBy", "id")
 	order := c.DefaultQuery("order", "ASC")
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "6"))
 	offset := (page - 1) * limit
 
-	result, err := models.FindAllOrders(sortBy, order, limit, offset)
+	result, err := models.FindAllOrders(deliveryShipping, sortBy, order,  limit, offset)
 	if len(result.Data) == 0 {
 		c.JSON(http.StatusNotFound, &service.ResponseOnly{
 			Success: false,

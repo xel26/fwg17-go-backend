@@ -145,30 +145,35 @@ func CreateUser(c *gin.Context) {
 
 func UpdateUser(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
+	data := models.UserForm{}
+
+	err := c.ShouldBind(&data)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, &service.ResponseOnly{
+			Success: false,
+			Message: err.Error(),
+		})
+		return
+	}
+
+	data.Id = id
+
 	isExist, error := models.FindOneUsers(id)
 	if error != nil {
 		fmt.Println(isExist, error)
 		c.JSON(http.StatusInternalServerError, &service.ResponseOnly{
 			Success: false,
-			Message: "no data found",
+			Message: "User not found",
 		})
 		return
 	}
 
-	data := models.UserForm{}
-	err := c.ShouldBind(&data)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, &service.ResponseOnly{
-			Success: false,
-			Message: "err bind",
-		})
-		return
-	}
+
 
 	plain := []byte(data.Password)
 	hash, err := argonize.Hash(plain)
 	data.Password = hash.String()
-	data.Id = id
+
 
 	file, err := lib.Upload(c, "picture", "users")
 	if err != nil {
@@ -182,11 +187,10 @@ func UpdateUser(c *gin.Context) {
 	data.Picture = file
 
 	user, err := models.UpdateUser(data)
-
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, &service.ResponseOnly{
 			Success: false,
-			Message: "Internal server error",
+			Message: err.Error(),
 		})
 		return
 	}

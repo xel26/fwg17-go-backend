@@ -79,7 +79,15 @@ func Auth()(*jwt.GinJWTMiddleware, error){
 				return
 			}
 
-			c.JSON(http.StatusUnauthorized, &service.Response{
+			if strings.HasPrefix(c.Request.URL.Path, "/forgot-password"){
+				c.JSON(http.StatusUnauthorized, &service.ResponseOnly{
+					Success: false,
+					Message: "email not registered",
+				})
+				return
+			}
+
+			c.JSON(http.StatusUnauthorized, &service.ResponseOnly{
 				Success: false,
 				Message: "Unauthorized",
 			})

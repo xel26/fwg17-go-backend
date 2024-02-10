@@ -1,4 +1,4 @@
-package controllers
+package controllers_customer
 
 import (
 	"coffe-shop-be-golang/src/lib"
@@ -161,8 +161,8 @@ func ForgotPassword(c *gin.Context) {
 				
 				
 				models.DeleteForgotPassword(found.Id)
-				message := fmt.Sprintf("Reset password for %v success", updated.Email)
-				fmt.Println(updated.Email, updated)
+				message := fmt.Sprintf("Reset password for %v success", *updated.Email)
+				fmt.Println(updated.Email)
 				c.JSON(http.StatusOK, &service.ResponseOnly{
 					Success: true,
 					Message: message,

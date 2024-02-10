@@ -2,22 +2,41 @@ package models
 
 import (
 	"database/sql"
+	"encoding/base64"
 	"fmt"
 	"time"
 )
 
 type Product struct {
-	Id          int            `db:"id" json:"id"`
-	Name        string         `db:"name" json:"name"`
-	Description sql.NullString `db:"description" json:"description"`
-	Image       sql.NullString `db:"image" json:"image"`
-	Discount    sql.NullInt64  `db:"discount" json:"discount"`
-	BasePrice   int            `db:"basePrice" json:"basePrice"`
-	Category    sql.NullString `db:"category" json:"category"`
-	Tag         sql.NullString `db:"tag" json:"tag"`
-	Rating      sql.NullInt64  `db:"rating" json:"rating"`
-	CreatedAt   time.Time      `db:"createdAt" json:"createdAt"`
-	UpdatedAt   sql.NullTime   `db:"updatedAt" json:"updatedAt"`
+	Id            int            `db:"id" json:"id"`
+	Name          string         `db:"name" json:"name"`
+	Description   sql.NullString `db:"description" json:"description"`
+	Image         sql.NullString `db:"image" json:"image"`
+	Discount      sql.NullInt64  `db:"discount" json:"discount"`
+	IsRecommended bool           `db:"isRecommended" json:"isRecommended" form:"isRecommended"`
+	TagId         int            `db:"tagId" json:"tagId" form:"tagId"`
+	BasePrice     int            `db:"basePrice" json:"basePrice"`
+	Category      sql.NullString `db:"category" json:"category"`
+	Tag           sql.NullString `db:"tag" json:"tag"`
+	Rating        sql.NullInt64  `db:"rating" json:"rating"`
+	CreatedAt     time.Time      `db:"createdAt" json:"createdAt"`
+	UpdatedAt     sql.NullTime   `db:"updatedAt" json:"updatedAt"`
+}
+
+type ProductDetails struct {
+	Id               int            `db:"id" json:"id"`
+	Name             string         `db:"name" json:"name"`
+	Description      sql.NullString `db:"description" json:"description"`
+	BasePrice        int            `db:"basePrice" json:"basePrice"`
+	Image            sql.NullString `db:"image" json:"image"`
+	Discount         sql.NullInt64  `db:"discount" json:"discount"`
+	IsRecommended    sql.NullBool   `db:"isRecommended" json:"isRecommended" form:"isRecommended"`
+	Tag              sql.NullString `db:"tag" json:"tag"`
+	Rating           sql.NullInt64  `db:"rating" json:"rating"`
+	Review           sql.NullInt64  `db:"review" json:"review"`
+	VariantsProducts string     `db:"variantsProducts" json:"variants"`
+	CreatedAt        time.Time      `db:"createdAt" json:"createdAt"`
+	UpdatedAt        sql.NullTime   `db:"updatedAt" json:"updatedAt"`
 }
 
 type ProductForm struct {
@@ -80,9 +99,55 @@ func FindAllProducts(searchKey string, category string, sortBy string, order str
 	return result, err
 }
 
-func FindOneProducts(id int) (Product, error) {
-	sql := `SELECT * FROM "products" WHERE id = $1`
-	data := Product{}
+func removeBackslashes(s string) string {
+    var result string
+    for _, char := range s {
+        if char == '\\' {
+			fmt.Println(char)
+            result += string(char)
+        }
+    }
+    return result
+}
+
+func FindOneProducts(id int) (ProductDetails, error) {
+	sql := `
+    SELECT
+    "p"."id",
+    "p"."name",
+    "p"."description",
+    "p"."basePrice",
+    "p"."image",
+    "p"."discount",
+    "p"."createdAt",
+    "p"."isRecommended",
+    "t"."name" as "tag",
+    sum("pr"."rate")/count("pr"."id") AS "rating",
+    count(DISTINCT "pr"."id") AS "review",
+    JSONB_AGG(
+        DISTINCT JSONB_BUILD_OBJECT(
+            'id', "v"."id",
+            'name', "v"."name",
+            'additionalPrice', "v"."additionalPrice"
+        )
+    ) AS "variantsProducts"
+    FROM "products" "p"
+    LEFT JOIN "productRatings" "pr" ON ("pr"."productId" = "p"."id")
+    LEFT JOIN "tags" "t" on ("t"."id" = "p"."tagId")
+    LEFT JOIN "productVariant" "pv" on ("pv"."productId" = "p"."id")
+    LEFT JOIN "variant" "v" on ("pv"."variantId" = "v"."id")
+    WHERE "p"."id" = $1
+    GROUP BY "p"."id", "t"."name"
+    `
+	data := ProductDetails{}
+	encoded := base64.StdEncoding.EncodeToString([]byte(data.VariantsProducts))
+	decodedVariants, error := base64.StdEncoding.DecodeString(encoded)
+	if error != nil {
+		fmt.Println("decode error:", error)
+		return data, error
+	}
+
+	data.VariantsProducts = string(decodedVariants)
 	err := db.Get(&data, sql, id)
 	return data, err
 }

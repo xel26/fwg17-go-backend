@@ -26,19 +26,19 @@ type Order struct {
 
 type OrderForm struct {
 	Id               int          `db:"id" json:"id"`
-	UserId           *int         `db:"userId" json:"userId" form:"userId" binding:"required,numeric"`
-	OrderNumber      *string      `db:"orderNumber" json:"orderNumber" form:"orderNumber" binding:"required,numeric"`
+	UserId           *int         `db:"userId" json:"userId" form:"userId"`
+	OrderNumber      *string      `db:"orderNumber" json:"orderNumber" form:"orderNumber"`
 	PromoId          *int         `db:"promoId" json:"promoId" form:"promoId"`
-	Total            *int         `db:"total" json:"total" form:"total" binding:"required,numeric"`
-	Tax              *int         `db:"tax" json:"tax" form:"tax" binding:"required,numeric"`
+	Total            *int         `db:"total" json:"total" form:"total"`
+	Tax              *int         `db:"tax" json:"tax" form:"tax"`
 	DeliveryAddress  *string      `db:"deliveryAddress" json:"deliveryAddress" form:"deliveryAddress"`
 	FullName         *string      `db:"fullName" json:"fullName" form:"fullName"`
 	Email            *string      `db:"email" json:"email" form:"email"`
-	PriceCut         *int         `db:"priceCut" json:"priceCut" form:"priceCut" binding:"required,numeric"`
-	Subtotal         *int         `db:"subtotal" json:"subtotal" form:"subtotal" binding:"required,numeric"`
-	Status           *string      `db:"status" json:"status" form:"status" binding:"eq=On Progress|eq=Finish Order|eq=Sending Goods"`
-	DeliveryFee      *int         `db:"deliveryFee" json:"deliveryFee" form:"deliveryFee" binding:"required,numeric"`
-	DeliveryShipping *string         `db:"deliveryShipping" json:"deliveryShipping" form:"deliveryShipping" binding:"eq=Dine In|eq=Pick Up|eq=Door Delivery"`
+	PriceCut         *int         `db:"priceCut" json:"priceCut" form:"priceCut"`
+	Subtotal         *int         `db:"subtotal" json:"subtotal" form:"subtotal"`
+	Status           *string      `db:"status" json:"status" form:"status"`
+	DeliveryFee      *int         `db:"deliveryFee" json:"deliveryFee" form:"deliveryFee"`
+	DeliveryShipping *string       `db:"deliveryShipping" json:"deliveryShipping" form:"deliveryShipping"`
 	CreatedAt        time.Time    `db:"createdAt" json:"createdAt"`
 	UpdatedAt        sql.NullTime `db:"updatedAt" json:"updatedAt"`
 }
@@ -48,26 +48,57 @@ type InfoO struct {
 	Count int
 }
 
-func FindAllOrders(sortBy string, order string, limit int, offset int) (InfoO, error) {
+func FindAllOrders(deliveryShipping string, sortBy string, order string, limit int, offset int) (InfoO, error) {
 	sql := `
 	SELECT * FROM "orders" 
 	ORDER BY "` + sortBy + `" ` + order + `
-	LIMIT $1 OFFSET $2
+	WHERE deliveryShipping ILIKE $1
+	LIMIT $2 OFFSET $3
 	`
 	sqlCount := `
 	SELECT COUNT(*) FROM "orders"
+	WHERE deliveryShipping ILIKE $1
 	`
+
 
 	result := InfoO{}
 	data := []Order{}
-	error := db.Select(&data, sql, limit, offset)
+	error := db.Select(&data, sql, "%"+deliveryShipping+"%", limit, offset)
 	if error != nil {
 		return result, error
 	}
 
 	result.Data = data
 
-	row := db.QueryRow(sqlCount)
+	row := db.QueryRow(sqlCount, "%"+deliveryShipping+"%")
+	err := row.Scan(&result.Count)
+
+	return result, err
+}
+
+func FindAllOrdersByUserId(deliveryShipping string, userId int, sortBy string, order string, limit int, offset int) (InfoO, error) {
+	sql := `
+	SELECT * FROM "orders" 
+	ORDER BY "` + sortBy + `" ` + order + `
+	WHERE deliveryShipping ILIKE $1 AND userId = $2
+	LIMIT $3 OFFSET $4
+	`
+	sqlCount := `
+	SELECT COUNT(*) FROM "orders"
+	WHERE deliveryShipping ILIKE $1 AND userId = $2
+	`
+
+
+	result := InfoO{}
+	data := []Order{}
+	error := db.Select(&data, sql, "%"+deliveryShipping+"%", userId, limit, offset)
+	if error != nil {
+		return result, error
+	}
+
+	result.Data = data
+
+	row := db.QueryRow(sqlCount, "%"+deliveryShipping+"%", userId)
 	err := row.Scan(&result.Count)
 
 	return result, err

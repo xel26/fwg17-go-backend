@@ -86,7 +86,7 @@ func DetailProducts(c *gin.Context) {
 
 		c.JSON(http.StatusInternalServerError, &service.ResponseOnly{
 			Success: false,
-			Message: "Internal server error",
+			Message: err.Error(),
 		})
 		return
 	}

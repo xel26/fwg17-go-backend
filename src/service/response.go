@@ -12,7 +12,7 @@ type PageInfo struct {
 type ResponseList struct {
 	Success  bool        `json:"success"`
 	Message  string      `json:"message"`
-	PageInfo PageInfo    `json:"PageInfo"`
+	PageInfo PageInfo    `json:"pageInfo"`
 	Results  interface{} `json:"results"`
 }
 

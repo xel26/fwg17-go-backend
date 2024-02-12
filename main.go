@@ -16,11 +16,14 @@ func main(){
 	r.Use(cors.New(cors.Config{
 		AllowOrigins: []string{"http://localhost:5173"},
 		AllowMethods: []string{"GET", "POST", "PATCH", "DELETE"},
+		AllowHeaders: []string{"Content-Type, Authorization"},
 	}))
 	err := godotenv.Load()
 	if err != nil {
 	  log.Fatal("Error loading .env file")
 	}
+	// http://localhost:8080/uploads/users/dd54be77-6c70-462a-9db3-de67d7ef9288.jpg
+	r.Static("/uploads", "./uploads")
 	routers.Combine(r)
 	r.NoRoute(func(c *gin.Context) {
 		c.JSON(http.StatusNotFound, &service.ResponseOnly{

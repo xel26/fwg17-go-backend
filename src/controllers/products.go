@@ -6,6 +6,7 @@ import (
 	"coffe-shop-be-golang/src/service"
 	"fmt"
 	"math"
+	"os"
 	"strings"
 
 	"net/http"
@@ -112,16 +113,23 @@ func CreateProducts(c *gin.Context) {
 	}
 
 
-	file, err := lib.Upload(c, "image", "products")
-	if err != nil {
-		fmt.Println(err)
-		c.JSON(http.StatusInternalServerError, &service.ResponseOnly{
-			Success: false,
-			Message: err.Error(),
-		})
-		return
+	_, err := c.FormFile("image")
+	if err == nil {
+		file, err := lib.Upload(c, "image", "products")
+		if err != nil {
+			fmt.Println(err)
+			c.JSON(http.StatusInternalServerError, &service.ResponseOnly{
+				Success: false,
+				Message: err.Error(),
+			})
+			return
+		}
+
+		data.Image = file
+	}else{
+		data.Image = ""
 	}
-	data.Image = file
+
 
 
 	product, errDB := models.CreateProducts(data)
@@ -170,16 +178,23 @@ func UpdatePrducts(c *gin.Context) {
 	}
 
 
-	file, err := lib.Upload(c, "image", "products")
-	if err != nil {
-		fmt.Println(err)
-		c.JSON(http.StatusInternalServerError, &service.ResponseOnly{
-			Success: false,
-			Message: err.Error(),
-		})
-		return
+	_, err = c.FormFile("image")
+	if err == nil {
+		err := os.Remove("./" + isExist.Image)
+		if err != nil{}
+
+		file, err := lib.Upload(c, "image", "products")
+		if err != nil {
+			fmt.Println(err)
+			c.JSON(http.StatusInternalServerError, &service.ResponseOnly{
+				Success: false,
+				Message: err.Error(),
+			})
+			return
+		}
+
+		data.Image = file
 	}
-	data.Image = file
 
 
 	product, err := models.UpdateProduct(data)

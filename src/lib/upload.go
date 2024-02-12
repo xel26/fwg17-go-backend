@@ -38,7 +38,7 @@ func Upload(c *gin.Context, field string, dest string) (string, error){
 
 	fileName := fmt.Sprintf("uploads/%v/%v%v", dest, uuid.NewString(), extension)
 
-	// c.SaveUploadedFile(file, fileName)
+	c.SaveUploadedFile(file, fileName)
 
 	return fileName, nil
 }

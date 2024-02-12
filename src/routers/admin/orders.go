@@ -8,7 +8,7 @@ import (
 
 func OrdersRouter(r *gin.RouterGroup){
 	r.GET("", controllers.ListAllOrders)
-	r.GET("/:id", controllers.DetailOrders)
+	r.GET("/:id", controllers.DetailOrder)
 	r.POST("", controllers.CreateOrders)
 	r.PATCH("/:id", controllers.UpdateOrders)
 	r.DELETE("/:id", controllers.DeleteOrders)

@@ -6,6 +6,7 @@ import (
 	"coffe-shop-be-golang/src/service"
 	"fmt"
 	"math"
+	"os"
 	"strings"
 
 	"net/http"
@@ -114,17 +115,24 @@ func CreateUser(c *gin.Context) {
 	hash, _ := argonize.Hash(plain)
 	data.Password = hash.String()
 
-	file, err := lib.Upload(c, "picture", "users")
-	if err != nil {
-		fmt.Println(err)
-		c.JSON(http.StatusInternalServerError, &service.ResponseOnly{
-			Success: false,
-			Message: err.Error(),
-		})
-		return
-	}
-	data.Picture = file
 
+	_, err := c.FormFile("picture")
+	if err == nil{
+		file, err := lib.Upload(c, "picture", "users")
+		if err != nil {
+			fmt.Println(err)
+			c.JSON(http.StatusInternalServerError, &service.ResponseOnly{
+				Success: false,
+				Message: err.Error(),
+			})
+			return
+		}
+		data.Picture = file
+	}else {
+		data.Picture = ""
+	}
+
+	
 	user, errDB := models.CreateUser(data)
 	if errDB != nil {
 
@@ -175,16 +183,23 @@ func UpdateUser(c *gin.Context) {
 	data.Password = hash.String()
 
 
-	file, err := lib.Upload(c, "picture", "users")
-	if err != nil {
-		fmt.Println(err)
-		c.JSON(http.StatusInternalServerError, &service.ResponseOnly{
-			Success: false,
-			Message: err.Error(),
-		})
-		return
+	_, err = c.FormFile("picture")
+	if err == nil {
+		err := os.Remove("./" + isExist.Picture)
+		if err != nil{}
+
+		file, err := lib.Upload(c, "picture", "users")
+		if err != nil {
+			fmt.Println(err)
+			c.JSON(http.StatusInternalServerError, &service.ResponseOnly{
+				Success: false,
+				Message: err.Error(),
+			})
+			return
+		}
+
+		data.Picture = file
 	}
-	data.Picture = file
 
 	user, err := models.UpdateUser(data)
 	if err != nil {

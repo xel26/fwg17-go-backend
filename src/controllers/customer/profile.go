@@ -6,6 +6,7 @@ import (
 	"coffe-shop-be-golang/src/service"
 	"fmt"
 	"net/http"
+	"os"
 	"strings"
 
 	"github.com/KEINOS/go-argonize"
@@ -20,6 +21,7 @@ func GetProfile(c *gin.Context) {
 
 	user, err := models.FindOneUsers(id)
 	if err != nil {
+		fmt.Println(err)
 		if strings.HasPrefix(err.Error(), "sql: no rows") {
 			c.JSON(http.StatusInternalServerError, &service.ResponseOnly{
 				Success: false,
@@ -46,9 +48,9 @@ func UpdateProfile(c *gin.Context) {
 	claims := jwt.ExtractClaims(c)
 	id := int(claims["id"].(float64))
 
-	isExist, error := models.FindOneUsers(id)
+	isUserExist, error := models.FindOneUsers(id)
 	if error != nil {
-		fmt.Println(isExist, error)
+		fmt.Println(isUserExist, error)
 		c.JSON(http.StatusInternalServerError, &service.ResponseOnly{
 			Success: false,
 			Message: "no data found",
@@ -71,20 +73,28 @@ func UpdateProfile(c *gin.Context) {
 	data.Password = hash.String()
 	data.Id = id
 
-	file, err := lib.Upload(c, "picture", "users")
-	if err != nil {
-		fmt.Println(err)
-		c.JSON(http.StatusInternalServerError, &service.ResponseOnly{
-			Success: false,
-			Message: err.Error(),
-		})
-		return
+	_, err = c.FormFile("picture")
+	if err == nil {
+		err := os.Remove("./" + isUserExist.Picture)
+		if err != nil{}
+
+		file, err := lib.Upload(c, "picture", "users")
+		if err != nil {
+			fmt.Println(err)
+			c.JSON(http.StatusInternalServerError, &service.ResponseOnly{
+				Success: false,
+				Message: err.Error(),
+			})
+			return
+		}
+
+		data.Picture = file
 	}
-	data.Picture = file
 
 	user, err := models.UpdateUser(data)
 
 	if err != nil {
+		fmt.Println(err)
 		c.JSON(http.StatusInternalServerError, &service.ResponseOnly{
 			Success: false,
 			Message: "Internal server error",

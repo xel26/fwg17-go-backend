@@ -10,7 +10,7 @@ type Testimonial struct {
 	FullName  string         `db:"fullName" json:"fullName" form:"fullName"`
 	Role      string         `db:"role" json:"role" form:"role"`
 	Feedback  string         `db:"feedback" json:"feedback" form:"feedback"`
-	Image     sql.NullString `db:"image" json:"image" form:"image"`
+	Image     string `db:"image" json:"image" form:"image"`
 	Rate      int            `db:"rate" json:"rate" form:"rate"`
 	CreatedAt time.Time      `db:"createdAt" json:"createdAt"`
 	UpdatedAt sql.NullTime   `db:"updatedAt" json:"updatedAt"`

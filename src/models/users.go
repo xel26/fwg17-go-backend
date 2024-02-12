@@ -26,9 +26,9 @@ type User struct {
 
 type UserForm struct {
 	Id          int          `db:"id" json:"id"`
-	FullName    *string      `db:"fullName" json:"fullName" form:"fullName" binding:"required,min=3"`
-	Email       *string      `db:"email" json:"email" form:"email" binding:"email,required"`
-	Password    string       `db:"password" json:"-" form:"password" binding:"required"`
+	FullName    *string      `db:"fullName" json:"fullName" form:"fullName"`
+	Email       *string      `db:"email" json:"email" form:"email"`
+	Password    string       `db:"password" json:"-" form:"password"`
 	Address     *string      `db:"address" json:"address" form:"address"`
 	Picture     string       `db:"picture" json:"picture"`
 	PhoneNumber *string      `db:"phoneNumber" json:"phoneNumber" form:"phoneNumber"`

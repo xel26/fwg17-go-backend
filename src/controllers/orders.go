@@ -16,14 +16,16 @@ import (
 
 func ListAllOrders(c *gin.Context) {
 	deliveryShipping := c.DefaultQuery("deliveryShipping", "")
+	status := c.DefaultQuery("status", "")
 	sortBy := c.DefaultQuery("sortBy", "id")
 	order := c.DefaultQuery("order", "ASC")
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "6"))
 	offset := (page - 1) * limit
 
-	result, err := models.FindAllOrders(deliveryShipping, sortBy, order,  limit, offset)
+	result, err := models.FindAllOrders(deliveryShipping, sortBy, order, limit, offset, status)
 	if len(result.Data) == 0 {
+		fmt.Println(err)
 		c.JSON(http.StatusNotFound, &service.ResponseOnly{
 			Success: false,
 			Message: "data not found",
@@ -70,7 +72,7 @@ func ListAllOrders(c *gin.Context) {
 }
 
 
-func DetailOrders(c *gin.Context) {
+func DetailOrder(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
 	orders, err := models.FindOneOrders(id)
 	if err != nil {
@@ -91,7 +93,7 @@ func DetailOrders(c *gin.Context) {
 
 	c.JSON(http.StatusOK, &service.Response{
 		Success: true,
-		Message: "Detail orders",
+		Message: "Detail order",
 		Results: orders,
 	})
 }

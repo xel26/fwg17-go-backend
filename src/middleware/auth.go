@@ -68,6 +68,13 @@ func Auth()(*jwt.GinJWTMiddleware, error){
 					return false
 				}
 			}
+
+			if strings.HasPrefix(c.Request.URL.Path, "/checkout"){
+				if user.Role == "admin"{
+					return false
+				}
+			}
+
 			return true
 		},
 		Unauthorized: func(c *gin.Context, code int, message string) {

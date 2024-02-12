@@ -6,6 +6,7 @@ import (
 	"coffe-shop-be-golang/src/service"
 	"fmt"
 	"math"
+	"os"
 	"strings"
 
 	"net/http"
@@ -20,7 +21,7 @@ func ListAllTestimonial(c *gin.Context) {
 	sortBy := c.DefaultQuery("sortBy", "id")
 	order := c.DefaultQuery("order", "ASC")
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
-	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "6"))
+	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "1"))
 	offset := (page - 1) * limit
 
 	result, err := models.FindAllTestimonial(searchKey, sortBy, order, limit, offset)
@@ -103,16 +104,22 @@ func CreateTestimonial(c *gin.Context) {
 	err := c.ShouldBind(&data)
 
 	
-	file, err := lib.Upload(c, "image", "testimonial")
-	if err != nil {
-		fmt.Println(err)
-		c.JSON(http.StatusInternalServerError, &service.ResponseOnly{
-			Success: false,
-			Message: err.Error(),
-		})
-		return
+	_, err = c.FormFile("image")
+	if err == nil {
+		file, err := lib.Upload(c, "image", "testimonial")
+		if err != nil {
+			fmt.Println(err)
+			c.JSON(http.StatusInternalServerError, &service.ResponseOnly{
+				Success: false,
+				Message: err.Error(),
+			})
+			return
+		}
+
+		data.Image = file
+	}else{
+		data.Image = ""
 	}
-	data.Image = file
 
 
 	testimonial, err := models.CreateTestimonial(data)
@@ -151,16 +158,23 @@ func UpdateTestimonial(c *gin.Context) {
 	}
 
 
-	file, err := lib.Upload(c, "image", "testimonial")
-	if err != nil {
-		fmt.Println(err)
-		c.JSON(http.StatusInternalServerError, &service.ResponseOnly{
-			Success: false,
-			Message: err.Error(),
-		})
-		return
+	_, err = c.FormFile("image")
+	if err == nil {
+		err := os.Remove("./" + isExist.Image)
+		if err != nil{}
+
+		file, err := lib.Upload(c, "image", "testimonial")
+		if err != nil {
+			fmt.Println(err)
+			c.JSON(http.StatusInternalServerError, &service.ResponseOnly{
+				Success: false,
+				Message: err.Error(),
+			})
+			return
+		}
+
+		data.Image = file
 	}
-	data.Image = file
 
 
 	testimonial, err := models.UpdateTestimonial(data)

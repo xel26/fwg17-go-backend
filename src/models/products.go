@@ -28,13 +28,14 @@ type ProductDetails struct {
 	Name             string         `db:"name" json:"name"`
 	Description      sql.NullString `db:"description" json:"description"`
 	BasePrice        int            `db:"basePrice" json:"basePrice"`
-	Image            sql.NullString `db:"image" json:"image"`
+	Image            string         `db:"image" json:"image"`
 	Discount         sql.NullInt64  `db:"discount" json:"discount"`
 	IsRecommended    sql.NullBool   `db:"isRecommended" json:"isRecommended" form:"isRecommended"`
 	Tag              sql.NullString `db:"tag" json:"tag"`
 	Rating           sql.NullInt64  `db:"rating" json:"rating"`
 	Review           sql.NullInt64  `db:"review" json:"review"`
-	VariantsProducts string     `db:"variantsProducts" json:"variants"`
+	VariantsProducts string         `db:"variantsProducts" json:"variantsProducts"`
+	ProductImages    string         `db:"productImages" json:"productImages"`
 	CreatedAt        time.Time      `db:"createdAt" json:"createdAt"`
 	UpdatedAt        sql.NullTime   `db:"updatedAt" json:"updatedAt"`
 }
@@ -95,19 +96,18 @@ func FindAllProducts(searchKey string, category string, sortBy string, order str
 	row := db.QueryRow(sqlCount, "%"+searchKey+"%", "%"+category+"%")
 	err = row.Scan(&result.Count)
 
-	fmt.Println(sql)
 	return result, err
 }
 
 func removeBackslashes(s string) string {
-    var result string
-    for _, char := range s {
-        if char == '\\' {
+	var result string
+	for _, char := range s {
+		if char == '\\' {
 			fmt.Println(char)
-            result += string(char)
-        }
-    }
-    return result
+			result += string(char)
+		}
+	}
+	return result
 }
 
 func FindOneProducts(id int) (ProductDetails, error) {
@@ -130,12 +130,19 @@ func FindOneProducts(id int) (ProductDetails, error) {
             'name', "v"."name",
             'additionalPrice', "v"."additionalPrice"
         )
-    ) AS "variantsProducts"
+    ) AS "variantsProducts",
+	JSONB_AGG(
+        DISTINCT JSONB_BUILD_OBJECT(
+            'id', "pi"."id",
+            'imageUrl', "pi"."imageUrl"
+        )
+    ) AS "productImages"
     FROM "products" "p"
     LEFT JOIN "productRatings" "pr" ON ("pr"."productId" = "p"."id")
     LEFT JOIN "tags" "t" on ("t"."id" = "p"."tagId")
     LEFT JOIN "productVariant" "pv" on ("pv"."productId" = "p"."id")
     LEFT JOIN "variant" "v" on ("pv"."variantId" = "v"."id")
+	LEFT JOIN "productImages" "pi" on ("pi"."productId" = "p"."id")
     WHERE "p"."id" = $1
     GROUP BY "p"."id", "t"."name"
     `

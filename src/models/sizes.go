@@ -8,7 +8,7 @@ import (
 type Sizes struct {
 	Id              int           `db:"id" json:"id"`
 	Size            string        `db:"size" json:"size" form:"size"`
-	AdditionalPrice sql.NullInt64 `db:"additionalPrice" json:"additionalPrice" form:"additionalPrice"`
+	AdditionalPrice string `db:"additionalPrice" json:"additionalPrice" form:"additionalPrice"`
 	CreatedAt       time.Time     `db:"createdAt" json:"createdAt"`
 	UpdatedAt       sql.NullTime  `db:"updatedAt" json:"updatedAt"`
 }

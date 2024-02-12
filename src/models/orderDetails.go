@@ -69,6 +69,27 @@ func CreateOrderDetails(data OrderDetails) (OrderDetails, error) {
 	return result, err
 }
 
+
+func InsertOrderDetails(data CheckoutForm) (OrderDetails, error) {
+	sql := `INSERT INTO "orderDetails" ("productId", "sizeId", "variantId", "quantity", "orderId", "subtotal") 
+	VALUES
+	(:productId, :sizeId, :variantId, :quantity, :orderId, :subtotal)
+	RETURNING *
+	`
+	result := OrderDetails{}
+	rows, err := db.NamedQuery(sql, data)
+	if err != nil {
+		return result, err
+	}
+
+	for rows.Next() {
+		rows.StructScan(&result)
+	}
+
+	return result, err
+}
+
+
 func UpdateOrderDetails(data OrderDetails) (OrderDetails, error) {
 	sql := `UPDATE "orderDetails" SET
 	"productId"=COALESCE(NULLIF(:productId, 0),"productId"),

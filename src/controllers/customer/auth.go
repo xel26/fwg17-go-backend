@@ -34,7 +34,7 @@ type FormReset struct {
 // 	}
 
 // 	decode, err := argonize.DecodeHashStr(found.Password)
-	
+
 // 	if err != nil {
 // 		c.JSON(http.StatusUnauthorized, &service.ResponseOnly{
 // 			Success: false,
@@ -42,7 +42,7 @@ type FormReset struct {
 // 		})
 // 		return
 // 	}
-	
+
 // 	token, err := service.GenerateToken(found.Id, found.Role)
 
 // 	plain := []byte(form.Password)
@@ -62,8 +62,6 @@ type FormReset struct {
 
 // }
 
-
-
 func Register(c *gin.Context) {
 	form := models.UserForm{}
 	err := c.ShouldBind(&form)
@@ -74,7 +72,7 @@ func Register(c *gin.Context) {
 		})
 		return
 	}
-	
+
 	defaultRole := "customer"
 	form.Role = &defaultRole
 
@@ -85,6 +83,7 @@ func Register(c *gin.Context) {
 	result, err := models.CreateUser(form)
 
 	if err != nil {
+		fmt.Println(err)
 		if strings.HasSuffix(err.Error(), `unique constraint "users_email_key"`) {
 			c.JSON(http.StatusBadRequest, &service.ResponseOnly{
 				Success: false,
@@ -106,82 +105,78 @@ func Register(c *gin.Context) {
 	})
 }
 
-
-
 func ForgotPassword(c *gin.Context) {
 	form := FormReset{}
 	c.ShouldBind(&form)
 
-	if form.Email != ""{
+	if form.Email != "" {
 		found, _ := models.FindOneUsersByEmail(form.Email)
-		if found.Id != 0{
-			FormReset := models.ForgotPassword{
-				Otp: lib.RandomNumberStr(6),
-				Email: form.Email,
-			}
-			models.CreateForgotPassword(FormReset)
-			// START SEND EMAIL
-			fmt.Println(FormReset.Otp)
-			// END SEND EMAIL
-			c.JSON(http.StatusOK, &service.ResponseOnly{
-				Success: true,
-				Message: "OTP has been sent to your email",
-			})
-			return
-			
-		}else{
+
+		if found.Id == 0 {
 			c.JSON(http.StatusBadRequest, &service.ResponseOnly{
 				Success: false,
 				Message: "email not registered... failed to reset password",
 			})
 			return
 		}
+
+		FormReset := models.ForgotPassword{
+			Otp:   lib.RandomNumberStr(6),
+			Email: form.Email,
+		}
+		models.CreateForgotPassword(FormReset)
+		// START SEND EMAIL
+		fmt.Println(FormReset.Otp)
+		// END SEND EMAIL
+		c.JSON(http.StatusOK, &service.ResponseOnly{
+			Success: true,
+			Message: "OTP has been sent to your email",
+		})
+		return
 	}
 
-	if form.Otp != ""{
-		found, _ := models.FindOneByOtp(form.Otp)
-		if found.Id != 0{
-			if form.Password == form.ConfirmPassword{
-				foundUser, _ := models.FindOneUsersByEmail(found.Email)
-				data := models.UserForm{
-					Id: foundUser.Id,
-				}
-
-				hash, _ := argonize.Hash([]byte(form.Password))
-				data.Password = hash.String()
-
-				updated, err := models.UpdateUser(data)
-				if err != nil{
-					fmt.Println(updated, err)
-					c.JSON(http.StatusBadRequest, &service.ResponseOnly{
-						Success: false,
-						Message: err.Error(),
-					})
-				}
-				
-				
-				models.DeleteForgotPassword(found.Id)
-				message := fmt.Sprintf("Reset password for %v success", *updated.Email)
-				fmt.Println(updated.Email)
-				c.JSON(http.StatusOK, &service.ResponseOnly{
-					Success: true,
-					Message: message,
-				})
-				return
-			}else{
-				c.JSON(http.StatusBadRequest, &service.ResponseOnly{
-					Success: false,
-					Message: "Confirm password does not match",
-				})
-				return
-			}
-		}else{
+	if form.Otp != "" {
+		found, err := models.FindOneByOtp(form.Otp)
+		if found.Id == 0 {
 			c.JSON(http.StatusBadRequest, &service.ResponseOnly{
 				Success: false,
 				Message: "invalid otp code",
 			})
 			return
 		}
+
+		// if form.Password != form.ConfirmPassword{
+		// 	c.JSON(http.StatusBadRequest, &service.ResponseOnly{
+		// 		Success: false,
+		// 		Message: "Confirm password does not match",
+		// 	})
+		// 	return
+		// }
+
+		foundUser, err := models.FindOneUsersByEmail(found.Email)
+		data := models.UserForm{
+			Id: foundUser.Id,
+		}
+
+		hash, err := argonize.Hash([]byte(form.Password))
+		data.Password = hash.String()
+
+		updated, err := models.UpdateUser(data)
+		if err != nil {
+			fmt.Println(updated, err)
+			c.JSON(http.StatusBadRequest, &service.ResponseOnly{
+				Success: false,
+				Message: err.Error(),
+			})
+		}
+
+		models.DeleteForgotPassword(found.Id)
+		message := fmt.Sprintf("Reset password for %v success", *updated.Email)
+		c.JSON(http.StatusOK, &service.ResponseOnly{
+			Success: true,
+			Message: message,
+		})
+		return
 	}
 
 	c.JSON(http.StatusInternalServerError, &service.ResponseOnly{

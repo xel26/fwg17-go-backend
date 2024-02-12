@@ -38,7 +38,29 @@ type OrderForm struct {
 	Subtotal         *int         `db:"subtotal" json:"subtotal" form:"subtotal"`
 	Status           *string      `db:"status" json:"status" form:"status"`
 	DeliveryFee      *int         `db:"deliveryFee" json:"deliveryFee" form:"deliveryFee"`
-	DeliveryShipping *string       `db:"deliveryShipping" json:"deliveryShipping" form:"deliveryShipping"`
+	DeliveryShipping *string      `db:"deliveryShipping" json:"deliveryShipping" form:"deliveryShipping"`
+	CreatedAt        time.Time    `db:"createdAt" json:"createdAt"`
+	UpdatedAt        sql.NullTime `db:"updatedAt" json:"updatedAt"`
+}
+
+type CheckoutForm struct {
+	Id               int          `db:"id" json:"id"`
+	UserId           int         `db:"userId" json:"userId"`
+	OrderNumber      string      `db:"orderNumber" json:"orderNumber"`
+	DeliveryAddress  *string      `db:"deliveryAddress" json:"deliveryAddress" form:"deliveryAddress"`
+	FullName         *string      `db:"fullName" json:"fullName" form:"fullName"`
+	Email            *string      `db:"email" json:"email" form:"email"`
+	DeliveryFee      int         `db:"deliveryFee" json:"deliveryFee"`
+	DeliveryShipping *string      `db:"deliveryShipping" json:"deliveryShipping" form:"deliveryShipping" binding:"eq=Dine In|eq=Pick Up|eq=Door Delivery"`
+	Status           string      `db:"status" json:"status"`
+	OrderId          int         `db:"orderId" json:"orderId"`
+	ProductId        string         `db:"productId" json:"productId" form:"productId"`
+	SizeProduct           string         `db:"sizeProduct" json:"sizeProduct" form:"sizeProduct"`
+	VariantProduct        string         `db:"variantProduct" json:"variantProduct" form:"variantProduct"`
+	QuantityProduct         string         `db:"quantityProduct" json:"quantityProduct" form:"quantityProduct"`
+	Tax              *int         `db:"tax" json:"tax"`
+	Total            *int         `db:"total" json:"total"`
+	Subtotal         *int         `db:"subtotal" json:"subtotal"`
 	CreatedAt        time.Time    `db:"createdAt" json:"createdAt"`
 	UpdatedAt        sql.NullTime `db:"updatedAt" json:"updatedAt"`
 }
@@ -48,57 +70,28 @@ type InfoO struct {
 	Count int
 }
 
-func FindAllOrders(deliveryShipping string, sortBy string, order string, limit int, offset int) (InfoO, error) {
+func FindAllOrders(deliveryShipping string, sortBy string, order string, limit int, offset int, status string) (InfoO, error) {
 	sql := `
 	SELECT * FROM "orders" 
+	WHERE "deliveryShipping" ILIKE $1 OR "status" ILIKE $4
 	ORDER BY "` + sortBy + `" ` + order + `
-	WHERE deliveryShipping ILIKE $1
 	LIMIT $2 OFFSET $3
 	`
 	sqlCount := `
 	SELECT COUNT(*) FROM "orders"
-	WHERE deliveryShipping ILIKE $1
+	WHERE "deliveryShipping" ILIKE $1 OR "status" ILIKE $2
 	`
-
 
 	result := InfoO{}
 	data := []Order{}
-	error := db.Select(&data, sql, "%"+deliveryShipping+"%", limit, offset)
+	error := db.Select(&data, sql, "%"+deliveryShipping+"%", limit, offset, status)
 	if error != nil {
 		return result, error
 	}
 
 	result.Data = data
 
-	row := db.QueryRow(sqlCount, "%"+deliveryShipping+"%")
-	err := row.Scan(&result.Count)
-
-	return result, err
-}
-
-func FindAllOrdersByUserId(deliveryShipping string, userId int, sortBy string, order string, limit int, offset int) (InfoO, error) {
-	sql := `
-	SELECT * FROM "orders" 
-	ORDER BY "` + sortBy + `" ` + order + `
-	WHERE deliveryShipping ILIKE $1 AND userId = $2
-	LIMIT $3 OFFSET $4
-	`
-	sqlCount := `
-	SELECT COUNT(*) FROM "orders"
-	WHERE deliveryShipping ILIKE $1 AND userId = $2
-	`
-
-
-	result := InfoO{}
-	data := []Order{}
-	error := db.Select(&data, sql, "%"+deliveryShipping+"%", userId, limit, offset)
-	if error != nil {
-		return result, error
-	}
-
-	result.Data = data
-
-	row := db.QueryRow(sqlCount, "%"+deliveryShipping+"%", userId)
+	row := db.QueryRow(sqlCount, "%"+deliveryShipping+"%", status)
 	err := row.Scan(&result.Count)
 
 	return result, err
@@ -115,6 +108,26 @@ func CreateOrders(data OrderForm) (OrderForm, error) {
 	sql := `INSERT INTO "orders" ("userId", "orderNumber", "promoId", "total", "deliveryAddress", "fullName", "email", "priceCut", "subtotal", "status", "deliveryFee", "deliveryShipping", "tax") 
 	VALUES
 	(:userId, :orderNumber, :promoId, :total, :deliveryAddress, :fullName, :email, :priceCut, :subtotal, :status, :deliveryFee, :deliveryShipping, :tax)
+	RETURNING *
+	`
+	result := OrderForm{}
+	rows, err := db.NamedQuery(sql, data)
+	if err != nil {
+		return result, err
+	}
+
+	for rows.Next() {
+		rows.StructScan(&result)
+	}
+
+	return result, err
+}
+
+func InsertOrder(data CheckoutForm) (OrderForm, error) {
+	sql := `
+	INSERT INTO "orders" ("userId", "orderNumber", "deliveryAddress", "fullName", "email", "status", "deliveryFee", "deliveryShipping") 
+	VALUES
+	(:userId, :orderNumber, :deliveryAddress, :fullName, :email, :status, :deliveryFee, :deliveryShipping)
 	RETURNING *
 	`
 	result := OrderForm{}

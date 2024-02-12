@@ -46,12 +46,14 @@ go run .
 The project structure is organized as follows:
 
 -src/: contains the source code of the project.
+
   -controllers/: containing functions responsible for managing data input and output.
   -lib/: containing reusable functions for specific tasks.
   -middleware/: containing functions executed in the order of request.
   -models/: containing queries to the database or business logic.
   -router/: contains endpoint paths.
   -service/: containing a response struct.
+  
 - uploads/: containing uploaded files.
 - main : main file in the application.
 

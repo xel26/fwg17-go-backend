@@ -42,9 +42,9 @@ type ProductDetails struct {
 
 type ProductForm struct {
 	Id            int          `db:"id" json:"id"`
-	Name          *string      `db:"name" json:"name" form:"name" binding:"required,min=3"`
-	Description   *string      `db:"description" json:"description" form:"description"`
-	BasePrice     *int         `db:"basePrice" json:"basePrice" form:"basePrice" binding:"required,numeric"`
+	Name          *string      `db:"name" json:"name" form:"name"`
+	Description   *string      `db:"description" json:"description"`
+	BasePrice     *int         `db:"basePrice" json:"basePrice" form:"basePrice"`
 	Image         string       `db:"image" json:"image"`
 	Discount      *int         `db:"discount" json:"discount" form:"discount"`
 	IsRecommended *bool        `db:"isRecommended" json:"isRecommended" form:"isRecommended"`

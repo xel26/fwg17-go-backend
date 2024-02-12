@@ -228,10 +228,14 @@ func DeleteProducts(c *gin.Context) {
 	return
 	}
 
+	fmt.Println(isExist)
+	err = os.Remove("./" + isExist.Image)
+	if err != nil{}
+
 
 	product, err := models.DeleteProduct(id)
 	if err != nil {
-		fmt.Println(err, product)
+		fmt.Println(err)
 		c.JSON(http.StatusInternalServerError, &service.ResponseOnly{
 			Success: false,
 			Message: "Internal Server Error",

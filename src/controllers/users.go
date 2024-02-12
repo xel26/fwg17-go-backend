@@ -26,6 +26,7 @@ func ListAllUsers(c *gin.Context) {
 
 	result, err := models.FindAllUsers(searchKey, sortBy, order, limit, offset)
 	if len(result.Data) == 0 {
+		fmt.Println(err)
 		c.JSON(http.StatusNotFound, &service.ResponseOnly{
 			Success: false,
 			Message: "data not found",

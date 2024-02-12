@@ -45,19 +45,19 @@ type OrderForm struct {
 
 type CheckoutForm struct {
 	Id               int          `db:"id" json:"id"`
-	UserId           int         `db:"userId" json:"userId"`
-	OrderNumber      string      `db:"orderNumber" json:"orderNumber"`
+	UserId           int          `db:"userId" json:"userId"`
+	OrderNumber      string       `db:"orderNumber" json:"orderNumber"`
 	DeliveryAddress  *string      `db:"deliveryAddress" json:"deliveryAddress" form:"deliveryAddress"`
 	FullName         *string      `db:"fullName" json:"fullName" form:"fullName"`
 	Email            *string      `db:"email" json:"email" form:"email"`
-	DeliveryFee      int         `db:"deliveryFee" json:"deliveryFee"`
+	DeliveryFee      int          `db:"deliveryFee" json:"deliveryFee"`
 	DeliveryShipping *string      `db:"deliveryShipping" json:"deliveryShipping" form:"deliveryShipping" binding:"eq=Dine In|eq=Pick Up|eq=Door Delivery"`
-	Status           string      `db:"status" json:"status"`
-	OrderId          int         `db:"orderId" json:"orderId"`
-	ProductId        string         `db:"productId" json:"productId" form:"productId"`
-	SizeProduct           string         `db:"sizeProduct" json:"sizeProduct" form:"sizeProduct"`
-	VariantProduct        string         `db:"variantProduct" json:"variantProduct" form:"variantProduct"`
-	QuantityProduct         string         `db:"quantityProduct" json:"quantityProduct" form:"quantityProduct"`
+	Status           string       `db:"status" json:"status"`
+	OrderId          int          `db:"orderId" json:"orderId"`
+	ProductId        string       `db:"productId" json:"productId" form:"productId"`
+	SizeProduct      string       `db:"sizeProduct" json:"sizeProduct" form:"sizeProduct"`
+	VariantProduct   string       `db:"variantProduct" json:"variantProduct" form:"variantProduct"`
+	QuantityProduct  string       `db:"quantityProduct" json:"quantityProduct" form:"quantityProduct"`
 	Tax              *int         `db:"tax" json:"tax"`
 	Total            *int         `db:"total" json:"total"`
 	Subtotal         *int         `db:"subtotal" json:"subtotal"`

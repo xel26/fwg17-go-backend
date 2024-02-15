@@ -1,0 +1,11 @@
+# build image
+docker build -t coffee-shop-backend-golang:1.0.0 .
+
+# membuat volume
+docker volume create dataCoffeeShop
+
+# membuat container postgre
+docker container create --name coffeeShop -e POSTGRES_PASSWORD=1 -p 5444:5432 --mount "type=volume,source=dataCoffeeShop,destination=/var/lib/postgresql/data" postgres
+
+# membuat container golang
+docker container create -v .:/app -w /app -p 127.0.0.1:8080:8080 -e APP_SECRET=57838489hgh#$%$#% -e DB_PASSWORD=1 coffee-shop-backend-golang:1.0.0

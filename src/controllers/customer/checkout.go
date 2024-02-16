@@ -178,21 +178,9 @@ func Checkout(c *gin.Context) {
 		models.CountSubtotal(orderDetails.Id)
 	}
 
-	// orderDetails, err := models.InsertOrderDetails(dataOrder)
-	// if err != nil {
-	// 	fmt.Println(err)
-	// 	tx.Rollback()
-	// 	c.JSON(http.StatusBadRequest, &service.ResponseOnly{
-	// 		Success: false,
-	// 		Message: err.Error(),
-	// 	})
-	// 	return
-	// }
+	_, _ = models.CountTotal(order.Id)
+	_, _ = models.CountTax(order.Id)
 
-	// _, err = models.CountSubtotal(orderDetails.Id)
-
-	_, err = models.CountTotal(order.Id)
-	_, err = models.CountTax(order.Id)
 	order, err = models.CountTotalTransaction(order.Id)
 
 	if err != nil {

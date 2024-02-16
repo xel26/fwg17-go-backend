@@ -1,5 +1,9 @@
 package models
 
+import (
+	"fmt"
+)
+
 type OrderProducts struct {
 	Id               int    `db:"id" json:"id"`
 	Quantity         int    `db:"quantity" json:"quantity"`
@@ -135,6 +139,8 @@ func FindAllOrdersByUserId(status string, userId int, sortBy string, order strin
 }
 
 func GetOrderProducts(orderId int, userId int, sortBy string, order string) (InfoOP, error) {
+	fmt.Println(orderId, userId, sortBy, order)
+
 	sql := `
 	SELECT 
 	"od"."id",
@@ -158,26 +164,26 @@ func GetOrderProducts(orderId int, userId int, sortBy string, order string) (Inf
 	ORDER BY "` + sortBy + `" ` + order + `
 	`
 
-	// sqlCount := `
-	// SELECT COUNT(*) FROM "orderDetails" "od"
-	// JOIN "orders" "o" on ("o"."id" = "od"."orderId")
-	// WHERE "od"."orderId" = $1 AND "o"."userId" = $2
-	// `
+	sqlCount := `
+	SELECT COUNT(*) FROM "orderDetails" "od"
+	JOIN "orders" "o" on ("o"."id" = "od"."orderId")
+	WHERE "od"."orderId" = $1
+	`
 
 	result := InfoOP{}
 	data := []OrderProducts{}
 	err := db.Select(&data, sql, orderId)
+	fmt.Println(err, data)
 	if err != nil {
 		return result, err
 	}
-
 	result.Data = data
 
-	// row := db.QueryRow(sqlCount, orderId, userId)
-	// err = row.Scan(&result.Count)
-	// if err != nil {
-	// 	return result, err
-	// }
+	row := db.QueryRow(sqlCount, orderId)
+	err = row.Scan(&result.Count)
+	if err != nil {
+		return result, err
+	}
 
 	return result, err
 }

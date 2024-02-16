@@ -84,10 +84,7 @@ func ListOrderProducts(c *gin.Context) {
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 
 	result, err := models.GetOrderProducts(userId, orderId, sortBy, order)
-	fmt.Println(err)
 	if len(result.Data) == 0 {
-		fmt.Println(err)
-		// scannable dest type slice with >1 columns (11) in result
 		c.JSON(http.StatusNotFound, &service.ResponseOnly{
 			Success: false,
 			Message: "data not found",

@@ -1,0 +1,44 @@
+version: "3.8"
+
+services:   # ==> daftar container yg akan di buat
+  golang:      # ==> container web
+    build: .        # ==> lokasi path dockerfile
+    ports:
+      - 127.0.0.1:8080:8080
+    working_dir: /app
+    volumes:
+      - .:/app
+    environment:
+      - APP_SECRET=57838489hgh#$%$#%
+    networks:
+      - coffee-shop-networking
+    depends_on:
+      - db
+    restart: always
+  db:       # ==> container db
+    container_name: db-coffee-shop
+    image: postgres
+    ports:          # ==> ports di forward hanya selama masa development
+      - 5444:5432
+    environment:
+      - POSTGRES_PASSWORD=1
+    volumes:
+      - dataCoffeeShop:/var/lib/postgresql/data
+    networks:
+      - coffee-shop-networking
+    restart: always
+    
+
+    
+volumes:
+    dataCoffeeShop:
+      external:
+        true
+
+
+name: coffee_shop_backend
+
+
+networks:
+  coffee-shop-networking:
+

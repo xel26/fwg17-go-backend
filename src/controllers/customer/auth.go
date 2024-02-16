@@ -77,7 +77,7 @@ func Register(c *gin.Context) {
 	form.Role = &defaultRole
 
 	plain := []byte(form.Password)
-	hash, err := argonize.Hash(plain)
+	hash, _ := argonize.Hash(plain)
 	form.Password = hash.String()
 
 	result, err := models.CreateUser(form)
@@ -136,7 +136,7 @@ func ForgotPassword(c *gin.Context) {
 	}
 
 	if form.Otp != "" {
-		found, err := models.FindOneByOtp(form.Otp)
+		found, _ := models.FindOneByOtp(form.Otp)
 		if found.Id == 0 {
 			c.JSON(http.StatusBadRequest, &service.ResponseOnly{
 				Success: false,
@@ -153,12 +153,12 @@ func ForgotPassword(c *gin.Context) {
 		// 	return
 		// }
 
-		foundUser, err := models.FindOneUsersByEmail(found.Email)
+		foundUser, _ := models.FindOneUsersByEmail(found.Email)
 		data := models.UserForm{
 			Id: foundUser.Id,
 		}
 
-		hash, err := argonize.Hash([]byte(form.Password))
+		hash, _ := argonize.Hash([]byte(form.Password))
 		data.Password = hash.String()
 
 		updated, err := models.UpdateUser(data)

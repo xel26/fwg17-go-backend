@@ -103,7 +103,7 @@ func Auth()(*jwt.GinJWTMiddleware, error){
 		LoginResponse: func(c *gin.Context, code int, token string, time time.Time) {
 			c.JSON(http.StatusOK, &service.Response{
 				Success: true,
-				Message: "Login success",
+				Message: "login success. . . embark your coffee journey",
 				Results: struct{
 					Token string `json:"token"`
 				}{

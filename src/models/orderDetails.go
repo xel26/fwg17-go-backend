@@ -35,6 +35,9 @@ func FindAllOrderDetails(sortBy string, order string, limit int, offset int) (In
 	result := InfoOD{}
 	data := []OrderDetails{}
 	err := db.Select(&data, sql, limit, offset)
+	if err != nil{
+		return result, err
+	}
 	result.Data = data
 
 	row := db.QueryRow(sqlCount)

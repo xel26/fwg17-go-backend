@@ -87,7 +87,7 @@ func Register(c *gin.Context) {
 		if strings.HasSuffix(err.Error(), `unique constraint "users_email_key"`) {
 			c.JSON(http.StatusBadRequest, &service.ResponseOnly{
 				Success: false,
-				Message: "Email already registered",
+				Message: "email already registered. . . please login",
 			})
 			return
 		}
@@ -100,7 +100,7 @@ func Register(c *gin.Context) {
 
 	c.JSON(http.StatusOK, &service.Response{
 		Success: true,
-		Message: "Register success",
+		Message: "register success. . . welcome aboard!",
 		Results: result,
 	})
 }
@@ -115,7 +115,7 @@ func ForgotPassword(c *gin.Context) {
 		if found.Id == 0 {
 			c.JSON(http.StatusBadRequest, &service.ResponseOnly{
 				Success: false,
-				Message: "email not registered... failed to reset password",
+				Message: "email not registered. . . . please use another email",
 			})
 			return
 		}
@@ -140,7 +140,7 @@ func ForgotPassword(c *gin.Context) {
 		if found.Id == 0 {
 			c.JSON(http.StatusBadRequest, &service.ResponseOnly{
 				Success: false,
-				Message: "invalid otp code",
+				Message: "invalid OTP code. . . please enter the correct code",
 			})
 			return
 		}

@@ -31,6 +31,9 @@ func FindAllProductCategories(sortBy string, order string, limit int, offset int
 	result := InfoPC{}
 	data := []ProductCategories{}
 	err := db.Select(&data, sql, limit, offset)
+	if err != nil{
+		return result, err
+	}
 	result.Data = data
 
 	row := db.QueryRow(sqlCount)

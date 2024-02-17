@@ -13,8 +13,8 @@ type Product struct {
 	Description   sql.NullString `db:"description" json:"description"`
 	Image         sql.NullString `db:"image" json:"image"`
 	Discount      sql.NullInt64  `db:"discount" json:"discount"`
-	IsRecommended bool           `db:"isRecommended" json:"isRecommended" form:"isRecommended"`
-	TagId         int            `db:"tagId" json:"tagId" form:"tagId"`
+	IsRecommended bool           `db:"isRecommended" json:"isRecommended"`
+	TagId         int            `db:"tagId" json:"tagId"`
 	BasePrice     int            `db:"basePrice" json:"basePrice"`
 	Category      sql.NullString `db:"category" json:"category"`
 	Tag           sql.NullString `db:"tag" json:"tag"`
@@ -30,7 +30,7 @@ type ProductDetails struct {
 	BasePrice        int            `db:"basePrice" json:"basePrice"`
 	Image            string         `db:"image" json:"image"`
 	Discount         sql.NullInt64  `db:"discount" json:"discount"`
-	IsRecommended    sql.NullBool   `db:"isRecommended" json:"isRecommended" form:"isRecommended"`
+	IsRecommended    sql.NullBool   `db:"isRecommended" json:"isRecommended"`
 	Tag              sql.NullString `db:"tag" json:"tag"`
 	Rating           sql.NullInt64  `db:"rating" json:"rating"`
 	Review           sql.NullInt64  `db:"review" json:"review"`
@@ -90,6 +90,9 @@ func FindAllProducts(searchKey string, category string, sortBy string, order str
 	result := InfoP{}
 	data := []Product{}
 	err := db.Select(&data, sql, "%"+searchKey+"%", "%"+category+"%", limit, offset)
+	if err != nil{
+		return result, err
+	}
 	// err := db.Select(&data, sql, "%"+searchKey+"%", "%"+category+"%", `"`+sortBy+`"`, order, limit, offset)
 	result.Data = data
 
@@ -97,17 +100,6 @@ func FindAllProducts(searchKey string, category string, sortBy string, order str
 	err = row.Scan(&result.Count)
 
 	return result, err
-}
-
-func removeBackslashes(s string) string {
-	var result string
-	for _, char := range s {
-		if char == '\\' {
-			fmt.Println(char)
-			result += string(char)
-		}
-	}
-	return result
 }
 
 func FindOneProducts(id int) (ProductDetails, error) {

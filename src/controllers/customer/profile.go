@@ -69,14 +69,13 @@ func UpdateProfile(c *gin.Context) {
 	}
 
 	plain := []byte(data.Password)
-	hash, err := argonize.Hash(plain)
+	hash, _ := argonize.Hash(plain)
 	data.Password = hash.String()
 	data.Id = id
 
 	_, err = c.FormFile("picture")
 	if err == nil {
-		err := os.Remove("./" + isUserExist.Picture)
-		if err != nil{}
+		_ = os.Remove("./" + isUserExist.Picture)
 
 		file, err := lib.Upload(c, "picture", "users")
 		if err != nil {

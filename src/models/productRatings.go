@@ -43,6 +43,9 @@ func FindAllProductRatings(sortBy string, order string, limit int, offset int) (
 	result := InfoPR{}
 	data := []ProductRatings{}
 	err := db.Select(&data, sql, limit, offset)
+	if err != nil{
+		return result, err
+	}
 	result.Data = data
 
 	row := db.QueryRow(sqlCount)

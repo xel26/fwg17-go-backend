@@ -51,6 +51,9 @@ func FindAllPromo(searchKey string, sortBy string, order string, limit int, offs
 	result := InfoPo{}
 	data := []Promo{}
 	err := db.Select(&data, sql, "%"+searchKey+"%", limit, offset)
+	if err != nil {
+		return result, err
+	}
 	result.Data = data
 
 	row := db.QueryRow(sqlCount, "%"+searchKey+"%")

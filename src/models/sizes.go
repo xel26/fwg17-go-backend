@@ -8,7 +8,7 @@ import (
 type Sizes struct {
 	Id              int           `db:"id" json:"id"`
 	Size            string        `db:"size" json:"size" form:"size"`
-	AdditionalPrice string `db:"additionalPrice" json:"additionalPrice" form:"additionalPrice"`
+	AdditionalPrice int `db:"additionalPrice" json:"additionalPrice" form:"additionalPrice"`
 	CreatedAt       time.Time     `db:"createdAt" json:"createdAt"`
 	UpdatedAt       sql.NullTime  `db:"updatedAt" json:"updatedAt"`
 }
@@ -41,6 +41,9 @@ func FindAllSizes(searchKey string, sortBy string, order string, limit int, offs
 	result := InfoS{}
 	data := []Sizes{}
 	err := db.Select(&data, sql, "%"+searchKey+"%", limit, offset)
+	if err != nil{
+		return result, err
+	}
 	result.Data = data
 
 	row := db.QueryRow(sqlCount, "%"+searchKey+"%")

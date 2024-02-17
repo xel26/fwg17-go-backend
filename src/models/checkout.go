@@ -1,6 +1,7 @@
 package models
 
 import (
+	"database/sql"
 	"fmt"
 )
 
@@ -12,7 +13,7 @@ type OrderProducts struct {
 	Image            string `db:"image" json:"image"`
 	BasePrice        int    `db:"basePrice" json:"basePrice"`
 	Discount         int    `db:"discount" json:"discount"`
-	Tag              string `db:"tag" json:"tag"`
+	Tag              sql.NullString `db:"tag" json:"tag"`
 	Size             string `db:"size" json:"size"`
 	Variant          string `db:"variant" json:"variant"`
 	DeliveryShipping string `db:"deliveryShipping" json:"deliveryShipping"`
@@ -161,7 +162,7 @@ func GetOrderProducts(orderId int, userId int, sortBy string, order string) (Inf
 	JOIN "variant" "v" on ("v"."id" = "od"."variantId")
 	JOIN "orders" "o" on ("o"."id" = "od"."orderId")
 	WHERE "od"."orderId" = $1
-	ORDER BY "` + sortBy + `" ` + order + `
+	ORDER BY "`+sortBy+`" `+order+`
 	`
 
 	sqlCount := `

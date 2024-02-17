@@ -83,8 +83,8 @@ func ListOrderProducts(c *gin.Context) {
 	order := c.DefaultQuery("order", "ASC")
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 
-	result, err := models.GetOrderProducts(userId, orderId, sortBy, order)
-	if len(result.Data) == 0 {
+	result, err := models.GetOrderProducts(orderId, userId, sortBy, order)
+	if err == nil && len(result.Data) == 0 {
 		c.JSON(http.StatusNotFound, &service.ResponseOnly{
 			Success: false,
 			Message: "data not found",

@@ -14,8 +14,8 @@ var db *sqlx.DB = lib.DB
 type User struct {
 	Id          int            `db:"id" json:"id"`
 	FullName    string         `db:"fullName" json:"fullName" form:"fullName"`
-	Email       string         `db:"email" json:"email" form:"email" form:"email"`
-	Password    string         `db:"password" json:"-" form:"password" form:"password"`
+	Email       string         `db:"email" json:"email" form:"email"`
+	Password    string         `db:"password" json:"-" form:"password"`
 	Address     sql.NullString `db:"address" json:"address" form:"address"`
 	Picture     string         `db:"picture" json:"picture"`
 	PhoneNumber sql.NullString `db:"phoneNumber" json:"phoneNumber" form:"phoneNumber"`
@@ -57,6 +57,9 @@ func FindAllUsers(searchKey string, sortBy string, order string, limit int, offs
 	result := Info{}
 	data := []User{}
 	err := db.Select(&data, sql, "%"+searchKey+"%", limit, offset)
+	if err != nil{
+		return result, err
+	}
 	result.Data = data
 
 	row := db.QueryRow(sqlCount, "%"+searchKey+"%")

@@ -60,6 +60,7 @@ func UpdateProfile(c *gin.Context) {
 
 	data := models.UserForm{}
 	err := c.ShouldBind(&data)
+	fmt.Println(err)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, &service.ResponseOnly{
 			Success: false,
@@ -69,17 +70,24 @@ func UpdateProfile(c *gin.Context) {
 	}
 
 	plain := []byte(data.Password)
-	hash, _ := argonize.Hash(plain)
+	hash, err := argonize.Hash(plain)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 	data.Password = hash.String()
 	data.Id = id
 
 	_, err = c.FormFile("picture")
 	if err == nil {
-		_ = os.Remove("./" + isUserExist.Picture)
+		err = os.Remove("./" + isUserExist.Picture)
+		if err != nil{
+			fmt.Println(err)
+			return
+		}
 
 		file, err := lib.Upload(c, "picture", "users")
 		if err != nil {
-			fmt.Println(err)
 			c.JSON(http.StatusInternalServerError, &service.ResponseOnly{
 				Success: false,
 				Message: err.Error(),
@@ -88,6 +96,9 @@ func UpdateProfile(c *gin.Context) {
 		}
 
 		data.Picture = file
+	}else{
+		fmt.Println(err)
+		data.Picture = ""
 	}
 
 	user, err := models.UpdateUser(data)

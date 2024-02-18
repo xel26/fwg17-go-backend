@@ -12,10 +12,10 @@ import (
 
 func connectDB()*sqlx.DB{
 	// db, err := sqlx.Connect("postgres", "user=postgres dbname=coffee_shop_implementation_basic password=1 sslmode=disable")   // local
-	// db, err := sqlx.Connect("postgres", `user=postgres dbname=volume_data_coffee_shop password=1 port=5444 host=host.docker.internal sslmode=disable`)    // container postgre & docker compose
+	// db, err := sqlx.Connect("postgres", `user=postgres dbname=volume_data_coffee_shop password=1 port=5444 host=host.docker.internal sslmode=disable`)    // container postgre local & docker compose
 	db, err := sqlx.Connect("postgres", `user=postgres dbname=db_coffee_shop password=1 port=5444 host=143.110.156.215 sslmode=disable`)    // container postgre di server
 	// db, err := sqlx.Connect("postgres", `user=postgres dbname=volume_data_coffee_shop password=`+os.Getenv("DB_PASSWORD")+` port=5444 host=`+os.Getenv("DB_HOST")+` sslmode=disable`)    // try networking
-	// db, err := sqlx.Connect("postgres", `user=postgres dbname=volume_data_coffee_shop password=1 port=5444 host=db sslmode=disable`)     // try docker compose
+	// db, err := sqlx.Connect("postgres", `user=postgres dbname=volume_data_coffee_shop password=1 port=5444 host=db sslmode=disable`)     // try docker compose !error
 	if err !=  nil {
 		fmt.Println(err)
 	}

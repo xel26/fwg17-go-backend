@@ -13,4 +13,5 @@ func AuthRouter(r *gin.RouterGroup){
 	r.POST("/login", authMiddleware.LoginHandler)
 	r.POST("/register", controllers_customer.Register)
 	r.POST("/forgot-password", controllers_customer.ForgotPassword)
+	r.POST("/confirm-account", controllers_customer.ConfirmAccount)
 }

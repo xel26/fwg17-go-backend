@@ -102,6 +102,10 @@ func DetailOrder(c *gin.Context) {
 func CreateOrders(c *gin.Context) {
 	data := models.OrderForm{}
 	err := c.ShouldBind(&data)
+	if err != nil{
+		fmt.Println(err)
+		return
+	}
 
 	order, err := models.CreateOrders(data)
 	if err != nil {

@@ -73,8 +73,10 @@ func Register(c *gin.Context) {
 		return
 	}
 
+
 	defaultRole := "customer"
 	form.Role = &defaultRole
+	form.Picture = ""
 
 	plain := []byte(form.Password)
 	hash, _ := argonize.Hash(plain)
@@ -100,7 +102,7 @@ func Register(c *gin.Context) {
 
 	c.JSON(http.StatusOK, &service.Response{
 		Success: true,
-		Message: "register success. . . welcome aboard!",
+		Message: "Please check your email to confirm your account!",
 		Results: result,
 	})
 }
@@ -120,13 +122,24 @@ func ForgotPassword(c *gin.Context) {
 			return
 		}
 
+		otp := lib.RandomNumberStr(6)
 		FormReset := models.ForgotPassword{
-			Otp:   lib.RandomNumberStr(6),
+			Otp:   otp,
 			Email: form.Email,
 		}
 		models.CreateForgotPassword(FormReset)
 		// START SEND EMAIL
-		fmt.Println(FormReset.Otp)
+		lib.Mail(
+			found.Email,
+			found.FullName,
+			otp,
+			"enter the 6-digit code below to create a new password",
+			"create new password",
+			"http://localhost:5173/create-new-password",
+			"Thank you for entrusting us to safeguard your account security.",
+			"Here is your OTP code",
+		)
+		fmt.Println(otp)
 		// END SEND EMAIL
 		c.JSON(http.StatusOK, &service.ResponseOnly{
 			Success: true,
@@ -153,17 +166,23 @@ func ForgotPassword(c *gin.Context) {
 		// 	return
 		// }
 
-		foundUser, _ := models.FindOneUsersByEmail(found.Email)
-		data := models.UserForm{
-			Id: foundUser.Id,
+		foundUser, err := models.FindOneUsersByEmail(found.Email)
+		if err != nil{
+			fmt.Println(err)
+			return
 		}
 
-		hash, _ := argonize.Hash([]byte(form.Password))
+		data := models.UserForm{}
+
+		plain := []byte(form.Password)
+		hash, _ := argonize.Hash(plain)
 		data.Password = hash.String()
+		data.Id = foundUser.Id
 
 		updated, err := models.UpdateUser(data)
+		fmt.Println(err, updated)
 		if err != nil {
-			fmt.Println(updated, err)
+			fmt.Println(err,updated)
 			c.JSON(http.StatusBadRequest, &service.ResponseOnly{
 				Success: false,
 				Message: err.Error(),
@@ -183,4 +202,42 @@ func ForgotPassword(c *gin.Context) {
 		Success: false,
 		Message: "Internal server error",
 	})
+}
+
+
+
+
+func ConfirmAccount(c *gin.Context){
+	form := models.ConfirmAccount{}
+	err := c.ShouldBind(&form)
+	if err != nil{
+		c.JSON(http.StatusOK, &service.ResponseOnly{
+			Success: true,
+			Message: err.Error(),
+		})
+	}
+
+
+	result := lib.Mail(
+		*form.Email,
+		*form.FullName,
+		"",
+		"Welcome to Coffee Shop Web App, We're very excited to have you on board",
+		"confirm your account",
+		"http://localhost:5173/login",
+		"Let's start your coffee journey.",
+		"confirm account",
+	)
+
+	if result {
+		c.JSON(http.StatusOK, &service.ResponseOnly{
+			Success: true,
+			Message: "Confirm Password Success",
+		})
+	}else{
+		c.JSON(http.StatusBadRequest, &service.ResponseOnly{
+			Success: false,
+			Message: "Sorry, we couldn't find an account. Please provide a valid email address",
+		})
+	}
 }

@@ -127,6 +127,7 @@ func CreateProducts(c *gin.Context) {
 
 		data.Image = file
 	}else{
+		fmt.Println(err)
 		data.Image = ""
 	}
 
@@ -180,8 +181,7 @@ func UpdatePrducts(c *gin.Context) {
 
 	_, err = c.FormFile("image")
 	if err == nil {
-		err := os.Remove("./" + isExist.Image)
-		if err != nil{}
+		_ = os.Remove("./" + isExist.Image)
 
 		file, err := lib.Upload(c, "image", "products")
 		if err != nil {
@@ -192,8 +192,10 @@ func UpdatePrducts(c *gin.Context) {
 			})
 			return
 		}
-
 		data.Image = file
+	}else{
+		fmt.Println(err)
+		data.Image = ""
 	}
 
 
@@ -227,10 +229,7 @@ func DeleteProducts(c *gin.Context) {
 		})
 	return
 	}
-
-	fmt.Println(isExist)
-	err = os.Remove("./" + isExist.Image)
-	if err != nil{}
+	_ = os.Remove("./" + isExist.Image)
 
 
 	product, err := models.DeleteProduct(id)

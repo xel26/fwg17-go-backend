@@ -100,6 +100,10 @@ func DetailForgotPassword(c *gin.Context) {
 func CreateForgotPassword(c *gin.Context) {
 	data := models.ForgotPassword{}
 	err := c.ShouldBind(&data)
+	if err != nil{
+		fmt.Println(err)
+		return
+	}
 
 	fp, err := models.CreateForgotPassword(data)
 	fmt.Println(data)

@@ -102,6 +102,10 @@ func DetailTestimonial(c *gin.Context) {
 func CreateTestimonial(c *gin.Context) {
 	data := models.TestimonialForm{}
 	err := c.ShouldBind(&data)
+	if err != nil{
+		fmt.Println(err)
+		return
+	}
 
 	
 	_, err = c.FormFile("image")
@@ -118,6 +122,7 @@ func CreateTestimonial(c *gin.Context) {
 
 		data.Image = file
 	}else{
+		fmt.Println(err)
 		data.Image = ""
 	}
 
@@ -160,8 +165,7 @@ func UpdateTestimonial(c *gin.Context) {
 
 	_, err = c.FormFile("image")
 	if err == nil {
-		err := os.Remove("./" + isExist.Image)
-		if err != nil{}
+		_ = os.Remove("./" + isExist.Image)
 
 		file, err := lib.Upload(c, "image", "testimonial")
 		if err != nil {
@@ -174,6 +178,9 @@ func UpdateTestimonial(c *gin.Context) {
 		}
 
 		data.Image = file
+	}else{
+		fmt.Println(err)
+		data.Image = ""
 	}
 
 

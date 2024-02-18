@@ -130,6 +130,7 @@ func CreateUser(c *gin.Context) {
 		}
 		data.Picture = file
 	}else {
+		fmt.Println(err)
 		data.Picture = ""
 	}
 
@@ -181,13 +182,16 @@ func UpdateUser(c *gin.Context) {
 
 	plain := []byte(data.Password)
 	hash, err := argonize.Hash(plain)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 	data.Password = hash.String()
 
 
 	_, err = c.FormFile("picture")
 	if err == nil {
-		err := os.Remove("./" + isExist.Picture)
-		if err != nil{}
+		_ = os.Remove("./" + isExist.Picture)
 
 		file, err := lib.Upload(c, "picture", "users")
 		if err != nil {
@@ -200,6 +204,9 @@ func UpdateUser(c *gin.Context) {
 		}
 
 		data.Picture = file
+	}else{
+		fmt.Println(err)
+		data.Picture = ""
 	}
 
 	user, err := models.UpdateUser(data)

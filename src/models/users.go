@@ -24,6 +24,25 @@ type User struct {
 	UpdatedAt   sql.NullTime   `db:"updatedAt" json:"updatedAt"`
 }
 
+type UserByEmail struct {
+	Id          int            `db:"id" json:"id"`
+	FullName    string         `db:"fullName" json:"fullName" form:"fullName"`
+	Email       string         `db:"email" json:"email" form:"email"`
+	Password    string         `db:"password" json:"-" form:"password"`
+	Address     sql.NullString `db:"address" json:"address" form:"address"`
+	Picture     sql.NullString `db:"picture" json:"picture"`
+	PhoneNumber sql.NullString `db:"phoneNumber" json:"phoneNumber" form:"phoneNumber"`
+	Role        string         `db:"role" json:"role" form:"role"`
+	CreatedAt   time.Time      `db:"createdAt" json:"createdAt"`
+	UpdatedAt   sql.NullTime   `db:"updatedAt" json:"updatedAt"`
+}
+
+type ConfirmAccount struct {
+	FullName *string `db:"fullName" json:"fullName" form:"fullName"`
+	Email    *string `db:"email" json:"email" form:"email"`
+	Password string  `db:"password" json:"-" form:"password"`
+}
+
 type UserForm struct {
 	Id          int          `db:"id" json:"id"`
 	FullName    *string      `db:"fullName" json:"fullName" form:"fullName"`
@@ -57,7 +76,7 @@ func FindAllUsers(searchKey string, sortBy string, order string, limit int, offs
 	result := Info{}
 	data := []User{}
 	err := db.Select(&data, sql, "%"+searchKey+"%", limit, offset)
-	if err != nil{
+	if err != nil {
 		return result, err
 	}
 	result.Data = data
@@ -75,9 +94,9 @@ func FindOneUsers(id int) (User, error) {
 	return data, err
 }
 
-func FindOneUsersByEmail(email string) (User, error) {
+func FindOneUsersByEmail(email string) (UserByEmail, error) {
 	sql := `SELECT * FROM "users" WHERE email = $1`
-	data := User{}
+	data := UserByEmail{}
 	err := db.Get(&data, sql, email)
 	return data, err
 }

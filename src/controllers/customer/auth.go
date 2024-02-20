@@ -63,6 +63,8 @@ type FormReset struct {
 // }
 
 func Register(c *gin.Context) {
+	intRand := c.Query("intRand")
+
 	form := models.UserForm{}
 	err := c.ShouldBind(&form)
 	if err != nil {
@@ -95,10 +97,12 @@ func Register(c *gin.Context) {
 		}
 		c.JSON(http.StatusBadRequest, &service.ResponseOnly{
 			Success: false,
-			Message: "Register failed",
+			Message: "Confirm account failed",
 		})
 		return
 	}
+
+	models.DeleteIntRandom(intRand)
 
 	c.JSON(http.StatusOK, &service.Response{
 		Success: true,
@@ -108,6 +112,8 @@ func Register(c *gin.Context) {
 }
 
 func ForgotPassword(c *gin.Context) {
+	intRand := c.Query("intRand")
+	
 	form := FormReset{}
 	c.ShouldBind(&form)
 
@@ -129,13 +135,18 @@ func ForgotPassword(c *gin.Context) {
 		}
 		models.CreateForgotPassword(FormReset)
 
+		intRand := lib.RandomNumberStr(26)
+		link := fmt.Sprintf("http://localhost:5173/create-new-password/%v", intRand)
+	
+		models.CreateIntRandom(intRand)
+
 		lib.Mail(
 			found.Email,
 			found.FullName,
 			otp,
 			"enter the 6-digit code below to create a new password",
 			"create new password",
-			"http://localhost:5173/create-new-password",
+			link,
 			"Thank you for entrusting us to safeguard your account security.",
 			"Here is your OTP code ",
 		)
@@ -180,15 +191,17 @@ func ForgotPassword(c *gin.Context) {
 		data.Id = foundUser.Id
 
 		updated, err := models.UpdateUser(data)
-		fmt.Println(err, updated)
+		fmt.Println("test",err, updated)
 		if err != nil {
-			fmt.Println(err,updated)
+			// fmt.Println(err,updated)
 			c.JSON(http.StatusBadRequest, &service.ResponseOnly{
 				Success: false,
 				Message: err.Error(),
 			})
+			return
 		}
 
+		models.DeleteIntRandom(intRand)
 		models.DeleteForgotPassword(found.Id)
 		message := fmt.Sprintf("Reset password for %v success", *updated.Email)
 		c.JSON(http.StatusOK, &service.ResponseOnly{

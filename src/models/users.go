@@ -128,7 +128,7 @@ func UpdateUser(data UserForm) (UserForm, error) {
 	"picture"=COALESCE(NULLIF(:picture, ''),"picture"),
 	"phoneNumber"=COALESCE(NULLIF(:phoneNumber, ''),"phoneNumber"),
 	"updatedAt"=NOW()
-	WHERE id=:id
+	WHERE "id"=:id
 	RETURNING *
 	`
 	result := UserForm{}
@@ -143,6 +143,33 @@ func UpdateUser(data UserForm) (UserForm, error) {
 
 	return result, err
 }
+
+
+func DeletePhoto(data User) (User, error) {
+	sql := `UPDATE "users" SET
+	"fullName"=COALESCE(NULLIF(:fullName, ''),"fullName"),
+	"email"=COALESCE(NULLIF(:email, ''),"email"),
+	"password"=COALESCE(NULLIF(:password, ''),"password"),
+	"address"=COALESCE(NULLIF(:address, ''),"address"),
+	"picture"=COALESCE(NULLIF(:picture, ''),''),
+	"phoneNumber"=COALESCE(NULLIF(:phoneNumber, ''),"phoneNumber"),
+	"updatedAt"=NOW()
+	WHERE id=:id
+	RETURNING *
+	`
+	result := User{}
+	rows, err := db.NamedQuery(sql, data)
+	if err != nil {
+		return result, err
+	}
+
+	for rows.Next() {
+		rows.StructScan(&result)
+	}
+
+	return result, err
+}
+
 
 func DeleteUser(id int) (UserForm, error) {
 	sql := `DELETE FROM "users" WHERE id = $1 RETURNING *`

@@ -13,4 +13,5 @@ func ProfileRouter(r *gin.RouterGroup){
 
 	r.GET("", controllers_customer.GetProfile)
 	r.PATCH("", controllers_customer.UpdateProfile)
+	r.PATCH("/delete-photo", controllers_customer.DeletePhoto)
 }

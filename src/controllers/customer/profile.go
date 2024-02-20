@@ -60,7 +60,6 @@ func UpdateProfile(c *gin.Context) {
 
 	data := models.UserForm{}
 	err := c.ShouldBind(&data)
-	fmt.Println(err)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, &service.ResponseOnly{
 			Success: false,
@@ -111,6 +110,46 @@ func UpdateProfile(c *gin.Context) {
 	c.JSON(http.StatusOK, &service.Response{
 		Success: true,
 		Message: "User updated successfully",
+		Results: user,
+	})
+}
+
+
+
+func DeletePhoto(c *gin.Context) {
+	claims := jwt.ExtractClaims(c)
+	id := int(claims["id"].(float64))
+
+	isUserExist, error := models.FindOneUsers(id)
+	if error != nil {
+		fmt.Println(isUserExist, error)
+		c.JSON(http.StatusInternalServerError, &service.ResponseOnly{
+			Success: false,
+			Message: "no data found",
+		})
+		return
+	}
+
+	_ = os.Remove("./" + isUserExist.Picture)
+
+	data := models.User{}
+	_ = c.ShouldBind(&data)
+	data.Picture = ""
+	data.Id = id
+
+	user, err := models.DeletePhoto(data)
+	if err != nil {
+		fmt.Println(err)
+		c.JSON(http.StatusInternalServerError, &service.ResponseOnly{
+			Success: false,
+			Message: "Internal server error",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, &service.Response{
+		Success: true,
+		Message: "Delete photo successfully",
 		Results: user,
 	})
 }

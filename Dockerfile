@@ -4,8 +4,8 @@ WORKDIR /app
 COPY . .
 
 # label informasi tambahan
-LABEL author="Example"
-LABEL company="Fazztrack" website="https://www.fazztrack.com"
+# LABEL author="Example"
+# LABEL company="Example" website="https://www.example.com"
 
 # dijalankan saat build image
 RUN go mod tidy

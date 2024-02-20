@@ -18,6 +18,7 @@ func Auth()(*jwt.GinJWTMiddleware, error){
 	authMiddleware, err := jwt.New(&jwt.GinJWTMiddleware{
 		Realm: "go-backend",
 		Key: []byte(os.Getenv("APP_SECRET")),
+		Timeout: 24 * time.Hour,
 		IdentityKey: "id",
 		PayloadFunc: func(data interface{}) jwt.MapClaims {
 			user := data.(*models.User)	//user di dapat dari authenticator-login

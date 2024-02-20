@@ -47,7 +47,6 @@ func Mail(receiver string, name string, otp string, intro string, textAction str
 		return false
 	}
 
-
 	m := gomail.NewMessage()
 	m.SetHeader("From", "alert.app.services@gmail.com")
 	m.SetHeader("To", receiver)

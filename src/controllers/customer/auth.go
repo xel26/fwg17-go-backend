@@ -102,7 +102,7 @@ func Register(c *gin.Context) {
 
 	c.JSON(http.StatusOK, &service.Response{
 		Success: true,
-		Message: "Please check your email to confirm your account!",
+		Message: "Confirm account success . . . welcome aboard!",
 		Results: result,
 	})
 }
@@ -128,7 +128,7 @@ func ForgotPassword(c *gin.Context) {
 			Email: form.Email,
 		}
 		models.CreateForgotPassword(FormReset)
-		// START SEND EMAIL
+
 		lib.Mail(
 			found.Email,
 			found.FullName,
@@ -137,10 +137,10 @@ func ForgotPassword(c *gin.Context) {
 			"create new password",
 			"http://localhost:5173/create-new-password",
 			"Thank you for entrusting us to safeguard your account security.",
-			"Here is your OTP code",
+			"Here is your OTP code ",
 		)
 		fmt.Println(otp)
-		// END SEND EMAIL
+
 		c.JSON(http.StatusOK, &service.ResponseOnly{
 			Success: true,
 			Message: "OTP has been sent to your email",
@@ -207,9 +207,48 @@ func ForgotPassword(c *gin.Context) {
 
 
 
+
+func FindUserByEmail(c *gin.Context) {
+	form := models.User{}
+	err := c.ShouldBind(&form)
+	if err != nil{
+		c.JSON(http.StatusInternalServerError, &service.ResponseOnly{
+			Success: false,
+			Message: "Internal server error",
+		})
+	}
+
+	user, err := models.FindOneUsersByEmail(form.Email)
+	if err != nil {
+		if strings.HasPrefix(err.Error(), "sql: no rows") {
+			c.JSON(http.StatusOK, &service.ResponseOnly{
+				Success: true,
+				Message: "Please check your email to confirm your account!",
+			})
+			return
+		}
+
+		c.JSON(http.StatusInternalServerError, &service.ResponseOnly{
+			Success: false,
+			Message: "Internal server error",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, &service.Response{
+		Success: true,
+		Message: "Detail user",
+		Results: user,
+	})
+}
+
+
+
+
 func ConfirmAccount(c *gin.Context){
 	form := models.ConfirmAccount{}
 	err := c.ShouldBind(&form)
+
 	if err != nil{
 		c.JSON(http.StatusOK, &service.ResponseOnly{
 			Success: true,
@@ -217,27 +256,77 @@ func ConfirmAccount(c *gin.Context){
 		})
 	}
 
+	intRand := lib.RandomNumberStr(26)
+	link := fmt.Sprintf("http://localhost:5173/confirm-account/%v", intRand)
 
-	result := lib.Mail(
+	models.CreateIntRandom(intRand)
+
+	lib.Mail(
 		*form.Email,
 		*form.FullName,
 		"",
 		"Welcome to Coffee Shop Web App, We're very excited to have you on board",
 		"confirm your account",
-		"http://localhost:5173/login",
+		link,
 		"Let's start your coffee journey.",
 		"confirm account",
 	)
+}
 
-	if result {
-		c.JSON(http.StatusOK, &service.ResponseOnly{
-			Success: true,
-			Message: "Confirm Password Success",
-		})
-	}else{
-		c.JSON(http.StatusBadRequest, &service.ResponseOnly{
+
+
+func FindOneIntRandom(c *gin.Context) {
+	intRand := c.Query("intRand")
+	
+	result, err := models.FindOneByIntRandom(intRand)
+	if err != nil {
+		if strings.HasPrefix(err.Error(), "sql: no rows"){
+			c.JSON(http.StatusNotFound, &service.ResponseOnly{
+				Success: false,
+				Message: "int random not found",
+			})
+		return
+		}
+
+		c.JSON(http.StatusInternalServerError, &service.ResponseOnly{
 			Success: false,
-			Message: "Sorry, we couldn't find an account. Please provide a valid email address",
+			Message: "Internal server error",
 		})
+		return
 	}
+
+	c.JSON(http.StatusOK, &service.Response{
+		Success: true,
+		Message: "Detail int random",
+		Results: result,
+	})
+}
+
+
+
+func DeleteIntRandom(c *gin.Context) {
+	intRand := c.Query("intRand")
+	
+	result, err := models.DeleteIntRandom(intRand)
+	if err != nil {
+		if strings.HasPrefix(err.Error(), "sql: no rows"){
+			c.JSON(http.StatusNotFound, &service.ResponseOnly{
+				Success: false,
+				Message: "int random not found",
+			})
+		return
+		}
+
+		c.JSON(http.StatusInternalServerError, &service.ResponseOnly{
+			Success: false,
+			Message: "Internal server error",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, &service.Response{
+		Success: true,
+		Message: "Delete int random success",
+		Results: result,
+	})
 }

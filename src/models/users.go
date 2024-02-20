@@ -3,7 +3,6 @@ package models
 import (
 	"coffe-shop-be-golang/src/lib"
 	"database/sql"
-	"fmt"
 	"time"
 
 	"github.com/jmoiron/sqlx"
@@ -102,9 +101,6 @@ func FindOneUsersByEmail(email string) (UserByEmail, error) {
 }
 
 func CreateUser(data UserForm) (UserForm, error) {
-	fmt.Println(data.PhoneNumber)
-	fmt.Println(data.Picture)
-
 	sql := `INSERT INTO "users" ("fullName", "email", "password", "address", "phoneNumber", "role", "picture") 
 	VALUES
 	(:fullName, :email, :password, :address, :phoneNumber, :role, :picture)

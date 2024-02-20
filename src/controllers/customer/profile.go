@@ -80,11 +80,7 @@ func UpdateProfile(c *gin.Context) {
 
 	_, err = c.FormFile("picture")
 	if err == nil {
-		err = os.Remove("./" + isUserExist.Picture)
-		if err != nil{
-			fmt.Println(err)
-			return
-		}
+		_ = os.Remove("./" + isUserExist.Picture)
 
 		file, err := lib.Upload(c, "picture", "users")
 		if err != nil {

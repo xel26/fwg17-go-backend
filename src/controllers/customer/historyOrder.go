@@ -5,6 +5,7 @@ import (
 	"coffe-shop-be-golang/src/service"
 	"fmt"
 	"math"
+	"strings"
 
 	"net/http"
 	"strconv"
@@ -70,6 +71,36 @@ func ListAllOrders(c *gin.Context) {
 		Message: "List all orders",
 		PageInfo: PageInfo,
 		Results: result.Data,
+	})
+}
+
+
+func DetailOrder(c *gin.Context) {
+	claims := jwt.ExtractClaims(c)
+	userId := int(claims["id"].(float64))
+
+	id, _ := strconv.Atoi(c.Param("id"))
+	orders, err := models.FindOneOrderByUserId(id, userId)
+	if err != nil {
+		if strings.HasPrefix(err.Error(), "sql: no rows"){
+			c.JSON(http.StatusInternalServerError, &service.ResponseOnly{
+				Success: false,
+				Message: "Order not found",
+			})
+		return
+		}
+
+		c.JSON(http.StatusInternalServerError, &service.ResponseOnly{
+			Success: false,
+			Message: "Internal server error",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, &service.Response{
+		Success: true,
+		Message: "Detail order",
+		Results: orders,
 	})
 }
 

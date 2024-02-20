@@ -1,7 +1,6 @@
 package routers
 
 import (
-	"coffe-shop-be-golang/src/controllers"
 	controllers_customer "coffe-shop-be-golang/src/controllers/customer"
 
 	"github.com/gin-gonic/gin"
@@ -9,5 +8,5 @@ import (
 
 func HistoryOrderRouter(r *gin.RouterGroup){
 	r.GET("", controllers_customer.ListAllOrders)
-	r.GET("/:id", controllers.DetailOrder)
+	r.GET("/:id", controllers_customer.DetailOrder)
 }

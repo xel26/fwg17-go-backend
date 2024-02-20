@@ -104,6 +104,13 @@ func FindOneOrders(id int) (Order, error) {
 	return data, err
 }
 
+func FindOneOrderByUserId(id int, userId int) (Order, error) {
+	sql := `SELECT * FROM "orders" WHERE "id" = $1 AND "userId" = $2`
+	data := Order{}
+	err := db.Get(&data, sql, id, userId)
+	return data, err
+}
+
 func CreateOrders(data OrderForm) (OrderForm, error) {
 	sql := `INSERT INTO "orders" ("userId", "orderNumber", "promoId", "total", "deliveryAddress", "fullName", "email", "priceCut", "subtotal", "status", "deliveryFee", "deliveryShipping", "tax") 
 	VALUES

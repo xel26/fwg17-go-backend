@@ -2,7 +2,6 @@ package models
 
 import (
 	"database/sql"
-	"fmt"
 )
 
 type OrderProducts struct {
@@ -140,7 +139,6 @@ func FindAllOrdersByUserId(status string, userId int, sortBy string, order strin
 }
 
 func GetOrderProducts(orderId int, userId int, sortBy string, order string) (InfoOP, error) {
-	fmt.Println(orderId, userId, sortBy, order)
 
 	sql := `
 	SELECT 
@@ -174,7 +172,7 @@ func GetOrderProducts(orderId int, userId int, sortBy string, order string) (Inf
 	result := InfoOP{}
 	data := []OrderProducts{}
 	err := db.Select(&data, sql, orderId)
-	fmt.Println(err, data)
+
 	if err != nil {
 		return result, err
 	}

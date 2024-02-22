@@ -4,12 +4,13 @@ services:   # ==> daftar container yg akan di buat
   golang:      # ==> container web
     build: .        # ==> lokasi path dockerfile
     ports:
-      - 127.0.0.1:8080:8080
+      - 8080:8080
     working_dir: /app
     volumes:
       - .:/app
     environment:
       - APP_SECRET=57838489hgh#$%$#%
+      - EMAIL_PASSWORD=neucjscuvqmmkokv
     networks:
       - coffee-shop-networking
     depends_on:

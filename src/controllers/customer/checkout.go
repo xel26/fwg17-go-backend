@@ -76,9 +76,9 @@ func Checkout(c *gin.Context) {
 	tx, err := db.BeginTx(c, nil)
 	if err != nil {
 		fmt.Println(err)
-		tx.Rollback()
+		_ = tx.Rollback()
 	}
-	defer tx.Rollback()
+	// defer tx.Rollback()
 
 
 	claims := jwt.ExtractClaims(c)
@@ -88,7 +88,7 @@ func Checkout(c *gin.Context) {
 	err = c.ShouldBind(&dataOrder)
 	if err != nil {
 		fmt.Println("test", err)
-		tx.Rollback()
+		_ = tx.Rollback()
 		c.JSON(http.StatusBadRequest, &service.ResponseOnly{
 			Success: false,
 			Message: err.Error(),
@@ -108,7 +108,7 @@ func Checkout(c *gin.Context) {
 		fmt.Println("test", err, user)
 		if err != nil {
 			fmt.Println(err, user)
-			tx.Rollback()
+			_ = tx.Rollback()
 			c.JSON(http.StatusBadRequest, &service.ResponseOnly{
 				Success: false,
 				Message: err.Error(),
@@ -123,7 +123,7 @@ func Checkout(c *gin.Context) {
 		user, err := models.GetFullName(userId)
 		if err != nil {
 			fmt.Println(err)
-			tx.Rollback()
+			_ = tx.Rollback()
 			return
 		}
 
@@ -134,7 +134,7 @@ func Checkout(c *gin.Context) {
 		user, err := models.GetEmail(userId)
 		if err != nil {
 			fmt.Println(err)
-			tx.Rollback()
+			_ = tx.Rollback()
 			return
 		}
 
@@ -144,7 +144,7 @@ func Checkout(c *gin.Context) {
 	order, err := models.InsertOrder(dataOrder)
 	if err != nil {
 		fmt.Println("error aja", err, order)
-		tx.Rollback()
+		_ = tx.Rollback()
 		c.JSON(http.StatusBadRequest, &service.ResponseOnly{
 			Success: false,
 			Message: err.Error(),
@@ -185,7 +185,7 @@ func Checkout(c *gin.Context) {
 
 	if err != nil {
 		fmt.Println(err)
-		tx.Rollback()
+		_ = tx.Rollback()
 		c.JSON(http.StatusBadRequest, &service.ResponseOnly{
 			Success: false,
 			Message: err.Error(),

@@ -8,14 +8,9 @@ import (
 	_ "github.com/lib/pq"
 )
 
-// POSTGRES_URL="postgresql://postgres:1@db:5432/volume_data_coffee_shop"
-
 func connectDB()*sqlx.DB{
-	// db, err := sqlx.Connect("postgres", "user=postgres dbname=coffee_shop_implementation_basic password=1 sslmode=disable")   // local
-	// db, err := sqlx.Connect("postgres", `user=postgres dbname=volume_data_coffee_shop password=1 port=5444 host=host.docker.internal sslmode=disable`)    // container postgre local & docker compose
-	db, err := sqlx.Connect("postgres", `user=postgres dbname=db_coffee_shop password=1 port=5444 host=143.110.156.215 sslmode=disable`)    // container postgre di server
-	// db, err := sqlx.Connect("postgres", `user=postgres dbname=volume_data_coffee_shop password=`+os.Getenv("DB_PASSWORD")+` port=5444 host=`+os.Getenv("DB_HOST")+` sslmode=disable`)    // try networking
-	// db, err := sqlx.Connect("postgres", `user=postgres dbname=volume_data_coffee_shop password=1 port=5444 host=db sslmode=disable`)     // try docker compose !error
+	// db, err := sqlx.Connect("postgres", `user=postgres dbname=`+os.Getenv("DB_NAME")+` password=`+os.Getenv("DB_PASSWORD")+` port=`+os.Getenv("DB_PORT")+` host=`+os.Getenv("DB_HOST")+` sslmode=disable`) // error!
+	db, err := sqlx.Connect("postgres", `user=postgres dbname=db_coffee_shop password=1 port=5433 host=143.110.156.215 sslmode=disable`)
 	if err !=  nil {
 		fmt.Println(err)
 	}

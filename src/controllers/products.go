@@ -56,7 +56,7 @@ func ListAllProducts(c *gin.Context) {
 
 
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println(err.Error())
 		c.JSON(http.StatusInternalServerError, &service.ResponseOnly{
 			Success: false,
 			Message: "Internal server error",

@@ -58,6 +58,175 @@ The project structure is organized as follows:
 -main/ : main file in the application
 
 
+## Router admin
+### users
+| Parameter | Type     | Description                |
+| :-------- | :------- | :------------------------- |
+| `/admin/users` | `GET` | list of all users |
+| `/admin/users/:id` | `GET` | details user |
+| `/admin/users` | `POST` | create user |
+| `/admin/users/:id` | `PATCH` | Update user |
+| `/admin/users/:id` | `DELETE` | Delete user |
+
+### products
+| Parameter | Type     | Description                |
+| :-------- | :------- | :------------------------- |
+| `/admin/products` | `GET` | list of all products |
+| `/admin/products/:id` | `GET` | details product |
+| `/admin/products` | `POST` | create product |
+| `/admin/products/:id` | `PATCH` | Update product |
+| `/admin/products/:id` | `DELETE` | Delete product |
+
+### categories
+| Parameter | Type     | Description                |
+| :-------- | :------- | :------------------------- |
+| `/admin/categories` | `GET` | list of all categories |
+| `/admin/categories/:id` | `GET` | details categories |
+| `/admin/categories` | `POST` | create categories |
+| `/admin/categories/:id` | `PATCH` | Update categories |
+| `/admin/categories/:id` | `DELETE` | Delete categories |
+
+### otp code
+| Parameter | Type     | Description                |
+| :-------- | :------- | :------------------------- |
+| `/admin/forgot-password` | `GET` | list of all otp code |
+| `/admin/forgot-password/:id` | `GET` | details otp code |
+| `/admin/forgot-password` | `POST` | create otp code |
+| `/admin/forgot-password/:id` | `PATCH` | Update otp code |
+| `/admin/forgot-password/:id` | `DELETE` | Delete otp code |
+
+### message
+| Parameter | Type     | Description                |
+| :-------- | :------- | :------------------------- |
+| `/admin/message` | `GET` | list of all message |
+| `/admin/message/:id` | `GET` | details message |
+| `/admin/message` | `POST` | create message |
+| `/admin/message/:id` | `PATCH` | Update message |
+| `/admin/message/:id` | `DELETE` | Delete message |
+
+### order details
+| Parameter | Type     | Description                |
+| :-------- | :------- | :------------------------- |
+| `/admin/order-details` | `GET` | list of all order-details |
+| `/admin/order-details/:id` | `GET` | details order-details |
+| `/admin/order-details` | `POST` | create order-details |
+| `/admin/order-details/:id` | `PATCH` | Update order-details |
+| `/admin/order-details/:id` | `DELETE` | Delete order-details |
+
+### orders
+| Parameter | Type     | Description                |
+| :-------- | :------- | :------------------------- |
+| `/admin/orders` | `GET` | list of all orders |
+| `/admin/orders/:id` | `GET` | details order |
+| `/admin/orders` | `POST` | create order |
+| `/admin/orders/:id` | `PATCH` | Update order |
+| `/admin/orders/:id` | `DELETE` | Delete order |
+
+### product-categories
+| Parameter | Type     | Description                |
+| :-------- | :------- | :------------------------- |
+| `/admin/product-categories` | `GET` | list of all product-categories |
+| `/admin/product-categories/:id` | `GET` | details product-categories |
+| `/admin/product-categories` | `POST` | create product-categories |
+| `/admin/product-categories/:id` | `PATCH` | Update product-categories |
+| `/admin/product-categories/:id` | `DELETE` | Delete product-categories |
+
+### product-ratings
+| Parameter | Type     | Description                |
+| :-------- | :------- | :------------------------- |
+| `/admin/product-ratings` | `GET` | list of all product-ratings |
+| `/product-ratings/:id` | `GET` | details product-ratings |
+| `/admin/product-ratings` | `POST` | create product-ratings |
+| `/admin/product-ratings/:id` | `PATCH` | Update product-ratings |
+| `/admin/product-ratings/:id` | `DELETE` | Delete product-ratings |
+
+### product-variants
+| Parameter | Type     | Description                |
+| :-------- | :------- | :------------------------- |
+| `/admin/product-variants` | `GET` | list of all product-variants |
+| `/admin/product-variants/:id` | `GET` | details product-variants |
+| `/admin/product-variants` | `POST` | create product-variants |
+| `/admin/product-variants/:id` | `PATCH` | Update product-variants |
+| `/admin/product-variants/:id` | `DELETE` | Delete product-variants |
+
+### promo
+| Parameter | Type     | Description                |
+| :-------- | :------- | :------------------------- |
+| `/admin/promo` | `GET` | list of all promo |
+| `/admin/promo/:id` | `GET` | details promo |
+| `/admin/promo` | `POST` | create promo |
+| `/admin/promo/:id` | `PATCH` | Update promo |
+| `/admin/promo/:id` | `DELETE` | Delete promo |
+
+### sizes
+| Parameter | Type     | Description                |
+| :-------- | :------- | :------------------------- |
+| `/admin/sizes` | `GET` | list of all sizes |
+| `/admin/sizes/:id` | `GET` | details size |
+| `/admin/sizes` | `POST` | create size |
+| `/admin/sizes/:id` | `PATCH` | Update size |
+| `/admin/sizes/:id` | `DELETE` | Delete size |
+
+### tags
+| Parameter | Type     | Description                |
+| :-------- | :------- | :------------------------- |
+| `/admin/tags` | `GET` | list of all tags |
+| `/admin/tags/:id` | `GET` | details tag |
+| `/admin/tags` | `POST` | create tag |
+| `/admin/tags/:id` | `PATCH` | Update tag |
+| `/admin/tags/:id` | `DELETE` | Delete tag |
+
+### testimonial
+| Parameter | Type     | Description                |
+| :-------- | :------- | :------------------------- |
+| `/admin/testimonial` | `GET` | list of all testimonial |
+| `/admin/testimonial/:id` | `GET` | details testimonial |
+| `/admin/testimonial` | `POST` | create testimonial |
+| `/admin/testimonial/:id` | `PATCH` | Update testimonial |
+| `/admin/testimonial/:id` | `DELETE` | Delete testimonial |
+
+### variants
+| Parameter | Type     | Description                |
+| :-------- | :------- | :------------------------- |
+| `/admin/variants` | `GET` | list of all variants |
+| `/admin/variants/:id` | `GET` | details variant |
+| `/admin/variants` | `POST` | create variant |
+| `/admin/variants/:id` | `PATCH` | Update variant |
+| `/admin/variants/:id` | `DELETE` | Delete variant |
+
+## Router customer
+### Authentication
+| Parameter | Type     | Description                |
+| :-------- | :------- | :------------------------- |
+| `/register` | `POST` | register |
+| `/login` | `POST` | login |
+| `/forgot-password` | `POST` | request create new password |
+| `/find-user-by-email` | `POST` | find user by email when register |
+
+### products
+| Parameter | Type     | Description                |
+| :-------- | :------- | :------------------------- |
+| `/products` | `GET` | list of all products |
+| `/products` | `GET` | details product |
+
+### profile
+| Parameter | Type     | Description                |
+| :-------- | :------- | :------------------------- |
+| `/profile` | `GET` | get profile |
+| `/profile` | `PATCH` | update profile |
+
+### history-order
+| Parameter | Type     | Description                |
+| :-------- | :------- | :------------------------- |
+| `/history-order` | `GET` | list of all orders by user id |
+| `/history-order` | `GET` | details orders by user id|
+| `/order-products` | `GET` | list of all products by order id|
+
+### testimonial
+| Parameter | Type     | Description                |
+| :-------- | :------- | :------------------------- |
+| `/testimonial` | `GET` | list of all testimonial |
+
 ## Contributing
 
 We welcome contributions! If you have ideas for improvements, bug fixes, or new features, please open an issue or submit a pull request.

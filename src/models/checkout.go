@@ -210,7 +210,8 @@ type OD struct {
 }
 
 func CreateOD(data OD) (OrderDetails, error) {
-	sql := `INSERT INTO "orderDetails" ("orderId", "productId", "sizeId", "variantId", "quantity") 
+	sql := `
+	INSERT INTO "orderDetails" ("orderId", "productId", "sizeId", "variantId", "quantity") 
 	VALUES
 	(:orderId, :productId, :sizeId, :variantId, :quantity)
 	RETURNING *

@@ -1,0 +1,8 @@
+build image :
+docker build -t go-backend .
+
+running container :
+docker run -it -d -v .:/app -w /app --name go-backend -e APP_SECRET=57838489hgh#$%$#% -e EMAIL_PASSWORD=neucjscuvqmmkokv -p 127.0.0.1:8787:8080 go-backend
+
+running compose :
+docker compose up -d

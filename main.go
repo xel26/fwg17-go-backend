@@ -18,7 +18,7 @@ func main(){
 		AllowHeaders: []string{"Content-Type, Authorization"},
 	}))
 
-	// dimatikan saat build image
+	// // dimatikan saat build image
 	// err := godotenv.Load()
     // if err != nil {
     //     fmt.Println("Error loading .env file")
@@ -35,6 +35,6 @@ func main(){
 		})
 	})
 	
-	// r.Run("127.0.0.1:8080")
-	r.Run(":8080")
+	// r.Run("127.0.0.1:8080")  //// ==> local computer
+	r.Run(":8080") //// ==> build image
 }

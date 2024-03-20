@@ -13,7 +13,7 @@ func CombineCustomer(r *gin.RouterGroup){
 	ProductsRouter(r.Group("/products"))
 	IntRandRouter(r.Group("/int-random"))
 	r.GET("/testimonial", controllers.ListAllTestimonial)
-	r.POST("/find-user-by-email", controllers_customer.FindUserByEmail)
+	r.GET("/find-user-by-email", controllers_customer.FindUserByEmail)
 
 	authMiddleware, _ := middleware.Auth()
 	r.Use(authMiddleware.MiddlewareFunc())

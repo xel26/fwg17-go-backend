@@ -93,7 +93,7 @@ func FindAllProducts(searchKey string, category string, sortBy string, order str
 	if err != nil{
 		return result, err
 	}
-	// err := db.Select(&data, sql, "%"+searchKey+"%", "%"+category+"%", `"`+sortBy+`"`, order, limit, offset)
+	
 	result.Data = data
 
 	row := db.QueryRow(sqlCount, "%"+searchKey+"%", "%"+category+"%")
@@ -142,7 +142,7 @@ func FindOneProducts(id int) (ProductDetails, error) {
 	encoded := base64.StdEncoding.EncodeToString([]byte(data.VariantsProducts))
 	decodedVariants, error := base64.StdEncoding.DecodeString(encoded)
 	if error != nil {
-		fmt.Println("decode error:", error)
+		fmt.Println("decode error", error)
 		return data, error
 	}
 

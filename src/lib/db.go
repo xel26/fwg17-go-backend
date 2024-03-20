@@ -10,7 +10,8 @@ import (
 
 func connectDB()*sqlx.DB{
 	// db, err := sqlx.Connect("postgres", `user=postgres dbname=`+os.Getenv("DB_NAME")+` password=`+os.Getenv("DB_PASSWORD")+` port=`+os.Getenv("DB_PORT")+` host=`+os.Getenv("DB_HOST")+` sslmode=disable`) // error!
-	db, err := sqlx.Connect("postgres", `user=postgres dbname=db_coffee_shop password=1 port=5433 host=143.110.156.215 sslmode=disable`)
+	// db, err := sqlx.Connect("postgres", `user=postgres dbname=db_coffee_shop password=1 port=5433 host=143.110.156.215 sslmode=disable`)
+	db, err := sqlx.Connect("postgres", `user=postgres.ircpdmthfidwfvchivrw password=5uJoOUiAbUl57U7X host=aws-0-ap-southeast-1.pooler.supabase.com port=5432 dbname=postgres`)
 	if err !=  nil {
 		fmt.Println(err)
 	}

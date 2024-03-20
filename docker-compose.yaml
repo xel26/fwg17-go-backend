@@ -4,7 +4,7 @@ services:   # ==> daftar container yg akan di buat
   golang:      # ==> container web
     build: .        # ==> lokasi path dockerfile
     ports:
-      - 8080:8080
+      - 127.0.0.1:8585:8080
     working_dir: /app
     volumes:
       - .:/app
@@ -37,9 +37,8 @@ volumes:
         true
 
 
-name: coffee_shop_backend
+name: backend-golang
 
 
 networks:
   coffee-shop-networking:
-

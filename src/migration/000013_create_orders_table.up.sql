@@ -1,0 +1,20 @@
+CREATE TABLE "orders"(
+    "id" SERIAL NOT NULL PRIMARY KEY,
+    "userId" INT NOT NULL,
+    "orderNumber" VARCHAR NOT NULL,
+    "promoId" INT,
+    "total" INT,
+    "tax" INT,
+    "deliveryAddress" VARCHAR NOT NULL,
+    "fullName" VARCHAR NOT NULL,
+    "email" VARCHAR NOT NULL,
+    "priceCut" INT DEFAULT 0,
+    "subtotal" INT,
+    "status" VARCHAR DEFAULT 'On Progress',
+    "deliveryFee" INT NOT NULL,
+    "deliveryShipping" VARCHAR NOT NULL,
+    "createdAt" TIMESTAMP DEFAULT now(),
+    "updatedAt" TIMESTAMP,
+    Foreign Key ("userId") REFERENCES "users" ("id"),
+    Foreign Key ("promoId") REFERENCES "promo"("id")
+)

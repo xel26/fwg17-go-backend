@@ -4,5 +4,5 @@ CREATE TABLE "productImages"(
     "imageUrl" VARCHAR NOT NULL,
     "createdAt" TIMESTAMP DEFAULT now(),
     "updatedAt" TIMESTAMP,
-    CONSTRAINT "fk_productId" FOREIGN KEY ("productId") REFERENCES "products" ("id")
+    FOREIGN KEY ("productId") REFERENCES "products" ("id")
 )

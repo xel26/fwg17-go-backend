@@ -1,3 +1,0 @@
-ALTER TABLE "products"
-DROP COLUMN "tagId",
-DROP CONSTRAINT "fk_tagId";

@@ -6,7 +6,7 @@ CREATE TABLE "users"(
     "address" TEXT,
     "picture" TEXT,
     "phoneNumber" VARCHAR(20) UNIQUE,
-    "role" VARCHAR(15) NOT NULL DEFAULT 'customer',
+    "role" VARCHAR(15) DEFAULT 'customer',
     "createdAt" TIMESTAMP DEFAULT now(),
     "updatedAt" TIMESTAMP
 )

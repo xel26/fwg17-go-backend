@@ -1,7 +1,9 @@
 package models
 
 import (
-	"database/sql"
+	"fmt"
+
+	"github.com/LukaGiorgadze/gonull"
 )
 
 type OrderProducts struct {
@@ -12,7 +14,7 @@ type OrderProducts struct {
 	Image            string `db:"image" json:"image"`
 	BasePrice        int    `db:"basePrice" json:"basePrice"`
 	Discount         int    `db:"discount" json:"discount"`
-	Tag              sql.NullString `db:"tag" json:"tag"`
+	Tag              gonull.Nullable[string] `db:"tag" json:"tag"`
 	Size             string `db:"size" json:"size"`
 	Variant          string `db:"variant" json:"variant"`
 	DeliveryShipping string `db:"deliveryShipping" json:"deliveryShipping"`
@@ -112,9 +114,15 @@ func GetEmail(userId int) (UserForm, error) {
 }
 
 func FindAllOrdersByUserId(status string, userId int, sortBy string, order string, limit int, offset int) (InfoO, error) {
+	fmt.Println(userId)
 	sql := `
-	SELECT * FROM "orders" 
+	SELECT "o".*,
+    array_agg(DISTINCT "p"."image") "productsImage"
+    FROM "orders" "o"
+    JOIN "orderDetails" "od" ON ("od"."orderId" = "o"."id")
+    JOIN "products" "p" ON ("p"."id" = "od"."productId")
 	WHERE "status" ILIKE $1 AND "userId" = $2
+	GROUP BY "o"."id"
 	ORDER BY "` + sortBy + `" ` + order + `
 	LIMIT $3 OFFSET $4
 	`

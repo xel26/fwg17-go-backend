@@ -1,15 +1,16 @@
 package models
 
 import (
-	"database/sql"
 	"time"
+
+	"github.com/LukaGiorgadze/gonull"
 )
 
 type Tags struct {
 	Id              int           `db:"id" json:"id"`
 	Name            string        `db:"name" json:"name" form:"name" binding:"required,min=3"`
 	CreatedAt       time.Time     `db:"createdAt" json:"createdAt"`
-	UpdatedAt       sql.NullTime  `db:"updatedAt" json:"updatedAt"`
+	UpdatedAt       gonull.Nullable[time.Time]  `db:"updatedAt" json:"updatedAt"`
 }
 
 type InfoT struct {

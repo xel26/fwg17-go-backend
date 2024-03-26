@@ -2,9 +2,9 @@ package models
 
 import (
 	"coffe-shop-be-golang/src/lib"
-	"database/sql"
 	"time"
 
+	"github.com/LukaGiorgadze/gonull"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -15,12 +15,12 @@ type User struct {
 	FullName    string         `db:"fullName" json:"fullName" form:"fullName"`
 	Email       string         `db:"email" json:"email" form:"email"`
 	Password    string         `db:"password" json:"******" form:"password"`
-	Address     sql.NullString `db:"address" json:"address" form:"address"`
+	Address     gonull.Nullable[string] `db:"address" json:"address" form:"address"`
 	Picture     string         `db:"picture" json:"picture"`
-	PhoneNumber sql.NullString `db:"phoneNumber" json:"phoneNumber" form:"phoneNumber"`
+	PhoneNumber gonull.Nullable[string] `db:"phoneNumber" json:"phoneNumber" form:"phoneNumber"`
 	Role        string         `db:"role" json:"role" form:"role"`
 	CreatedAt   time.Time      `db:"createdAt" json:"createdAt"`
-	UpdatedAt   sql.NullTime   `db:"updatedAt" json:"updatedAt"`
+	UpdatedAt   gonull.Nullable[time.Time]   `db:"updatedAt" json:"updatedAt"`
 }
 
 type UserByEmail struct {
@@ -28,12 +28,12 @@ type UserByEmail struct {
 	FullName    string         `db:"fullName" json:"fullName" form:"fullName"`
 	Email       string         `db:"email" json:"email" form:"email"`
 	Password    string         `db:"password" json:"-" form:"password"`
-	Address     sql.NullString `db:"address" json:"address" form:"address"`
-	Picture     sql.NullString `db:"picture" json:"picture"`
-	PhoneNumber sql.NullString `db:"phoneNumber" json:"phoneNumber" form:"phoneNumber"`
+	Address     gonull.Nullable[string] `db:"address" json:"address" form:"address"`
+	Picture     gonull.Nullable[string] `db:"picture" json:"picture"`
+	PhoneNumber gonull.Nullable[string] `db:"phoneNumber" json:"phoneNumber" form:"phoneNumber"`
 	Role        string         `db:"role" json:"role" form:"role"`
 	CreatedAt   time.Time      `db:"createdAt" json:"createdAt"`
-	UpdatedAt   sql.NullTime   `db:"updatedAt" json:"updatedAt"`
+	UpdatedAt   gonull.Nullable[time.Time]   `db:"updatedAt" json:"updatedAt"`
 }
 
 type ConfirmAccount struct {
@@ -52,7 +52,7 @@ type UserForm struct {
 	PhoneNumber *string      `db:"phoneNumber" json:"phoneNumber" form:"phoneNumber"`
 	Role        *string      `db:"role" json:"role" form:"role"`
 	CreatedAt   time.Time    `db:"createdAt" json:"createdAt"`
-	UpdatedAt   sql.NullTime `db:"updatedAt" json:"updatedAt"`
+	UpdatedAt   gonull.Nullable[time.Time] `db:"updatedAt" json:"updatedAt"`
 }
 
 type Info struct {

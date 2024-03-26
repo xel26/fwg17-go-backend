@@ -1,8 +1,9 @@
 package models
 
 import (
-	"database/sql"
 	"time"
+
+	"github.com/LukaGiorgadze/gonull"
 )
 
 type OrderDetails struct {
@@ -14,7 +15,7 @@ type OrderDetails struct {
 	OrderId   int          `db:"orderId" json:"orderId" form:"orderId" binding:"required,numeric"`
 	Subtotal  int          `db:"subtotal" json:"subtotal" form:"subtotal" binding:"required,numeric"`
 	CreatedAt time.Time    `db:"createdAt" json:"createdAt"`
-	UpdatedAt sql.NullTime `db:"updatedAt" json:"updatedAt"`
+	UpdatedAt gonull.Nullable[time.Time] `db:"updatedAt" json:"updatedAt"`
 }
 
 type InfoOD struct {

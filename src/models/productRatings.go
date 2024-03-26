@@ -1,18 +1,19 @@
 package models
 
 import (
-	"database/sql"
 	"time"
+
+	"github.com/LukaGiorgadze/gonull"
 )
 
 type ProductRatings struct {
 	Id            int            `db:"id" json:"id"`
 	ProductId     int            `db:"productId" json:"productId"`
 	Rate          int            `db:"rate" json:"rate"`
-	ReviewMessage sql.NullString `db:"reviewMessage" json:"reviewMessage"`
+	ReviewMessage gonull.Nullable[string] `db:"reviewMessage" json:"reviewMessage"`
 	UserId        int            `db:"userId" json:"userId"`
 	CreatedAt     time.Time      `db:"createdAt" json:"createdAt"`
-	UpdatedAt     sql.NullTime   `db:"updatedAt" json:"updatedAt"`
+	UpdatedAt     gonull.Nullable[time.Time]   `db:"updatedAt" json:"updatedAt"`
 }
 
 type PRForm struct {
@@ -22,7 +23,7 @@ type PRForm struct {
 	ReviewMessage *string      `db:"reviewMessage" json:"reviewMessage" form:"reviewMessage"`
 	UserId        *int         `db:"userId" json:"userId" form:"userId" binding:"required,numeric"`
 	CreatedAt     time.Time    `db:"createdAt" json:"createdAt"`
-	UpdatedAt     sql.NullTime `db:"updatedAt" json:"updatedAt"`
+	UpdatedAt     gonull.Nullable[time.Time] `db:"updatedAt" json:"updatedAt"`
 }
 
 type InfoPR struct {

@@ -1,8 +1,9 @@
 package models
 
 import (
-	"database/sql"
 	"time"
+
+	"github.com/LukaGiorgadze/gonull"
 )
 
 type ProductVariants struct {
@@ -10,7 +11,7 @@ type ProductVariants struct {
 	ProductId int          `db:"productId" json:"productId" form:"productId" binding:"required"`
 	VariantId int          `db:"variantId" json:"variantId" form:"variantId" binding:"required"`
 	CreatedAt time.Time    `db:"createdAt" json:"createdAt"`
-	UpdatedAt sql.NullTime `db:"updatedAt" json:"updatedAt"`
+	UpdatedAt gonull.Nullable[time.Time] `db:"updatedAt" json:"updatedAt"`
 }
 
 type InfoPV struct {

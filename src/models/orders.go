@@ -1,27 +1,30 @@
 package models
 
 import (
-	"database/sql"
 	"time"
+
+	"github.com/LukaGiorgadze/gonull"
+	"github.com/lib/pq"
 )
 
 type Order struct {
 	Id               int            `db:"id" json:"id"`
 	UserId           int            `db:"userId" json:"userId" form:"userId"`
-	OrderNumber      sql.NullString `db:"orderNumber" json:"orderNumber" form:"orderNumber"`
-	PromoId          sql.NullInt64  `db:"promoId" json:"promoId" form:"promoId"`
-	Total            sql.NullInt64  `db:"total" json:"total" form:"total"`
-	Tax              sql.NullInt64  `db:"tax" json:"tax" form:"tax"`
+	OrderNumber      gonull.Nullable[string] `db:"orderNumber" json:"orderNumber" form:"orderNumber"`
+	PromoId          gonull.Nullable[int]  `db:"promoId" json:"promoId" form:"promoId"`
+	Total            gonull.Nullable[int]  `db:"total" json:"total" form:"total"`
+	Tax              gonull.Nullable[int]  `db:"tax" json:"tax" form:"tax"`
 	DeliveryAddress  string         `db:"deliveryAddress" json:"deliveryAddress" form:"deliveryAddress"`
-	FullName         sql.NullString `db:"fullName" json:"fullName" form:"fullName"`
-	Email            sql.NullString `db:"email" json:"email" form:"email"`
-	PriceCut         sql.NullInt64  `db:"priceCut" json:"priceCut" form:"priceCut"`
-	Subtotal         sql.NullInt64  `db:"subtotal" json:"subtotal" form:"subtotal"`
+	FullName         gonull.Nullable[string] `db:"fullName" json:"fullName" form:"fullName"`
+	Email            gonull.Nullable[string] `db:"email" json:"email" form:"email"`
+	PriceCut         gonull.Nullable[int]  `db:"priceCut" json:"priceCut" form:"priceCut"`
+	Subtotal         gonull.Nullable[int]  `db:"subtotal" json:"subtotal" form:"subtotal"`
 	Status           string         `db:"status" json:"status" form:"status"`
-	DeliveryFee      sql.NullInt64  `db:"deliveryFee" json:"deliveryFee" form:"deliveryFee"`
-	DeliveryShipping sql.NullString `db:"deliveryShipping" json:"deliveryShipping" form:"deliveryShipping"`
+	DeliveryFee      gonull.Nullable[int]  `db:"deliveryFee" json:"deliveryFee" form:"deliveryFee"`
+	DeliveryShipping gonull.Nullable[string] `db:"deliveryShipping" json:"deliveryShipping" form:"deliveryShipping"`
+	ProductsImage pq.StringArray `db:"productsImage" json:"productsImage"`
 	CreatedAt        time.Time      `db:"createdAt" json:"createdAt"`
-	UpdatedAt        sql.NullTime   `db:"updatedAt" json:"updatedAt"`
+	UpdatedAt        gonull.Nullable[time.Time]   `db:"updatedAt" json:"updatedAt"`
 }
 
 type OrderForm struct {
@@ -40,7 +43,7 @@ type OrderForm struct {
 	DeliveryFee      *int         `db:"deliveryFee" json:"deliveryFee" form:"deliveryFee"`
 	DeliveryShipping *string      `db:"deliveryShipping" json:"deliveryShipping" form:"deliveryShipping"`
 	CreatedAt        time.Time    `db:"createdAt" json:"createdAt"`
-	UpdatedAt        sql.NullTime `db:"updatedAt" json:"updatedAt"`
+	UpdatedAt        gonull.Nullable[time.Time] `db:"updatedAt" json:"updatedAt"`
 }
 
 type CheckoutForm struct {
@@ -62,7 +65,7 @@ type CheckoutForm struct {
 	Total            *int         `db:"total" json:"total"`
 	Subtotal         *int         `db:"subtotal" json:"subtotal"`
 	CreatedAt        time.Time    `db:"createdAt" json:"createdAt"`
-	UpdatedAt        sql.NullTime `db:"updatedAt" json:"updatedAt"`
+	UpdatedAt        gonull.Nullable[time.Time] `db:"updatedAt" json:"updatedAt"`
 }
 
 type InfoO struct {
@@ -72,8 +75,13 @@ type InfoO struct {
 
 func FindAllOrders(deliveryShipping string, sortBy string, order string, limit int, offset int, status string) (InfoO, error) {
 	sql := `
-	SELECT * FROM "orders" 
+	SELECT "o".*,
+    array_agg(DISTINCT "p"."image") "productsImage"
+    FROM "orders" "o"
+    JOIN "orderDetails" "od" ON ("od"."orderId" = "o"."id")
+    JOIN "products" "p" ON ("p"."id" = "od"."productId")
 	WHERE "deliveryShipping" ILIKE $1 OR "status" ILIKE $4
+	GROUP BY "o"."id"
 	ORDER BY "` + sortBy + `" ` + order + `
 	LIMIT $2 OFFSET $3
 	`

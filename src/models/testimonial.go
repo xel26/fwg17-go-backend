@@ -1,8 +1,9 @@
 package models
 
 import (
-	"database/sql"
 	"time"
+
+	"github.com/LukaGiorgadze/gonull"
 )
 
 type Testimonial struct {
@@ -13,7 +14,7 @@ type Testimonial struct {
 	Image     string `db:"image" json:"image" form:"image"`
 	Rate      int            `db:"rate" json:"rate" form:"rate"`
 	CreatedAt time.Time      `db:"createdAt" json:"createdAt"`
-	UpdatedAt sql.NullTime   `db:"updatedAt" json:"updatedAt"`
+	UpdatedAt gonull.Nullable[time.Time]   `db:"updatedAt" json:"updatedAt"`
 }
 
 type TestimonialForm struct {
@@ -24,7 +25,7 @@ type TestimonialForm struct {
 	Image     string      `db:"image" json:"image"`
 	Rate      *int         `db:"rate" json:"rate" form:"rate" binding:"required,eq=5|eq=4|eq=3|eq=2|eq=1"`
 	CreatedAt time.Time    `db:"createdAt" json:"createdAt"`
-	UpdatedAt sql.NullTime `db:"updatedAt" json:"updatedAt"`
+	UpdatedAt gonull.Nullable[time.Time] `db:"updatedAt" json:"updatedAt"`
 }
 
 type InfoTs struct {

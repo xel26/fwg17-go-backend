@@ -1,16 +1,17 @@
 package models
 
 import (
-	"database/sql"
 	"fmt"
 	"time"
+
+	"github.com/LukaGiorgadze/gonull"
 )
 
 type Categories struct {
 	Id        int          `db:"id" json:"id"`
 	Name      *string      `db:"name" json:"name" form:"name"`
 	CreatedAt time.Time    `db:"createdAt" json:"createdAt"`
-	UpdatedAt sql.NullTime `db:"updatedAt" json:"updatedAt"`
+	UpdatedAt gonull.Nullable[time.Time] `db:"updatedAt" json:"updatedAt"`
 }
 
 type InfoC struct {

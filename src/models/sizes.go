@@ -1,8 +1,9 @@
 package models
 
 import (
-	"database/sql"
 	"time"
+
+	"github.com/LukaGiorgadze/gonull"
 )
 
 type Sizes struct {
@@ -10,7 +11,7 @@ type Sizes struct {
 	Size            string        `db:"size" json:"size" form:"size"`
 	AdditionalPrice int `db:"additionalPrice" json:"additionalPrice" form:"additionalPrice"`
 	CreatedAt       time.Time     `db:"createdAt" json:"createdAt"`
-	UpdatedAt       sql.NullTime  `db:"updatedAt" json:"updatedAt"`
+	UpdatedAt       gonull.Nullable[time.Time]  `db:"updatedAt" json:"updatedAt"`
 }
 
 type SizesForm struct {
@@ -18,7 +19,7 @@ type SizesForm struct {
 	Size            string        `db:"size" json:"size" form:"size" binding:"required,min=3"`
 	AdditionalPrice *int `db:"additionalPrice" json:"additionalPrice" form:"additionalPrice" binding:"required"`
 	CreatedAt       time.Time     `db:"createdAt" json:"createdAt"`
-	UpdatedAt       sql.NullTime  `db:"updatedAt" json:"updatedAt"`
+	UpdatedAt       gonull.Nullable[time.Time]  `db:"updatedAt" json:"updatedAt"`
 }
 
 type InfoS struct {

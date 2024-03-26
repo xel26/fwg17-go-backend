@@ -1,43 +1,44 @@
 package models
 
 import (
-	"database/sql"
 	"encoding/base64"
 	"fmt"
 	"time"
+
+	"github.com/LukaGiorgadze/gonull"
 )
 
 type Product struct {
 	Id            int            `db:"id" json:"id"`
 	Name          string         `db:"name" json:"name"`
-	Description   sql.NullString `db:"description" json:"description"`
-	Image         sql.NullString `db:"image" json:"image"`
-	Discount      sql.NullInt64  `db:"discount" json:"discount"`
+	Description   gonull.Nullable[string] `db:"description" json:"description"`
+	Image         gonull.Nullable[string] `db:"image" json:"image"`
+	Discount      gonull.Nullable[int]  `db:"discount" json:"discount"`
 	IsRecommended bool           `db:"isRecommended" json:"isRecommended"`
 	TagId         int            `db:"tagId" json:"tagId"`
 	BasePrice     int            `db:"basePrice" json:"basePrice"`
-	Category      sql.NullString `db:"category" json:"category"`
-	Tag           sql.NullString `db:"tag" json:"tag"`
-	Rating        sql.NullInt64  `db:"rating" json:"rating"`
+	Category      gonull.Nullable[string] `db:"category" json:"category"`
+	Tag           gonull.Nullable[string] `db:"tag" json:"tag"`
+	Rating        gonull.Nullable[int]  `db:"rating" json:"rating"`
 	CreatedAt     time.Time      `db:"createdAt" json:"createdAt"`
-	UpdatedAt     sql.NullTime   `db:"updatedAt" json:"updatedAt"`
+	UpdatedAt     gonull.Nullable[time.Time]   `db:"updatedAt" json:"updatedAt"`
 }
 
 type ProductDetails struct {
 	Id               int            `db:"id" json:"id"`
 	Name             string         `db:"name" json:"name"`
-	Description      sql.NullString `db:"description" json:"description"`
+	Description      gonull.Nullable[string] `db:"description" json:"description"`
 	BasePrice        int            `db:"basePrice" json:"basePrice"`
 	Image            string         `db:"image" json:"image"`
-	Discount         sql.NullInt64  `db:"discount" json:"discount"`
-	IsRecommended    sql.NullBool   `db:"isRecommended" json:"isRecommended"`
-	Tag              sql.NullString `db:"tag" json:"tag"`
-	Rating           sql.NullInt64  `db:"rating" json:"rating"`
-	Review           sql.NullInt64  `db:"review" json:"review"`
+	Discount         gonull.Nullable[int]  `db:"discount" json:"discount"`
+	IsRecommended    gonull.Nullable[bool]   `db:"isRecommended" json:"isRecommended"`
+	Tag              gonull.Nullable[string] `db:"tag" json:"tag"`
+	Rating           gonull.Nullable[int]  `db:"rating" json:"rating"`
+	Review           gonull.Nullable[int]  `db:"review" json:"review"`
 	VariantsProducts string         `db:"variantsProducts" json:"variantsProducts"`
 	ProductImages    string         `db:"productImages" json:"productImages"`
 	CreatedAt        time.Time      `db:"createdAt" json:"createdAt"`
-	UpdatedAt        sql.NullTime   `db:"updatedAt" json:"updatedAt"`
+	UpdatedAt        gonull.Nullable[time.Time]   `db:"updatedAt" json:"updatedAt"`
 }
 
 type ProductForm struct {
@@ -50,7 +51,7 @@ type ProductForm struct {
 	IsRecommended *bool        `db:"isRecommended" json:"isRecommended" form:"isRecommended"`
 	TagId         *int         `db:"tagId" json:"tagId" form:"tagId"`
 	CreatedAt     time.Time    `db:"createdAt" json:"createdAt"`
-	UpdatedAt     sql.NullTime `db:"updatedAt" json:"updatedAt"`
+	UpdatedAt     gonull.Nullable[time.Time] `db:"updatedAt" json:"updatedAt"`
 }
 
 type InfoP struct {

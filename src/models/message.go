@@ -1,8 +1,9 @@
 package models
 
 import (
-	"database/sql"
 	"time"
+
+	"github.com/LukaGiorgadze/gonull"
 )
 
 type Message struct {
@@ -11,7 +12,7 @@ type Message struct {
 	SenderId    int          `db:"senderId" json:"senderId" form:"senderId" binding:"required,numeric"`
 	Text        string       `db:"text" json:"text" form:"text" binding:"required"`
 	CreatedAt   time.Time    `db:"createdAt" json:"createdAt"`
-	UpdatedAt   sql.NullTime `db:"updatedAt" json:"updatedAt"`
+	UpdatedAt   gonull.Nullable[time.Time] `db:"updatedAt" json:"updatedAt"`
 }
 
 type InfoM struct {

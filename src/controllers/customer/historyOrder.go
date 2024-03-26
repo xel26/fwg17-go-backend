@@ -83,7 +83,7 @@ func DetailOrder(c *gin.Context) {
 	orders, err := models.FindOneOrderByUserId(id, userId)
 	if err != nil {
 		if strings.HasPrefix(err.Error(), "sql: no rows"){
-			c.JSON(http.StatusInternalServerError, &service.ResponseOnly{
+			c.JSON(http.StatusNotFound, &service.ResponseOnly{
 				Success: false,
 				Message: "Order not found",
 			})

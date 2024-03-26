@@ -4,6 +4,7 @@ go 1.21.1
 
 require (
 	github.com/KEINOS/go-argonize v1.1.0
+	github.com/LukaGiorgadze/gonull v1.2.0
 	github.com/appleboy/gin-jwt/v2 v2.9.2
 	github.com/gin-contrib/cors v1.5.0
 	github.com/gin-gonic/gin v1.9.1

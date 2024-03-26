@@ -1,21 +1,22 @@
 package models
 
 import (
-	"database/sql"
 	"time"
+
+	"github.com/LukaGiorgadze/gonull"
 )
 
 type Promo struct {
 	Id            int            `db:"id" json:"id"`
 	Name          string         `db:"name" json:"name" form:"name"`
 	Code          string         `db:"code" json:"code" form:"code"`
-	Description   sql.NullString `db:"description" json:"description" form:"description"`
+	Description   gonull.Nullable[string] `db:"description" json:"description" form:"description"`
 	Percentage    float64        `db:"percentage" json:"percentage" form:"percentage"`
-	IsExpired     sql.NullBool   `db:"isExpired" json:"isExpired" form:"isExpired"`
+	IsExpired     gonull.Nullable[bool]   `db:"isExpired" json:"isExpired" form:"isExpired"`
 	MaximumPromo  int            `db:"maximumPromo" json:"maximumPromo" form:"maximumPromo"`
 	MinimumAmount int            `db:"minimumAmount" json:"minimumAmount" form:"minimumAmount"`
 	CreatedAt     time.Time      `db:"createdAt" json:"createdAt"`
-	UpdatedAt     sql.NullTime   `db:"updatedAt" json:"updatedAt"`
+	UpdatedAt     gonull.Nullable[time.Time]   `db:"updatedAt" json:"updatedAt"`
 }
 
 type PromoForm struct {
@@ -28,7 +29,7 @@ type PromoForm struct {
 	MaximumPromo  *int         `db:"maximumPromo" json:"maximumPromo" form:"maximumPromo" binding:"required"`
 	MinimumAmount *int         `db:"minimumAmount" json:"minimumAmount" form:"minimumAmount" binding:"required"`
 	CreatedAt     time.Time    `db:"createdAt" json:"createdAt"`
-	UpdatedAt     sql.NullTime `db:"updatedAt" json:"updatedAt"`
+	UpdatedAt     gonull.Nullable[time.Time] `db:"updatedAt" json:"updatedAt"`
 }
 
 type InfoPo struct {

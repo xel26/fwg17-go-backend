@@ -1,7 +1,7 @@
 package controllers_customer
 
 import (
-	"coffe-shop-be-golang/src/lib"
+	"coffe-shop-be-golang/src/middleware"
 	"coffe-shop-be-golang/src/models"
 	"coffe-shop-be-golang/src/service"
 	"fmt"
@@ -81,7 +81,7 @@ func UpdateProfile(c *gin.Context) {
 	if err == nil {
 		_ = os.Remove("./" + isUserExist.Picture)
 
-		file, err := lib.Upload(c, "picture", "users")
+		file, err := middleware.Upload(c, "picture", "users")
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, &service.ResponseOnly{
 				Success: false,

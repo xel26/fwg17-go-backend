@@ -2,6 +2,7 @@ package controllers_customer
 
 import (
 	"coffe-shop-be-golang/src/lib"
+	"coffe-shop-be-golang/src/middleware"
 	"coffe-shop-be-golang/src/models"
 	"coffe-shop-be-golang/src/service"
 	"fmt"
@@ -78,11 +79,28 @@ func Register(c *gin.Context) {
 
 	defaultRole := "customer"
 	form.Role = &defaultRole
-	form.Picture = ""
 
 	plain := []byte(form.Password)
 	hash, _ := argonize.Hash(plain)
 	form.Password = hash.String()
+
+	_, err = c.FormFile("picture")
+	if err == nil{
+		file, err := middleware.Upload(c, "picture", "users")
+		if err != nil {
+			fmt.Println(err)
+			c.JSON(http.StatusInternalServerError, &service.ResponseOnly{
+				Success: false,
+				Message: err.Error(),
+			})
+			return
+		}
+
+		form.Picture = file
+	}else {
+		fmt.Println(err)
+	}
+
 
 	result, err := models.CreateUser(form)
 
@@ -102,6 +120,7 @@ func Register(c *gin.Context) {
 		return
 	}
 
+	
 	models.DeleteIntRandom(intRand)
 
 	c.JSON(http.StatusOK, &service.Response{

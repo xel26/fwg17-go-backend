@@ -1,17 +1,22 @@
 package controllers
 
 import (
-	"coffe-shop-be-golang/src/lib"
+	"coffe-shop-be-golang/src/middleware"
 	"coffe-shop-be-golang/src/models"
 	"coffe-shop-be-golang/src/service"
+	"context"
 	"fmt"
 	"math"
 	"os"
 	"strings"
 
 	"net/http"
+	"net/url"
 	"strconv"
 
+	"github.com/cloudinary/cloudinary-go/v2"
+	"github.com/cloudinary/cloudinary-go/v2/api/admin/search"
+	"github.com/cloudinary/cloudinary-go/v2/api/uploader"
 	"github.com/gin-gonic/gin"
 )
 
@@ -115,7 +120,7 @@ func CreateProducts(c *gin.Context) {
 
 	_, err := c.FormFile("image")
 	if err == nil {
-		file, err := lib.Upload(c, "image", "products")
+		file, err := middleware.Upload(c, "image", "products")
 		if err != nil {
 			fmt.Println(err)
 			c.JSON(http.StatusInternalServerError, &service.ResponseOnly{
@@ -183,7 +188,7 @@ func UpdatePrducts(c *gin.Context) {
 	if err == nil {
 		_ = os.Remove("./" + isExist.Image)
 
-		file, err := lib.Upload(c, "image", "products")
+		file, err := middleware.Upload(c, "image", "products")
 		if err != nil {
 			fmt.Println(err)
 			c.JSON(http.StatusInternalServerError, &service.ResponseOnly{
@@ -229,7 +234,35 @@ func DeleteProducts(c *gin.Context) {
 		})
 	return
 	}
-	_ = os.Remove("./" + isExist.Image)
+
+	// tanpa cloudinary
+	// _ = os.Remove("./" + isExist.Image)
+
+	// dengan cloudinary
+	if isExist.Image != ""{
+		cld, _ := cloudinary.NewFromParams(os.Getenv("CLOUD_NAME"), os.Getenv("API_KEY"), os.Getenv("API_SECRET"))
+		resp, err := cld.Admin.Search(context.Background(), search.Query{
+			Expression: url.QueryEscape(isExist.Image),
+			MaxResults: 1,
+		})
+		
+		response := resp.Response
+		responseMap := response.(*map[string]interface{})
+		resources := (*responseMap)["resources"].([]interface{})
+		resourcesMap := resources[0].(map[string]interface{})
+		publicId := resourcesMap["public_id"].(string)
+
+		if err == nil {
+			_, err := cld.Upload.Destroy(context.Background(), uploader.DestroyParams{PublicID: publicId})
+			if err != nil {
+				c.JSON(http.StatusInternalServerError, &service.ResponseOnly{
+					Success: false,
+					Message: err.Error(),
+				})
+				return
+			}
+		}
+	}
 
 
 	product, err := models.DeleteProduct(id)

@@ -13,7 +13,7 @@ RUN go mod tidy
 # add instruction = mengambil file local untuk di copy ke file di dalam docker image. https://pkg.go.dev/path/filepath#Match
 # ADD path/local path/dockerImage
 
-EXPOSE 8787
+EXPOSE 8484
 
 # dijalankan setiap kali docker container di jalankan 
 CMD go run .            

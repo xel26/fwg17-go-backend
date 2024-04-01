@@ -14,7 +14,7 @@ type User struct {
 	Id          int            `db:"id" json:"id"`
 	FullName    string         `db:"fullName" json:"fullName" form:"fullName"`
 	Email       string         `db:"email" json:"email" form:"email"`
-	Password    string         `db:"password" json:"******" form:"password"`
+	Password    string         `db:"password" json:"-" form:"password"`
 	Address     gonull.Nullable[string] `db:"address" json:"address" form:"address"`
 	Picture     string         `db:"picture" json:"picture"`
 	PhoneNumber gonull.Nullable[string] `db:"phoneNumber" json:"phoneNumber" form:"phoneNumber"`

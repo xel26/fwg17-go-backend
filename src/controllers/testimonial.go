@@ -170,7 +170,35 @@ func UpdateTestimonial(c *gin.Context) {
 
 	_, err = c.FormFile("image")
 	if err == nil {
-		_ = os.Remove("./" + isExist.Image)
+		//// without cloudinary
+		// _ = os.Remove("./" + isExist.Image)
+
+
+		//with cloudinary
+		if isExist.Image != ""{
+			cld, _ := cloudinary.NewFromParams(os.Getenv("CLOUD_NAME"), os.Getenv("API_KEY"), os.Getenv("API_SECRET"))
+			resp, err := cld.Admin.Search(context.Background(), search.Query{
+				Expression: url.QueryEscape(isExist.Image),
+				MaxResults: 1,
+			})
+			
+			response := resp.Response
+			responseMap := response.(*map[string]interface{})
+			resources := (*responseMap)["resources"].([]interface{})
+			resourcesMap := resources[0].(map[string]interface{})
+			publicId := resourcesMap["public_id"].(string)
+	
+			if err == nil {
+				_, err := cld.Upload.Destroy(context.Background(), uploader.DestroyParams{PublicID: publicId})
+				if err != nil {
+					c.JSON(http.StatusInternalServerError, &service.ResponseOnly{
+						Success: false,
+						Message: err.Error(),
+					})
+					return
+				}
+			}
+		}
 
 		file, err := middleware.Upload(c, "image", "testimonial")
 		if err != nil {

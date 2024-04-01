@@ -1,8 +1,6 @@
 package models
 
 import (
-	"fmt"
-
 	"github.com/LukaGiorgadze/gonull"
 )
 
@@ -114,7 +112,6 @@ func GetEmail(userId int) (UserForm, error) {
 }
 
 func FindAllOrdersByUserId(status string, userId int, sortBy string, order string, limit int, offset int) (InfoO, error) {
-	fmt.Println(userId)
 	sql := `
 	SELECT "o".*,
     array_agg(DISTINCT "p"."image") "productsImage"

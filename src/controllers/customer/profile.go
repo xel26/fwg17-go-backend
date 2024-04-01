@@ -4,13 +4,18 @@ import (
 	"coffe-shop-be-golang/src/middleware"
 	"coffe-shop-be-golang/src/models"
 	"coffe-shop-be-golang/src/service"
+	"context"
 	"fmt"
 	"net/http"
+	"net/url"
 	"os"
 	"strings"
 
 	"github.com/KEINOS/go-argonize"
 	jwt "github.com/appleboy/gin-jwt/v2"
+	"github.com/cloudinary/cloudinary-go/v2"
+	"github.com/cloudinary/cloudinary-go/v2/api/admin/search"
+	"github.com/cloudinary/cloudinary-go/v2/api/uploader"
 	"github.com/gin-gonic/gin"
 )
 
@@ -92,7 +97,6 @@ func UpdateProfile(c *gin.Context) {
 
 		data.Picture = file
 	}else{
-		fmt.Println(err)
 		data.Picture = ""
 	}
 
@@ -130,7 +134,32 @@ func DeletePhoto(c *gin.Context) {
 		return
 	}
 
-	_ = os.Remove("./" + isUserExist.Picture)
+	// _ = os.Remove("./" + isUserExist.Picture)
+
+	if isUserExist.Picture != ""{
+		cld, _ := cloudinary.NewFromParams(os.Getenv("CLOUD_NAME"), os.Getenv("API_KEY"), os.Getenv("API_SECRET"))
+		resp, err := cld.Admin.Search(context.Background(), search.Query{
+			Expression: url.QueryEscape(isUserExist.Picture),
+			MaxResults: 1,
+		})
+		
+		response := resp.Response
+		responseMap := response.(*map[string]interface{})
+		resources := (*responseMap)["resources"].([]interface{})
+		resourcesMap := resources[0].(map[string]interface{})
+		publicId := resourcesMap["public_id"].(string)
+
+		if err == nil {
+			_, err := cld.Upload.Destroy(context.Background(), uploader.DestroyParams{PublicID: publicId})
+			if err != nil {
+				c.JSON(http.StatusInternalServerError, &service.ResponseOnly{
+					Success: false,
+					Message: err.Error(),
+				})
+				return
+			}
+		}
+	}
 
 	data := models.User{}
 	_ = c.ShouldBind(&data)

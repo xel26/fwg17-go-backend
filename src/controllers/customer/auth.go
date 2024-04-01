@@ -155,7 +155,7 @@ func ForgotPassword(c *gin.Context) {
 		models.CreateForgotPassword(FormReset)
 
 		intRand := lib.RandomNumberStr(26)
-		link := fmt.Sprintf("http://localhost:5173/create-new-password/%v", intRand)
+		link := fmt.Sprintf("http://http://143.110.156.215:8086/create-new-password/%v", intRand)
 	
 		models.CreateIntRandom(intRand)
 
@@ -289,7 +289,7 @@ func ConfirmAccount(c *gin.Context){
 	}
 
 	intRand := lib.RandomNumberStr(26)
-	link := fmt.Sprintf("http://localhost:5173/confirm-account/%v", intRand)
+	link := fmt.Sprintf("http://http://143.110.156.215:8086/confirm-account/%v", intRand)
 
 	models.CreateIntRandom(intRand)
 

@@ -9,7 +9,7 @@ import (
 	gomail "gopkg.in/mail.v2"
 )
 
-func Mail(receiver string, name string, otp string, intro string, textAction string, linkAction string, outro string, subject string) bool {
+func Mail(receiver string, name string, otp string, intro string, textAction string, outro string, subject string, linkAction string) bool {
 	h := hermes.Hermes{
 		Theme: &hermes.Default{},
 		Product: hermes.Product{
@@ -26,15 +26,15 @@ func Mail(receiver string, name string, otp string, intro string, textAction str
 				intro, otp,
 			},
 
-			Actions: []hermes.Action{
-				{Instructions: "please click here",
-					Button: hermes.Button{
-						Color: "#000000",
-						Text:  textAction,
-						Link:  linkAction,
-					},
-				},
-			},
+			// Actions: []hermes.Action{
+			// 	{Instructions: "please click here",
+			// 		Button: hermes.Button{
+			// 			Color: "#000000",
+			// 			Text:  textAction,
+			// 			Link:  linkAction,
+			// 		},
+			// 	},
+			// },
 
 			Outros: []string{outro},
 		},

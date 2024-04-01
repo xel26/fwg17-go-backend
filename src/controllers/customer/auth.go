@@ -115,7 +115,7 @@ func Register(c *gin.Context) {
 		}
 		c.JSON(http.StatusBadRequest, &service.ResponseOnly{
 			Success: false,
-			Message: "Confirm account failed",
+			Message: "Register account failed",
 		})
 		return
 	}
@@ -125,7 +125,7 @@ func Register(c *gin.Context) {
 
 	c.JSON(http.StatusOK, &service.Response{
 		Success: true,
-		Message: "Confirm account success . . . welcome aboard!",
+		Message: "Register success . . . welcome aboard!",
 		Results: result,
 	})
 }
@@ -165,9 +165,9 @@ func ForgotPassword(c *gin.Context) {
 			otp,
 			"enter the 6-digit code below to create a new password",
 			"create new password",
-			link,
 			"Thank you for entrusting us to safeguard your account security.",
 			"Here is your OTP code ",
+			link,
 		)
 		fmt.Println(otp)
 

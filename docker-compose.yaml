@@ -4,41 +4,49 @@ services:   # ==> daftar container yg akan di buat
   golang:      # ==> container web
     build: .        # ==> lokasi path dockerfile
     ports:
-      - 127.0.0.1:8585:8080
+      - 8484:8080
     working_dir: /app
     volumes:
       - .:/app
     environment:
       - APP_SECRET=57838489hgh#$%$#%
       - EMAIL_PASSWORD=neucjscuvqmmkokv
-    networks:
-      - coffee-shop-networking
-    depends_on:
-      - db
+      - DB_NAME=postgres
+      - DB_PASSWORD=5uJoOUiAbUl57U7X
+      - DB_PORT=5432
+      - DB_HOST=aws-0-ap-southeast-1.pooler.supabase.com
+      - DB_USER=postgres.ircpdmthfidwfvchivrw
+      - CLOUD_NAME=dgtv2r5qh
+      - API_KEY=625732232181766
+      - API_SECRET=kw2gY3PkC0sle4pw2H2IRvICZuQ
+    # networks:
+    #   - coffee-shop-networking
+    # depends_on:
+    #   - db
     restart: always
-  db:       # ==> container db
-    container_name: db-coffee-shop
-    image: postgres
-    ports:          # ==> ports di forward hanya selama masa development
-      - 5444:5432
-    environment:
-      - POSTGRES_PASSWORD=1
-    volumes:
-      - dataCoffeeShop:/var/lib/postgresql/data
-    networks:
-      - coffee-shop-networking
-    restart: always
+  # db:       # ==> container db
+  #   container_name: db-coffee-shop
+  #   image: postgres
+  #   ports:          # ==> ports di forward hanya selama masa development
+  #     - 5444:5432
+  #   environment:
+  #     - POSTGRES_PASSWORD=1
+  #   volumes:
+  #     - dataCoffeeShop:/var/lib/postgresql/data
+  #   networks:
+  #     - coffee-shop-networking
+  #   restart: always
     
 
     
-volumes:
-    dataCoffeeShop:
-      external:
-        true
+# volumes:
+#     dataCoffeeShop:
+#       external:
+#         true
 
 
-name: backend-golang
+# name: backend-golang
 
 
-networks:
-  coffee-shop-networking:
+# networks:
+#   coffee-shop-networking:

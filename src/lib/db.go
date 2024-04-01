@@ -5,16 +5,16 @@ import (
 	"os"
 
 	"github.com/jmoiron/sqlx"
-	"github.com/joho/godotenv"
 
 	_ "github.com/lib/pq"
 )
 
 func connectDB()*sqlx.DB{
-	err := godotenv.Load()
-    if err != nil {
-        fmt.Println("Error loading .env file")
-    }
+	// //dimatikan saat build image
+	// err := godotenv.Load()
+    // if err != nil {
+    //     fmt.Println("Error loading .env file")
+    // }
 	
 	dbConnect := fmt.Sprintf("user=%s password=%s dbname=%s host=%s port=%s sslmode=disable",
     os.Getenv("DB_USER"), os.Getenv("DB_PASSWORD"), os.Getenv("DB_NAME"), os.Getenv("DB_HOST"), os.Getenv("DB_PORT"))

@@ -3,12 +3,10 @@ package main
 import (
 	"coffe-shop-be-golang/src/routers"
 	"coffe-shop-be-golang/src/service"
-	"fmt"
 	"net/http"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	"github.com/joho/godotenv"
 )
 
 func main(){
@@ -20,11 +18,11 @@ func main(){
 		AllowHeaders: []string{"Content-Type, Authorization"},
 	}))
 
-	// dimatikan saat build image
-	err := godotenv.Load()
-    if err != nil {
-        fmt.Println("Error loading .env file")
-    }
+	// // dimatikan saat build image
+	// err := godotenv.Load()
+    // if err != nil {
+    //     fmt.Println("Error loading .env file")
+    // }
 	
 	r.Static("/uploads", "./uploads")
 
@@ -37,6 +35,6 @@ func main(){
 		})
 	})
 	
-	r.Run("127.0.0.1:8080")  //// ==> local computer
-	// r.Run(":8080") //// ==> build image
+	// r.Run("127.0.0.1:8080")  //// ==> local computer
+	r.Run(":8080") //// ==> build image
 }
